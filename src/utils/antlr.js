@@ -26,7 +26,7 @@ export const getSymbolPosition = (symbol, length) => {
   )
 }
 
-export const getIdentifiersInList = ctx => ctx.children?.filter(c => c.constructor.name === "IdentifierContext")?.map(it => it.start.text) ?? []
+export const getIdentifiersInList = ctx => ctx.children?.filter(c => c instanceof CycloneParser.IdentifierContext)?.map(it => it.start.text) ?? []
 
 export const getParentExpression = ctx => ctx.parentCtx.start.getInputStream().getText(ctx.parentCtx.start.start, ctx.parentCtx.stop.stop)
 

@@ -66,6 +66,25 @@ export default class SemanticAnalyzer {
     }
   }
 
+  off(event, handler = null) {
+    if (this.events.has(event)) {
+      let del = false
+      if (handler) {
+        const es = this.events.get(event).filter(e => e !== handler)
+        if (es.length) {
+          this.events.set(event, es)
+        } else {
+          del = true
+        }
+      } else {
+        del = true
+      }
+      if (del) {
+        this.events.delete(event)
+      }
+    }
+  }
+
   pushBlock(type, position, payload, metadataParams = null) {
     let table = null
     const isScope = scopedContextType.has(type)
