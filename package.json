@@ -13,6 +13,11 @@
   "keywords": [
     "cyclone"
   ],
+  "homepage": "https://github.com/lucid-brndmg/cyclone-analyzer",
+  "bugs": {
+    "email": "haoyanglu2001@gmail.com",
+    "url": "https://github.com/lucid-brndmg/cyclone-analyzer/issues"
+  },
   "author": {
     "name": "lucid-brndmg"
   },
