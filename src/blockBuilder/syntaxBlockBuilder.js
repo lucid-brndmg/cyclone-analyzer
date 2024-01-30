@@ -22,7 +22,7 @@ export const idToKind = id => {
 
 const semanticTypePathToBlockKind = path => {
   for (let i = path.length - 1; i >= 0 ; i--) {
-    const blockType = path[i - 1]
+    const blockType = path[i]
     switch (blockType) {
       case SemanticContextType.MachineDecl: return SyntaxBlockKind.Machine
       case SemanticContextType.StateDecl: return SyntaxBlockKind.State
@@ -47,7 +47,7 @@ const semanticTypePathToBlockKind = path => {
     }
   }
 
-  console.trace("warn: semantic block path can not be converted to syntax block kind")
+  console.trace("warn: semantic block path can not be converted to syntax block kind", path)
   return null
 }
 
@@ -58,21 +58,11 @@ export default class SyntaxBlockBuilder {
   constructor() {
     this.context = {
       blocks: [],
-      latestBlocks: new StackedTable(),
+      kindBlocks: new StackedTable(),
       ids: new Map(),
       unsortedError: [],
       idBlocks: new Map(),
       latestBlock: null
-
-      // // id, [block_id]
-      // identifierRegistrations: new StackedTable(),
-      //
-      // // enum_id, [block_id]
-      // enumRegistrations: new StackedTable(),
-
-      // childBlocks: new StackedTable(),
-      // errorTable: new StackedTable(), // block_id, [error]
-
     }
   }
 
@@ -109,7 +99,7 @@ export default class SyntaxBlockBuilder {
       data: data ?? {}
     }
     this.context.blocks.push(block)
-    this.context.latestBlocks.push(kind, block)
+    this.context.kindBlocks.push(kind, block)
     this.context.idBlocks.set(id, block)
     this.context.latestBlock = block
 
@@ -175,11 +165,11 @@ export default class SyntaxBlockBuilder {
   }
 
   getLatestBlock(kind) {
-    return this.context.latestBlocks.peek(kind)
+    return this.context.kindBlocks.peek(kind)
   }
 
   getLatestBlockId(kind) {
-    return this.context.latestBlocks.peek(kind)?.id
+    return this.context.kindBlocks.peek(kind)?.id
   }
 
   markIdentifier(ident, blockId, scopeId = null) {
@@ -411,7 +401,7 @@ export default class SyntaxBlockBuilder {
       case SemanticContextType.FnDecl: {
         const [{input, output}] = metadata.signatures
         // align & write data
-        const paramBlocks = this.context.latestBlocks
+        const paramBlocks = this.context.kindBlocks
           .get(SyntaxBlockKind.Variable)
           .filter(it => it.data.kind === IdentifierKind.FnParam)
           .slice(0 - input.length)

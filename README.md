@@ -10,3 +10,7 @@ The analyzer covers most of Cyclone's language features. This package also conta
 
 - Use Flow to do type checking for some modules. (This project has no intention to rewrite in typescript for now)
 - This document is unfinished and will be updated in the future.
+
+## License
+
+Published under the [BSD-2 license](https://www.tldrlegal.com/license/bsd-2-clause-license-freebsd)
