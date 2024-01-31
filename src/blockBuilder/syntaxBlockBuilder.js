@@ -56,7 +56,12 @@ export default class SyntaxBlockBuilder {
   context
 
   constructor() {
+    this.prepare()
+  }
+
+  prepare() {
     this.context = {
+      program: null,
       blocks: [],
       kindBlocks: new StackedTable(),
       ids: new Map(),
@@ -64,7 +69,14 @@ export default class SyntaxBlockBuilder {
       idBlocks: new Map(),
       latestBlock: null
     }
+
+    this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null)
   }
+
+  getProgram() {
+    return this.context.program
+  }
+
 
   static idToKind(id) {
     return idToKind(id)
@@ -94,19 +106,21 @@ export default class SyntaxBlockBuilder {
       errors: [],
       childErrors: [],
       references: new Set(),
-      // childReferences: new Set(),
+      children: [],
       kind,
-      data: data ?? {}
+      data: data ?? {},
+      index: this.context.blocks.length
     }
     this.context.blocks.push(block)
     this.context.kindBlocks.push(kind, block)
     this.context.idBlocks.set(id, block)
     this.context.latestBlock = block
 
-    return id
-    // if (parentId) {
-    //   this.context.childBlocks.push(parentId, block)
-    // }
+    if (parentId) {
+      this.context.idBlocks.get(parentId)?.children.push(block)
+    }
+
+    return block
   }
 
   followBlocks(parentId, acc = []) {
@@ -235,11 +249,11 @@ export default class SyntaxBlockBuilder {
     const {type, position} = block
     switch (type) {
       case SemanticContextType.CompilerOption: {
-        this.createBlock(SyntaxBlockKind.CompilerOption, position)
+        this.createBlock(SyntaxBlockKind.CompilerOption, position, this.getLatestBlockId(SyntaxBlockKind.Program))
         break
       }
       case SemanticContextType.MachineDecl: {
-        this.createBlock(SyntaxBlockKind.Machine, position, null, {
+        this.createBlock(SyntaxBlockKind.Machine, position, this.getLatestBlockId(SyntaxBlockKind.Program), {
           identifiers: new StackedTable(),
           recordFields: new CategorizedStackTable()
         })
@@ -256,9 +270,7 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.RecordDecl: {
-        this.createBlock(SyntaxBlockKind.Record, position, this.getLatestBlockId(SyntaxBlockKind.Machine), {
-          groupKind: IdentifierKind.Record
-        })
+        this.createBlock(SyntaxBlockKind.Record, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
         break
       }
       case SemanticContextType.RecordVariableDeclGroup: {
@@ -276,7 +288,6 @@ export default class SyntaxBlockBuilder {
       }
       case SemanticContextType.FnDecl: {
         this.createBlock(SyntaxBlockKind.Func, position, this.getLatestBlockId(SyntaxBlockKind.Machine), {
-          statements: [],
           returnType: IdentifierType.Hole,
           identifier: ""
         })
@@ -415,6 +426,10 @@ export default class SyntaxBlockBuilder {
           returnType: output,
           identifier: metadata.identifier
         })
+        break
+      }
+
+      case SemanticContextType.FnBodyScope: {
         this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Func))
         break
       }
@@ -463,7 +478,7 @@ export default class SyntaxBlockBuilder {
       case SemanticContextType.InExpr: {
         const {identifiers} = metadata
         if (!identifiers?.length) {
-          return
+          break
         }
 
         const semBlocks = context.findNearestBlockByTypes([
@@ -500,6 +515,13 @@ export default class SyntaxBlockBuilder {
         })
         break
       }
+      case SemanticContextType.MachineDecl: {
+        this.markData(SyntaxBlockKind.Machine, {
+          identifier: metadata.identifier,
+          keyword: metadata.keyword
+        })
+        break
+      }
     }
   }
 
@@ -517,7 +539,7 @@ export default class SyntaxBlockBuilder {
         this.markData(SyntaxBlockKind.SingleTypedVariableGroup, {
           type
         })
-        const id = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), {
+        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), {
           text,
           type,
           kind
@@ -534,7 +556,7 @@ export default class SyntaxBlockBuilder {
       }
 
       case IdentifierKind.FnParam: {
-        const id = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.FnParamGroup), {
+        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.FnParamGroup), {
           text,
           type, // <- type here is always hole
           kind

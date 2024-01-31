@@ -188,6 +188,7 @@ export const SyntaxBlockKind = {
   SingleTypedVariableGroup: 14,
   FnParamGroup: 15,
 
+  Program: 98,
   Error: 99
 }
 

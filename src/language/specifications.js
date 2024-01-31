@@ -259,6 +259,7 @@ export const syntaxBlockIdPrefix = {
   [SyntaxBlockKind.Record]: "rec",
   [SyntaxBlockKind.SingleTypedVariableGroup]: "stvargrp",
   [SyntaxBlockKind.FnParamGroup]: "fnvargrp",
+  [SyntaxBlockKind.Program]: "program",
   [SyntaxBlockKind.Error]: "err"
 }
 
