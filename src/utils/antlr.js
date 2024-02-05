@@ -47,6 +47,20 @@ export const firstSymbol = ctx => {
   return null
 }
 
+export const existsSymbol = (ctx, symbol) => {
+  if (!ctx.children) {
+    return false
+  }
+
+  for (let child of ctx.children) {
+    if (child.symbol?.text === symbol) {
+      return true
+    }
+  }
+
+  return false
+}
+
 export const listenerWalk = (listener, parseTree) => {
   ParseTreeWalker.DEFAULT.walk(listener, parseTree)
 }

@@ -3,6 +3,8 @@ import {getExpression} from "../utils/antlr.js";
 import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
+import {typeToString} from "../utils/type.js";
+import SyntaxBlock from "./syntaxBlock.js";
 
 const idPrefixKind = (() => {
   const result = {}
@@ -67,16 +69,23 @@ export default class SyntaxBlockBuilder {
       ids: new Map(),
       unsortedError: [],
       idBlocks: new Map(),
-      latestBlock: null
+      latestBlock: null,
+      errorId: 0,
+
+      stateIdentifierBlockId: new CategorizedStackTable(),
+      invariantIdentifierBlockId: new CategorizedStackTable()
     }
 
     this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null)
   }
 
-  getProgram() {
+  getProgramBlock() {
     return this.context.program
   }
 
+  getBlockById(id) {
+    return this.context.idBlocks.get(id)
+  }
 
   static idToKind(id) {
     return idToKind(id)
@@ -97,27 +106,32 @@ export default class SyntaxBlockBuilder {
     return buildId(kind, id)
   }
 
+  assignErrorId() {
+    return this.context.errorId++
+  }
+
   createBlock(kind, position = null, parentId = null, data = null) {
     const id = this.assignId(kind)
-    const block = {
-      id,
-      parentId,
-      position,
-      errors: [],
-      childErrors: [],
-      references: new Set(),
-      children: [],
-      kind,
-      data: data ?? {},
-      index: this.context.blocks.length
-    }
+    // const block = {
+    //   id,
+    //   parentId,
+    //   position,
+    //   errors: [],
+    //   childErrors: [],
+    //   references: new Set(),
+    //   children: [],
+    //   kind,
+    //   data: data ?? {},
+    //   index: this.context.blocks.length
+    // }
+    const block = new SyntaxBlock(id, kind, parentId, data, position, this.context.blocks.length)
     this.context.blocks.push(block)
     this.context.kindBlocks.push(kind, block)
     this.context.idBlocks.set(id, block)
     this.context.latestBlock = block
 
     if (parentId) {
-      this.context.idBlocks.get(parentId)?.children.push(block)
+      this.context.idBlocks.get(parentId)?.pushChild(block)
     }
 
     return block
@@ -140,7 +154,7 @@ export default class SyntaxBlockBuilder {
   }
 
   createErrors(errors, kind) {
-    return errors.map((error) => ({error, syntaxBlockKind: kind, id: this.assignId(SyntaxBlockKind.Error)}))
+    return errors.map((error) => ({error, kind, id: this.assignErrorId()}))
   }
 
   markErrors(kind, errors, pushUnsorted = true) {
@@ -156,7 +170,7 @@ export default class SyntaxBlockBuilder {
       return false
     }
 
-    block.errors.push(...createdErrors)
+    block.markErrors(...createdErrors)
 
     if (!block.parentId) {
       return true
@@ -164,7 +178,7 @@ export default class SyntaxBlockBuilder {
 
     const blocks = this.followBlocks(block.parentId)
     for (let block of blocks) {
-      block.childErrors.push(...createdErrors)
+      block.markChildErrors(...createdErrors)
     }
     return true
   }
@@ -175,7 +189,7 @@ export default class SyntaxBlockBuilder {
       console.log("warn: no block found with data", kind, data)
       return
     }
-    block.data = {...block.data, ...data}
+    block.markData(data)
   }
 
   getLatestBlock(kind) {
@@ -241,8 +255,24 @@ export default class SyntaxBlockBuilder {
     }
 
     if (markId) {
-      block.references.add(markId)
+      block.addReference(markId)
     }
+  }
+
+  #registerInvariant(machineId, identifier, id) {
+    this.context.invariantIdentifierBlockId.push(machineId, identifier, id)
+  }
+
+  searchInvariantsByIdentifier(machineId, identifier) {
+    return this.context.invariantIdentifierBlockId.getAll(machineId, identifier)
+  }
+
+  #registerState(machineId, identifier, id) {
+    this.context.stateIdentifierBlockId.push(machineId, identifier, id)
+  }
+
+  searchStatesByIdentifier(machineId, identifier) {
+    return this.context.stateIdentifierBlockId.getAll(machineId, identifier)
   }
 
   #onAnalyzerBlockEnter(context, {block, payload}) {
@@ -354,7 +384,9 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.AssertExpr: {
-        this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal))
+        this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal), {
+          code: getExpression(payload)
+        })
         break
       }
 
@@ -367,6 +399,11 @@ export default class SyntaxBlockBuilder {
 
       case SemanticContextType.LetDecl: {
         this.createBlock(SyntaxBlockKind.PathVariable, position, this.getLatestBlockId(SyntaxBlockKind.Goal))
+        break
+      }
+
+      case SemanticContextType.GoalFinal: {
+        this.createBlock(SyntaxBlockKind.GoalFinal, position, this.getLatestBlockId(SyntaxBlockKind.Goal))
         break
       }
     }
@@ -439,6 +476,7 @@ export default class SyntaxBlockBuilder {
         this.markData(SyntaxBlockKind.State, {
           identifier, attributes
         })
+        this.#registerState(this.getLatestBlockId(SyntaxBlockKind.Machine), identifier, this.getLatestBlockId(SyntaxBlockKind.State))
         break
       }
 
@@ -450,10 +488,10 @@ export default class SyntaxBlockBuilder {
           toStates,
           operators,
           excludedStates,
-          involvedStates
+          involvedStates,
+          keyword,
+          identifier
         } = metadata
-
-        // TODO: state identifier to (multiple, consider ill forms) block ids
 
         this.markData(SyntaxBlockKind.Transition, {
           label,
@@ -462,7 +500,9 @@ export default class SyntaxBlockBuilder {
           toStates,
           operators,
           excludedStates,
-          involvedStates
+          involvedStates,
+          keyword,
+          identifier
         })
 
         break
@@ -472,6 +512,7 @@ export default class SyntaxBlockBuilder {
         this.markData(SyntaxBlockKind.Invariant, {
           identifier: metadata.identifier
         })
+        this.#registerInvariant(this.getLatestBlockId(SyntaxBlockKind.Machine), metadata.identifier, this.getLatestBlockId(SyntaxBlockKind.Invariant))
         break
       }
 
@@ -500,8 +541,8 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.GoalScope: {
-        this.markData(SyntaxBlockKind.Goal, {
-          codeFinal: metadata.expr,
+        this.markData(SyntaxBlockKind.GoalFinal, {
+          code: metadata.expr,
           invariants: metadata.invariants,
           states: metadata.states
         })
@@ -511,7 +552,8 @@ export default class SyntaxBlockBuilder {
 
       case SemanticContextType.LetDecl: {
         this.markData(SyntaxBlockKind.PathVariable, {
-          codeInit: metadata.body
+          codeInit: metadata.body,
+          identifier: metadata.identifier
         })
         break
       }
@@ -525,7 +567,6 @@ export default class SyntaxBlockBuilder {
     }
   }
 
-  // TODO: clear identifiers
   #onAnalyzerIdentifierRegister(context, {text, type, position, kind, blockType, recordIdent}) {
     switch (kind) {
       case IdentifierKind.EnumField: {
@@ -540,7 +581,7 @@ export default class SyntaxBlockBuilder {
           type
         })
         const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), {
-          text,
+          identifier: text,
           type,
           kind
         })
@@ -557,7 +598,7 @@ export default class SyntaxBlockBuilder {
 
       case IdentifierKind.FnParam: {
         const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.FnParamGroup), {
-          text,
+          identifier: text,
           type, // <- type here is always hole
           kind
         })

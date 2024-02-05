@@ -57,14 +57,16 @@ const stateDeclMetadata = () => ({
 })
 
 const transDeclMetadata = () => ({
+  keyword: "",
   label: null,
+  labelKeyword: null,
   whereExpr: null,
   fromState: null,
   toStates: [], // new Set(),
   operators: new Set(),
   excludedStates: [], // new Set(),
 
-  involvedStates: null
+  involvedStates: null,
   // exclusionFlag: false
 })
 

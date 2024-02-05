@@ -969,8 +969,12 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleTransLabel(label) {
-    this.context.findNearestBlock(SemanticContextType.TransDecl).metadata.label = label.slice(1, label.length - 1).trim()
+  handleTransLabel(label, labelKeywordIsLabel) {
+    const block = this.context.findNearestBlock(SemanticContextType.TransDecl)
+
+    // get rid of ""
+    block.metadata.label = label.slice(1, label.length - 1).trim()
+    block.metadata.labelKeyword = labelKeywordIsLabel ? "label" : "on"
   }
 
   handleWhereExpr(expr) {
@@ -1040,6 +1044,11 @@ export default class SemanticAnalyzer {
 
     // this.emit("lang:transition", {metadata: md, targetStates, position, expr})
     // this.emitLangComponent(context, {targetStates})
+  }
+
+  handleTransKeyword(keyword) {
+    const block = this.context.peekBlock()
+    block.metadata.keyword = keyword
   }
 
   handleTransScope(ident) {

@@ -259,8 +259,8 @@ export const syntaxBlockIdPrefix = {
   [SyntaxBlockKind.Record]: "rec",
   [SyntaxBlockKind.SingleTypedVariableGroup]: "stvargrp",
   [SyntaxBlockKind.FnParamGroup]: "fnvargrp",
+  [SyntaxBlockKind.GoalFinal]: "goalfin",
   [SyntaxBlockKind.Program]: "program",
-  [SyntaxBlockKind.Error]: "err"
 }
 
 export default {

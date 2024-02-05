@@ -187,9 +187,9 @@ export const SyntaxBlockKind = {
   Record: 13,
   SingleTypedVariableGroup: 14,
   FnParamGroup: 15,
+  GoalFinal: 16,
 
-  Program: 98,
-  Error: 99
+  Program: 99,
 }
 
 export default {

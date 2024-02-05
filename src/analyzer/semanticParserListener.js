@@ -5,7 +5,7 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression
+  getExpression, existsSymbol
 } from "../utils/antlr.js";
 
 export default class SemanticParserListener extends CycloneParserListener {
@@ -98,11 +98,6 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitStateExpr(ctx) {
-    // let isStart = false
-    // let isAbstract = false
-    // let isNormal = false
-    // let isFinal = false
-    // let isNode = false
     const attrs = []
     for (let child of ctx.children) {
       const s = child?.symbol?.text
@@ -113,12 +108,6 @@ export default class SemanticParserListener extends CycloneParserListener {
         if (["start", "abstract", "normal", "final"].includes(t)) {
           attrs.push(t)
         }
-        // switch (child.start?.text) {
-        //   case "start": attrs.push("start"); break;
-        //   case "abstract": attrs.push("abstract"); break;
-        //   case "normal": isNormal = true; break;
-        //   case "final": isFinal = true; break;
-        // }
       }
     }
 
@@ -148,6 +137,8 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterTrans(ctx) {
     this.#pushBlock(SemanticContextType.TransDecl, ctx)
+    const keyword = ctx.children[0]?.symbol?.text ?? "trans"
+    this.analyzer.handleTransKeyword(keyword)
   }
 
   exitTrans(ctx) {
@@ -197,7 +188,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   enterLabel(ctx) {
-    this.analyzer.handleTransLabel(ctx.start.text)
+    this.analyzer.handleTransLabel(ctx.start.text, existsSymbol(ctx.parentCtx, "label"))
   }
 
   enterTransExclExpr(ctx) {

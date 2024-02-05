@@ -11,6 +11,39 @@ The analyzer covers most of Cyclone's language features. This package also conta
 - Use Flow to do type checking for some modules. (This project has no intention to rewrite in typescript for now)
 - This document is unfinished and will be updated in the future.
 
+## Modules
+
+This package contains the following modules:
+
+| Module         | Description                                                          | Status   |
+|----------------|----------------------------------------------------------------------|----------|
+| `analyzer`     | The semantic analyzer for Cyclone                                    | Stable   |
+| `blockBuilder` | An IR builder based on the semantic analyzer                         | Unstable |
+| `generated`    | The generated lexer and parser based on ANTLR4                       | Stable   |
+| `language`     | The language's definitions in enums & specifications                 | Stable   |
+| `library`      | Some libraries that has nothing to do with the language itself       | Stable   |
+| `utils`        | Helper modules for analyzer and block builder to handle the language | Stable   |
+
+
+
+### Analyzer
+TODO
+
+### Block Builder
+TODO
+
+### Generated Lexer & Parser
+TODO
+
+### Language Definitions & Specifications
+TODO
+
+### Library
+TODO
+
+### Utilities
+TODO
+
 ## License
 
 Published under the [BSD-2 license](https://www.tldrlegal.com/license/bsd-2-clause-license-freebsd)

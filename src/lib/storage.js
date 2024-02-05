@@ -250,6 +250,10 @@ export class CategorizedStackTable extends Map {
     return null
   }
 
+  getAll(category, key) {
+    return this.get(category)?.get(key) ?? []
+  }
+
   getLength(category, key) {
     if (this.has(category)) {
       return this.get(category).getLength(key)
