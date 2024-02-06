@@ -73,7 +73,7 @@ export default class SemanticParserListener extends CycloneParserListener {
     // PUSH BLOCK BEFORE EMIT LANG COMPONENT
     // this.analyzer.pushBlock(SemanticContextType.MachineDecl, pos)
     this.#pushBlock(SemanticContextType.MachineDecl, ctx)
-    this.analyzer.handleMachineDeclEnter(token, symbolPos)
+    this.analyzer.handleMachineDeclEnter(token.symbol.text, symbolPos)
   }
 
   exitMachineDecl(ctx) {
