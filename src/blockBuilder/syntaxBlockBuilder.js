@@ -76,11 +76,17 @@ export default class SyntaxBlockBuilder {
       invariantIdentifierBlockId: new CategorizedStackTable()
     }
 
-    this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null)
+    this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null, {
+      isDirty: false
+    })
   }
 
   getProgramBlock() {
     return this.context.program
+  }
+
+  codegen() {
+    return this.getProgramBlock().codegen()
   }
 
   getBlockById(id) {
@@ -670,6 +676,75 @@ export default class SyntaxBlockBuilder {
       return
     }
     this.markErrors(kind, errors)
+  }
+
+  #updateWithParent(block, f) {
+    const {parentId} = block
+    if (!parentId) {
+      return false
+    }
+
+    const parentBlock = this.getBlockById(parentId)
+    if (!parentBlock) {
+      return false
+    }
+
+    if (f(parentBlock) === false) {
+      return false
+    }
+    this.markData(SyntaxBlockKind.Program, {isDirty: true})
+    return true
+  }
+
+  removeBlock(block) {
+    return this.#updateWithParent(block, parentBlock => parentBlock.children = parentBlock.children.filter(node => node.id !== block.id))
+  }
+
+  removeBlocksFromSameParent(blocks) {
+    switch (blocks.length) {
+      case 0: return true
+      case 1: return this.removeBlock(blocks[0])
+      default: {
+        const idSet = new Set(blocks.map(it => it.id))
+        return this.#updateWithParent(blocks[0], parentBlock => {
+          parentBlock.children = parentBlock.children.filter(node => !idSet.has(node.id))
+        })
+      }
+    }
+  }
+
+  swapBlockIndex(block, targetIndex) {
+    return this.#updateWithParent(block, parentBlock => {
+      const target = parentBlock.children[targetIndex]
+      if (!target) {
+        return false
+      }
+
+      const i = block.parentIndex
+      block.parentIndex = targetIndex
+      target.parentIndex = i
+
+      parentBlock.children[targetIndex] = block
+      parentBlock.children[i] = target
+    })
+  }
+
+  getParentChildrenLength(block) {
+    const {parentId} = block
+    if (!parentId) {
+      return 0
+    }
+
+    const parentBlock = this.getBlockById(parentId)
+    if (!parentBlock) {
+      return 0
+    }
+
+    return parentBlock.children.length
+  }
+
+  isLastOfParentChildren(block) {
+    return block.parentIndex === this.getParentChildrenLength(block) - 1
   }
 
   attach(analyzer) {

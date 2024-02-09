@@ -52,6 +52,7 @@ export default class SyntaxBlock {
   references
   children
   index
+  parentIndex
 
   constructor(id, kind, parentId, data, position, index) {
     this.id = id
@@ -60,6 +61,7 @@ export default class SyntaxBlock {
     this.data = data ?? {}
     this.index = index ?? -1
     this.position = position
+    this.parentIndex = -1
 
     this.children = []
     this.references = new Set()
@@ -68,7 +70,7 @@ export default class SyntaxBlock {
   }
 
   pushChild(childBlock) {
-    this.children.push(childBlock)
+    childBlock.parentIndex = this.children.push(childBlock) - 1
   }
 
   markData(data) {
