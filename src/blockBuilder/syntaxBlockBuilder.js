@@ -766,7 +766,7 @@ export default class SyntaxBlockBuilder {
     return searchedBlock?.parentIndex
   }
 
-  findBlockInsertionIndex(kind, parentBlock) {
+  findBlockInsertionIndex(kind) {
     switch (kind) {
       // insert AT last
       case SyntaxBlockKind.Variable:
@@ -836,12 +836,12 @@ export default class SyntaxBlockBuilder {
   }
 
   insertBlock(kind, parentId, data) {
-    const parent = this.getBlockById(parentId)
-    if (!parent) {
-      return null
-    }
+    // const parent = this.getBlockById(parentId)
+    // if (!parent) {
+    //   return null
+    // }
 
-    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind, parent))
+    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind))
     this.markDirty()
 
     return block
@@ -855,7 +855,7 @@ export default class SyntaxBlockBuilder {
     isBiWay,
     transKeyword = "trans"
   ) {
-    if ((sourceStateBlock.kind !== SyntaxBlockKind.Transition || targetStateBlock.kind !== SyntaxBlockKind.Transition) || (sourceStateBlock.parentId !== targetStateBlock.parentId)) {
+    if ((sourceStateBlock.kind !== SyntaxBlockKind.State || targetStateBlock.kind !== SyntaxBlockKind.State) || (sourceStateBlock.parentId !== targetStateBlock.parentId)) {
       return false
     }
 
