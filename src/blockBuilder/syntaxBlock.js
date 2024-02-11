@@ -17,7 +17,7 @@ const codegenTransitionBody = ({
     codeArrow
   ]
 
-  if (toStates) {
+  if (toStates.length) {
     parts.push(toStates.join(", "))
   } else if (operators.has("*")) {
     parts.push("*")
@@ -71,6 +71,21 @@ export default class SyntaxBlock {
 
   pushChild(childBlock) {
     childBlock.parentIndex = this.children.push(childBlock) - 1
+  }
+
+  insertChild(childBlock, atIndex) {
+    const childrenLength = this.children.length
+    if (childrenLength) {
+      for (let i = childrenLength - 1; i >= atIndex; i--) {
+        const block = this.children[i]
+        block.parentIndex = i + 1
+        this.children[i + 1] = block
+      }
+      childBlock.parentIndex = atIndex
+      this.children[atIndex] = childBlock
+    } else {
+      this.pushChild(childBlock)
+    }
   }
 
   markData(data) {

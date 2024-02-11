@@ -17,7 +17,19 @@ export const popMultiStore = (xs, length) => {
   return ys
 }
 
+export const findLast = (xs, f) => {
+  for (let i = xs.length - 1; i >= 0; i--) {
+    const e = xs[i]
+    if (f(e, i, xs)) {
+      return e
+    }
+  }
+
+  return undefined
+}
+
 export default {
   popMulti,
-  popMultiStore
+  popMultiStore,
+  findLast
 }

@@ -5,6 +5,7 @@ import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
 import {typeToString} from "../utils/type.js";
 import SyntaxBlock from "./syntaxBlock.js";
+import {findLast} from "../lib/list.js";
 
 const idPrefixKind = (() => {
   const result = {}
@@ -116,7 +117,7 @@ export default class SyntaxBlockBuilder {
     return this.context.errorId++
   }
 
-  createBlock(kind, position = null, parentId = null, data = null) {
+  createBlock(kind, position = null, parentId = null, data = null, atIndex = null) {
     const id = this.assignId(kind)
     // const block = {
     //   id,
@@ -136,8 +137,19 @@ export default class SyntaxBlockBuilder {
     this.context.idBlocks.set(id, block)
     this.context.latestBlock = block
 
+    // if (children?.length) {
+    //   for (let block of children) {
+    //     block.pushChild(block)
+    //   }
+    // }
+
     if (parentId) {
-      this.context.idBlocks.get(parentId)?.pushChild(block)
+      const parent = this.context.idBlocks.get(parentId)
+      if (atIndex != null) {
+        parent?.insertChild(block, atIndex)
+      } else {
+        parent?.pushChild(block)
+      }
     }
 
     return block
@@ -200,6 +212,14 @@ export default class SyntaxBlockBuilder {
 
   getLatestBlock(kind) {
     return this.context.kindBlocks.peek(kind)
+  }
+
+  getFirstBlock(kind) {
+    if (this.context.kindBlocks.has(kind)) {
+      return this.context.kindBlocks.get(kind)[0]
+    } else {
+      return undefined
+    }
   }
 
   getLatestBlockId(kind) {
@@ -678,6 +698,10 @@ export default class SyntaxBlockBuilder {
     this.markErrors(kind, errors)
   }
 
+  markDirty() {
+    this.markData(SyntaxBlockKind.Program, {isDirty: true})
+  }
+
   #updateWithParent(block, f) {
     const {parentId} = block
     if (!parentId) {
@@ -692,7 +716,7 @@ export default class SyntaxBlockBuilder {
     if (f(parentBlock) === false) {
       return false
     }
-    this.markData(SyntaxBlockKind.Program, {isDirty: true})
+    this.markDirty()
     return true
   }
 
@@ -727,6 +751,164 @@ export default class SyntaxBlockBuilder {
       parentBlock.children[targetIndex] = block
       parentBlock.children[i] = target
     })
+  }
+
+  #findBlockInsertionIndexByOrder(searchOrder) {
+    let searchedBlock
+
+    for (let o of searchOrder) {
+      searchedBlock = this.getFirstBlock(o)
+      if (searchedBlock) {
+        break
+      }
+    }
+
+    return searchedBlock?.parentIndex
+  }
+
+  findBlockInsertionIndex(kind, parentBlock) {
+    switch (kind) {
+      // insert AT last
+      case SyntaxBlockKind.Variable:
+      case SyntaxBlockKind.Goal:
+      case SyntaxBlockKind.GoalFinal:
+      case SyntaxBlockKind.Statement:
+      case SyntaxBlockKind.Machine: {
+        return null
+      }
+
+      // insert BEFORE last
+      case SyntaxBlockKind.CompilerOption: {
+        // first machine
+        const machine = this.getFirstBlock(SyntaxBlockKind.Machine)
+        return machine?.parentIndex
+      }
+
+      case SyntaxBlockKind.Invariant: {
+        // first goal
+        const goal = this.getFirstBlock(SyntaxBlockKind.Goal)
+        return goal?.parentIndex
+      }
+
+      case SyntaxBlockKind.PathStatement:
+      case SyntaxBlockKind.PathVariable:
+      case SyntaxBlockKind.Assertion: {
+        const goalFin = this.getFirstBlock(SyntaxBlockKind.GoalFinal)
+        return goalFin?.parentIndex
+      }
+
+      // searchOrder dependent kinds
+      case SyntaxBlockKind.Transition: {
+        return this.#findBlockInsertionIndexByOrder([SyntaxBlockKind.Invariant, SyntaxBlockKind.Goal])
+      }
+      case SyntaxBlockKind.State: {
+        return this.#findBlockInsertionIndexByOrder([SyntaxBlockKind.Transition, SyntaxBlockKind.Invariant, SyntaxBlockKind.Goal])
+      }
+      case SyntaxBlockKind.Record:
+      case SyntaxBlockKind.Func: {
+        return this.#findBlockInsertionIndexByOrder([SyntaxBlockKind.State, SyntaxBlockKind.Transition, SyntaxBlockKind.Invariant, SyntaxBlockKind.Goal])
+      }
+      case SyntaxBlockKind.FnParamGroup: {
+        return this.#findBlockInsertionIndexByOrder([SyntaxBlockKind.SingleTypedVariableGroup, SyntaxBlockKind.Statement])
+      }
+
+      // complicated kinds
+      case SyntaxBlockKind.SingleTypedVariableGroup: {
+        switch (parent.kind) {
+          case SyntaxBlockKind.Machine: {
+            // global variable, constant, etc
+            return this.#findBlockInsertionIndexByOrder([SyntaxBlockKind.State, SyntaxBlockKind.Transition, SyntaxBlockKind.Invariant, SyntaxBlockKind.Goal])
+          }
+          case SyntaxBlockKind.Record: {
+            // record field
+            return null
+          }
+          case SyntaxBlockKind.Func: {
+            // local variable
+            const stmt = this.getFirstBlock(SyntaxBlockKind.Statement)
+            return stmt?.parentIndex
+          }
+        }
+      }
+    }
+
+    return null
+  }
+
+  insertBlock(kind, parentId, data) {
+    const parent = this.getBlockById(parentId)
+    if (!parent) {
+      return null
+    }
+
+    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind, parent))
+    this.markDirty()
+
+    return block
+  }
+
+  insertBasicTransition(
+    sourceStateBlock,
+    targetStateBlock,
+
+    isAppend,
+    isBiWay,
+    transKeyword = "trans"
+  ) {
+    if ((sourceStateBlock.kind !== SyntaxBlockKind.Transition || targetStateBlock.kind !== SyntaxBlockKind.Transition) || (sourceStateBlock.parentId !== targetStateBlock.parentId)) {
+      return false
+    }
+
+    // TODO: multi machine
+    const targetIdent = targetStateBlock.data.identifier
+    const sourceIdent = sourceStateBlock.data.identifier
+
+    const transFromSource = isAppend && this.context.kindBlocks.has(SyntaxBlockKind.Transition)
+      ? findLast(this.context.kindBlocks.get(SyntaxBlockKind.Transition), ts =>
+        // matches the source block
+        ts.data.fromState === sourceIdent
+        && ts.references.has(sourceStateBlock.id)
+        // specify direction
+        && ts.data.operators.has(isBiWay ? "<->" : "->")
+        // must not be excluded
+        && ts.data.excludedStates.length === 0 // .includes(targetIdent)
+        // must not be labeled
+        && !ts.data.label
+        // can not be conditional
+        && !ts.data.codeWhere
+        // must not be dynamic (*, +, etc..)
+        && ts.data.toStates.length >= 1)
+      : null
+
+    if (transFromSource) {
+      // if (transFromSource.data.toStates.includes(targetIdent)) {
+      //   // duplicated state
+      //   return false
+      // }
+      transFromSource.data.toStates.push(targetIdent)
+      this.markDirty()
+    } else {
+      this.insertBlock(SyntaxBlockKind.Transition, sourceStateBlock.parentId, {
+        fromState: sourceIdent,
+        toStates: [targetIdent],
+        operators: new Set([isBiWay ? "<->" : "->"]),
+
+        excludedStates: [],
+        keyword: transKeyword
+      })
+    }
+    return true
+  }
+
+  searchReferences(blockIds) {
+    const s = new Set()
+    for (let block of this.context.blocks) {
+      if (blockIds.some(id => block.references.has(id))) {
+        s.add(block.id)
+      }
+    }
+
+    return s
   }
 
   getParentChildrenLength(block) {

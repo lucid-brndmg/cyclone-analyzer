@@ -263,6 +263,32 @@ export const syntaxBlockIdPrefix = {
   [SyntaxBlockKind.Program]: "program",
 }
 
+// export const syntaxBlockOrdering = {
+//   [SyntaxBlockKind.Program]: [
+//     [SyntaxBlockKind.CompilerOption],
+//     [SyntaxBlockKind.Machine]
+//   ],
+//   [SyntaxBlockKind.Machine]: [
+//     [SyntaxBlockKind.Func, SyntaxBlockKind.Record, SyntaxBlockKind.SingleTypedVariableGroup],
+//     [SyntaxBlockKind.State],
+//     [SyntaxBlockKind.Transition],
+//     [SyntaxBlockKind.Invariant],
+//
+//     [SyntaxBlockKind.Goal]
+//   ],
+//
+//   [SyntaxBlockKind.Goal]: [
+//     [SyntaxBlockKind.PathVariable, SyntaxBlockKind.PathStatement, SyntaxBlockKind.Assertion],
+//     [SyntaxBlockKind.GoalFinal]
+//   ],
+//
+//   [SyntaxBlockKind.Func]: [
+//     [SyntaxBlockKind.FnParamGroup],
+//     [SyntaxBlockKind.SingleTypedVariableGroup],
+//     [SyntaxBlockKind.Statement]
+//   ],
+// }
+
 export default {
   scopedContextType,
   declarationContextType,
