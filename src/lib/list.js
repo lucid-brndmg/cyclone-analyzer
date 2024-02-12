@@ -28,8 +28,14 @@ export const findLast = (xs, f) => {
   return undefined
 }
 
+export const elementReplacer = (original, newValue) => elem =>
+  elem === original
+    ? newValue
+    : original
+
 export default {
   popMulti,
   popMultiStore,
-  findLast
+  findLast,
+  elementReplacer
 }

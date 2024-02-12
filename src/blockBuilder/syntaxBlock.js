@@ -53,6 +53,7 @@ export default class SyntaxBlock {
   children
   index
   parentIndex
+  codegenOverride = null
 
   constructor(id, kind, parentId, data, position, index) {
     this.id = id
@@ -100,6 +101,10 @@ export default class SyntaxBlock {
     this.childErrors.push(...childErrors)
   }
 
+  markCodegenOverride(code) {
+    this.codegenOverride = code
+  }
+
   addReference(ref) {
     this.references.add(ref)
   }
@@ -109,6 +114,9 @@ export default class SyntaxBlock {
   }
 
   codegen(codegenOpts) {
+    if (this.codegenOverride != null) {
+      return this.codegenOverride
+    }
     const options = {
       indentUnit: 4,
       indentChar: ' ',

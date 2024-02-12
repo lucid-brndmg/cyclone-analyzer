@@ -67,7 +67,7 @@ export const listenerWalk = (listener, parseTree) => {
 
 export class ErrorListener extends antlr4.error.ErrorListener {}
 
-export const parseCycloneSyntax = ({input, lexerErrorListener, parserErrorListener}) => {
+export const parseCycloneSyntax = ({input, lexerErrorListener, parserErrorListener, entry = "program"}) => {
   const stream = new antlr4.InputStream(input)
   const lexer = new CycloneLexer(stream)
   lexer.removeErrorListeners()
@@ -75,16 +75,19 @@ export const parseCycloneSyntax = ({input, lexerErrorListener, parserErrorListen
     lexer.addErrorListener(lexerErrorListener)
   }
 
-  const tokens = new antlr4.CommonTokenStream(lexer)
-  const parser = new CycloneParser(tokens)
+  const tokenStream = new antlr4.CommonTokenStream(lexer)
+  const parser = new CycloneParser(tokenStream)
   parser.removeErrorListeners()
   if (parserErrorListener) {
     parser.addErrorListener(parserErrorListener)
   }
 
-  const tree = parser.program()
+  const tree = parser[entry]()
 
   return {
+    lexer,
+    parser,
+    tokenStream,
     tree,
     syntaxErrorsCount: parser.syntaxErrorsCount,
   }

@@ -5,7 +5,8 @@ import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
 import {typeToString} from "../utils/type.js";
 import SyntaxBlock from "./syntaxBlock.js";
-import {findLast} from "../lib/list.js";
+import {elementReplacer, findLast} from "../lib/list.js";
+import {replaceIdentifiers} from "./refactorHelper.js";
 
 const idPrefixKind = (() => {
   const result = {}
@@ -897,6 +898,49 @@ export default class SyntaxBlockBuilder {
         keyword: transKeyword
       })
     }
+    return true
+  }
+
+  renameIdentifier(block, newIdentifierName) {
+    block.data.identifier = newIdentifierName
+    this.markDirty()
+
+    return true
+  }
+
+  updateState(block, identifier, attributes, isRefactorMode = true) {
+    const oldIdent = block.data.identifier
+    if (identifier) {
+      block.data.identifier = identifier
+    }
+    if (attributes) {
+      block.data.attributes = attributes
+    }
+
+    if (isRefactorMode) {
+      this.context.kindBlocks
+        .get(SyntaxBlockKind.Transition)
+        ?.forEach(t => {
+          if (t.data.fromState === oldIdent) {
+            t.data.fromState = identifier
+          }
+          if (t.data.toStates.includes(oldIdent)) {
+            t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
+          }
+          if (t.data.excludedStates.includes(oldIdent)) {
+            t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
+          }
+        })
+
+      const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+      if (goal) {
+        const code = goal.codegen()
+        const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+        goal.markCodegenOverride(newCode)
+      }
+    }
+
+    this.markDirty()
     return true
   }
 
