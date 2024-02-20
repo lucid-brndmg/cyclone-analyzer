@@ -263,6 +263,10 @@ export const syntaxBlockIdPrefix = {
   [SyntaxBlockKind.Program]: "program",
 }
 
+export const invalidNodeModifierCombo = [
+  ["abstract", "normal"],
+]
+
 // export const syntaxBlockOrdering = {
 //   [SyntaxBlockKind.Program]: [
 //     [SyntaxBlockKind.CompilerOption],

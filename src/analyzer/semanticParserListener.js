@@ -5,7 +5,7 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression, existsSymbol
+  getExpression, existsSymbol, getIdentifierTokensInList, getPositionedIdentifiersInList
 } from "../utils/antlr.js";
 
 export default class SemanticParserListener extends CycloneParserListener {
@@ -165,7 +165,7 @@ export default class SemanticParserListener extends CycloneParserListener {
     if (symbol) {
       this.analyzer.handleTransOp(symbol)
     } else {
-      const idents = getIdentifiersInList(ctx)
+      const idents = getPositionedIdentifiersInList(ctx)
       this.analyzer.handleTransToStates(idents)
     }
     // const idents = []
@@ -219,7 +219,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   enterInExpr(ctx) {
     // invariant | assert
     this.#pushBlock(SemanticContextType.InExpr, ctx)
-    const idents = getIdentifiersInList(ctx)
+    const idents = getPositionedIdentifiersInList(ctx)
     // const expr = ctx.parentCtx.start.getInputStream().getText(ctx.parentCtx.start.start, ctx.parentCtx.stop.stop)
     // this.analyzer.handleInExpr(idents?.map(it => it.start.text), expr, pos(ctx.parentCtx.start.line, ctx.parentCtx.start.column))
     this.analyzer.handleInExpr(idents)
@@ -263,10 +263,10 @@ export default class SemanticParserListener extends CycloneParserListener {
   enterStopExpr(ctx) {
     this.#pushBlock(SemanticContextType.Stop, ctx)
 
-    const idents = getIdentifiersInList(ctx)
+    const idents = getPositionedIdentifiersInList(ctx)
     // const [line, column] = [ctx.parentCtx.start.start, ctx.parentCtx.stop.stop]
     // const expr = ctx.parentCtx.start.getInputStream().getText(line, column)
-    this.analyzer.handleStopExpr(idents)
+    this.analyzer.handleStopExpr(firstSymbol(ctx), idents)
   }
 
   exitStopExpr(ctx) {
@@ -276,7 +276,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterWithExpr(ctx) {
     this.#pushBlock(SemanticContextType.With, ctx)
-    const idents = getIdentifiersInList(ctx)
+    const idents = getPositionedIdentifiersInList(ctx)
     this.analyzer.handleWithExpr(idents)
   }
 
@@ -299,7 +299,11 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterCheckExpr(ctx) {
     this.#pushBlock(SemanticContextType.GoalFinal, ctx)
-    this.analyzer.handleCheckExpr(getExpression(ctx))
+    this.analyzer.handleCheckExpr()
+  }
+
+  enterCheckMainExpr(ctx) {
+    this.analyzer.handleCheckMainExpr(getExpression(ctx))
   }
 
   exitCheckExpr(ctx) {
@@ -397,7 +401,6 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterEnumType(ctx) {
     this.analyzer.handleTypeToken("enum")
-    // this.analyzer.pushBlock(SemanticContextType.EnumDecl, getBlockPositionPair(ctx))
   }
 
   enterEnumDecl(ctx) {

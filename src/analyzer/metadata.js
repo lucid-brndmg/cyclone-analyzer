@@ -74,7 +74,8 @@ const goalScopeMetadata = () => ({
   invariants: [],
   states: [],
   expr: "",
-  finalPosition: null
+  finalPosition: null,
+  stopKeyword: "stop"
 })
 
 const letDeclMetadata = () => ({
@@ -106,7 +107,7 @@ const whereExprMetadata = () => ({
 
 const inExprMetadata = () => ({
   // expr: "",
-  identifiers: null
+  identifiers: [],
 })
 
 export const semanticContextMetadataTable = {

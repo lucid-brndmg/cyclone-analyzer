@@ -5,7 +5,7 @@ import CycloneParser from "../generated/antlr/CycloneParser.js";
 
 export const getBlockPositionPair = ctx => {
   const text = ctx.start.text || ctx.stop.text
-  const textLength= !text || text === "<EOF>" ? 1 : text.length
+  const textLength= text ? text.length : 1
   const startLine = ctx.start.line
   const stopLine = ctx.stop.line
   const startCol = ctx.start.column
@@ -26,11 +26,24 @@ export const getSymbolPosition = (symbol, length) => {
   )
 }
 
-export const getIdentifiersInList = ctx => ctx.children?.filter(c => c instanceof CycloneParser.IdentifierContext)?.map(it => it.start.text) ?? []
+export const getIdentifierTokensInList = ctx => ctx.children?.filter(c => c instanceof CycloneParser.IdentifierContext) ?? []
+
+export const getIdentifiersInList = ctx => getIdentifierTokensInList(ctx).map(it => it.start.text)
+
+export const getPositionedIdentifiersInList = ctx => getIdentifierTokensInList(ctx).map(it => ({identifier: it.start.text, position: getBlockPositionPair(ctx)}))
 
 export const getParentExpression = ctx => ctx.parentCtx.start.getInputStream().getText(ctx.parentCtx.start.start, ctx.parentCtx.stop.stop)
 
 export const getExpression = ctx => ctx.start.getInputStream().getText(ctx.start.start, ctx.stop.stop)
+
+export const getOnlyExpression = ctx => {
+  const expr = ctx.children?.find(c => c instanceof CycloneParser.AssertMainExprContext)
+  if (expr) {
+    return getExpression(expr)
+  }
+
+  return undefined
+}
 
 export const firstSymbol = ctx => {
   if (!ctx.children) {

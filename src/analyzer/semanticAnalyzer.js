@@ -799,10 +799,19 @@ export default class SemanticAnalyzer {
   handleStateDecl(attrs) {
     const block = this.context.peekBlock()
     const position = block.position
+    const es = []
 
     block.metadata.attributes = attrs
 
-    const es = []
+    if (attrs.includes("normal") && attrs.includes("abstract")) {
+      es.push({
+        source: ErrorSource.Semantic,
+        ...position,
+        type: ErrorType.InvalidNodeModifier,
+        params: {combination: ["normal", "abstract"]}
+      })
+    }
+
     const identifier = block.metadata.identifier
     const machine = this.context.currentMachineBlock
     if (attrs.includes("start")) {
@@ -964,8 +973,21 @@ export default class SemanticAnalyzer {
   }
 
   handleTransToStates(idents) {
-    for (let id of idents) {
-      this.context.findNearestBlock(SemanticContextType.TransDecl).metadata.toStates.push(id)
+    const trans = this.context.findNearestBlock(SemanticContextType.TransDecl).metadata
+    const s = new Set()
+    for (let {identifier, position} of idents) {
+      trans.toStates.push(identifier)
+      if (s.has(identifier)) {
+        this.emit("errors", [{
+          source: ErrorSource.Semantic,
+          ...position,
+          params: {block: SemanticContextType.TransDecl, identifier},
+
+          type: ErrorType.DuplicatedEdgeTarget
+        }])
+      } else {
+        s.add(identifier)
+      }
     }
   }
 
@@ -1071,15 +1093,45 @@ export default class SemanticAnalyzer {
       //     this.emit("lang:invariant:states", {name, identifiers})
       //   }
       // }
-      this.context.peekBlock().metadata.identifiers = identifiers
+      const identsArr = this.context.peekBlock().metadata.identifiers
+      const s = new Set()
+      for (let {identifier, position} of identifiers) {
+        identsArr.push(identifier)
+        if (s.has(identifier)) {
+          this.emit("errors", [{
+            source: ErrorSource.Semantic,
+            ...position,
+            params: {block: SemanticContextType.InExpr, identifier},
+
+            type: ErrorType.DuplicatedEdgeTarget
+          }])
+        } else {
+          s.add(identifier)
+        }
+      }
     }
   }
 
-  handleStopExpr(identifiers) {
+  handleStopExpr(keyword, identifiers) {
     const def = this.context.peekScope()
+    if (keyword) {
+      def.metadata.stopKeyword = keyword
+    }
     if (identifiers?.length) {
-      for (let id of identifiers) {
-        def.metadata.states.push(id)
+      const s = new Set()
+      for (let {identifier, position} of identifiers) {
+        def.metadata.states.push(identifier)
+        if (s.has(identifier)) {
+          this.emit("errors", [{
+            source: ErrorSource.Semantic,
+            ...position,
+            params: {block: SemanticContextType.Stop, identifier},
+
+            type: ErrorType.DuplicatedEdgeTarget
+          }])
+        } else {
+          s.add(identifier)
+        }
       }
     }
   }
@@ -1087,19 +1139,35 @@ export default class SemanticAnalyzer {
   handleWithExpr(identifiers) {
     const def = this.context.peekScope()
     if (identifiers?.length) {
-      for (let id of identifiers) {
-        def.metadata.invariants.push(id)
+      const s = new Set()
+      for (let {identifier, position} of identifiers) {
+        def.metadata.invariants.push(identifier)
+        if (s.has(identifier)) {
+          this.emit("errors", [{
+            source: ErrorSource.Semantic,
+            ...position,
+            params: {block: SemanticContextType.With, identifier},
+
+            type: ErrorType.DuplicatedEdgeTarget
+          }])
+        } else {
+          s.add(identifier)
+        }
       }
     }
   }
 
-  handleCheckExpr(expr) {
+  handleCheckExpr() {
     // this.context.peekScope().metadata.keyword = keyword
     const goal = this.context.peekScope()
-    goal.metadata.expr = expr
+    // goal.metadata.expr = expr
     goal.metadata.finalPosition = this.context.peekBlock().position
 
     // this.emitLangComponent(context, null)
+  }
+
+  handleCheckMainExpr(expr) {
+    this.context.peekScope().metadata.expr = expr
   }
 
   handleExpression() {

@@ -1,5 +1,5 @@
 import {IdentifierKind, IdentifierType, SemanticContextType, SyntaxBlockKind} from "../language/definitions.js";
-import {getExpression} from "../utils/antlr.js";
+import {getExpression, getOnlyExpression} from "../utils/antlr.js";
 import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
@@ -7,6 +7,7 @@ import {typeToString} from "../utils/type.js";
 import SyntaxBlock from "./syntaxBlock.js";
 import {elementReplacer, findLast} from "../lib/list.js";
 import {replaceIdentifiers} from "./refactorHelper.js";
+import {posPair} from "../lib/position.js";
 
 const idPrefixKind = (() => {
   const result = {}
@@ -24,10 +25,31 @@ export const idToKind = id => {
   return idPrefixKind[id.split(":")[0]]
 }
 
+const syntaxBlockParsingEntry = {
+  [SyntaxBlockKind.CompilerOption]: "compOptions",
+  [SyntaxBlockKind.Machine]: "machineDecl",
+  [SyntaxBlockKind.State]: "stateExpr",
+  [SyntaxBlockKind.Transition]: "trans",
+  [SyntaxBlockKind.Assertion]: "assertExpr",
+  [SyntaxBlockKind.Variable]: null,
+  [SyntaxBlockKind.Func]: "functionDeclaration",
+  [SyntaxBlockKind.Goal]: "goal",
+  [SyntaxBlockKind.Invariant]: "invariantExpression",
+  [SyntaxBlockKind.Statement]: "statement",
+  [SyntaxBlockKind.PathVariable]: "letExpr",
+  [SyntaxBlockKind.PathStatement]: "pathAssignStatement",
+  [SyntaxBlockKind.Record]: "record",
+  [SyntaxBlockKind.SingleTypedVariableGroup]: null,
+  [SyntaxBlockKind.FnParamGroup]: "functionParamsDecl",
+  [SyntaxBlockKind.GoalFinal]: "checkExpr",
+  [SyntaxBlockKind.Program]: "program"
+}
+
 const semanticTypePathToBlockKind = path => {
   for (let i = path.length - 1; i >= 0 ; i--) {
     const blockType = path[i]
     switch (blockType) {
+      case SemanticContextType.GoalFinal: return SyntaxBlockKind.GoalFinal
       case SemanticContextType.MachineDecl: return SyntaxBlockKind.Machine
       case SemanticContextType.StateDecl: return SyntaxBlockKind.State
       case SemanticContextType.TransDecl: return SyntaxBlockKind.Transition
@@ -118,7 +140,7 @@ export default class SyntaxBlockBuilder {
     return this.context.errorId++
   }
 
-  createBlock(kind, position = null, parentId = null, data = null, atIndex = null) {
+  createBlock(kind, position = null, parentId = null, data = null, atIndex = null, pushChild = true) {
     const id = this.assignId(kind)
     // const block = {
     //   id,
@@ -144,7 +166,7 @@ export default class SyntaxBlockBuilder {
     //   }
     // }
 
-    if (parentId) {
+    if (parentId && pushChild) {
       const parent = this.context.idBlocks.get(parentId)
       if (atIndex != null) {
         parent?.insertChild(block, atIndex)
@@ -225,6 +247,10 @@ export default class SyntaxBlockBuilder {
 
   getLatestBlockId(kind) {
     return this.context.kindBlocks.peek(kind)?.id
+  }
+
+  getBlocksByKind(kind) {
+    return this.context.kindBlocks.get(kind) ?? []
   }
 
   markIdentifier(ident, blockId, scopeId = null) {
@@ -412,7 +438,7 @@ export default class SyntaxBlockBuilder {
 
       case SemanticContextType.AssertExpr: {
         this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal), {
-          code: getExpression(payload)
+          code: getOnlyExpression(payload) // getExpression(payload)
         })
         break
       }
@@ -517,7 +543,8 @@ export default class SyntaxBlockBuilder {
           excludedStates,
           involvedStates,
           keyword,
-          identifier
+          identifier,
+          labelKeyword
         } = metadata
 
         this.markData(SyntaxBlockKind.Transition, {
@@ -529,7 +556,8 @@ export default class SyntaxBlockBuilder {
           excludedStates,
           involvedStates,
           keyword,
-          identifier
+          identifier,
+          labelKeyword
         })
 
         break
@@ -571,7 +599,8 @@ export default class SyntaxBlockBuilder {
         this.markData(SyntaxBlockKind.GoalFinal, {
           code: metadata.expr,
           invariants: metadata.invariants,
-          states: metadata.states
+          states: metadata.states,
+          stopKeyword: metadata.stopKeyword
         })
         this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Goal))
         break
@@ -579,7 +608,7 @@ export default class SyntaxBlockBuilder {
 
       case SemanticContextType.LetDecl: {
         this.markData(SyntaxBlockKind.PathVariable, {
-          codeInit: metadata.body,
+          codeInit: metadata.body?.replace(/^\s*=\s*/g, "") ?? "",
           identifier: metadata.identifier
         })
         break
@@ -848,7 +877,99 @@ export default class SyntaxBlockBuilder {
     return block
   }
 
-  insertBasicTransition(
+  findBlockParsingEntry(block) {
+    const entry = syntaxBlockParsingEntry[block.kind]
+    if (entry) {
+      return entry
+    }
+
+    switch (block.kind) {
+      case SyntaxBlockKind.Variable: {
+        switch (block.data.kind) {
+          case IdentifierKind.GlobalConst: return "globalConstantDecl"
+          case IdentifierKind.RecordField:
+          case IdentifierKind.LocalVariable:
+          case IdentifierKind.GlobalVariable: return "variableDeclarator"
+          case IdentifierKind.FnParam: return "functionParam"
+        }
+        break
+      }
+      case SyntaxBlockKind.SingleTypedVariableGroup: {
+        switch (block.data.varKind) {
+          case IdentifierKind.GlobalConst: return "globalConstantGroup"
+          case IdentifierKind.RecordField: return "recordVariableDecl"
+          case IdentifierKind.LocalVariable: return "localVariableGroup"
+          case IdentifierKind.GlobalVariable: return "globalVariableGroup"
+        }
+        break
+      }
+    }
+
+    return null
+  }
+
+  updateTransition(block, keyword, identifier, fromState, toStates, operators, excludedStates, label, labelKeyword, codeWhere, isRefactorMode = true) {
+    const data = block.data
+    if (keyword) {
+      data.keyword = keyword
+    }
+
+    if (identifier != null) {
+      const oldIdent = data.identifier
+      data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        if (goal) {
+          const code = goal.codegen()
+          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+          goal.markCodegenOverride(newCode)
+        }
+      }
+    }
+
+    if (fromState != null) {
+      data.fromState = fromState
+    }
+
+    if (toStates != null) {
+      data.toStates = toStates
+    }
+
+    if (operators != null) {
+      data.operators = operators
+    }
+
+    if (excludedStates != null) {
+      data.excludedStates = excludedStates
+    }
+
+    if (label != null && labelKeyword != null) {
+      data.label = label
+      data.labelKeyword = labelKeyword
+    }
+
+    if (codeWhere != null) {
+      data.codeWhere = codeWhere
+    }
+
+    this.markDirty()
+  }
+
+  insertTransition(keyword, identifier, fromState, toStates, operators, excludedStates, label, labelKeyword, codeWhere) {
+    return this.insertBlock(SyntaxBlockKind.Transition, this.getLatestBlockId(SyntaxBlockKind.Machine), {
+      keyword: keyword ?? "trans",
+      identifier,
+      fromState,
+      toStates: toStates ?? [],
+      operators: operators ?? new Set(),
+      excludedStates: excludedStates ?? [],
+      label,
+      labelKeyword: label ? labelKeyword ? labelKeyword : "label" : null,
+      codeWhere
+    })
+  }
+
+  upsertTransitionByStates(
     sourceStateBlock,
     targetStateBlock,
 
@@ -901,47 +1022,452 @@ export default class SyntaxBlockBuilder {
     return true
   }
 
-  renameIdentifier(block, newIdentifierName) {
-    block.data.identifier = newIdentifierName
-    this.markDirty()
-
-    return true
+  overrideBody(block, codePieces) {
+    const stmtBlock = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, false)
+    stmtBlock.markCodegenOverride(codePieces)
+    block.overrideChildren([stmtBlock])
+    return stmtBlock
   }
 
-  updateState(block, identifier, attributes, isRefactorMode = true) {
-    const oldIdent = block.data.identifier
+  updateState(block, identifier, attributes, statementCode = null, isRefactorMode = true) {
     if (identifier) {
+      const oldIdent = block.data.identifier
       block.data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        this.context.kindBlocks
+          .get(SyntaxBlockKind.Transition)
+          ?.forEach(t => {
+            if (t.data.fromState === oldIdent) {
+              t.data.fromState = identifier
+            }
+            if (t.data.toStates.includes(oldIdent)) {
+              t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
+            }
+            if (t.data.excludedStates.includes(oldIdent)) {
+              t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
+            }
+          })
+
+        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        if (goal) {
+          const code = goal.codegen()
+          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+          goal.markCodegenOverride(newCode)
+        }
+      }
     }
     if (attributes) {
       block.data.attributes = attributes
     }
 
-    if (isRefactorMode) {
-      this.context.kindBlocks
-        .get(SyntaxBlockKind.Transition)
-        ?.forEach(t => {
-          if (t.data.fromState === oldIdent) {
-            t.data.fromState = identifier
-          }
-          if (t.data.toStates.includes(oldIdent)) {
-            t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
-          }
-          if (t.data.excludedStates.includes(oldIdent)) {
-            t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
-          }
-        })
+    if (statementCode != null) {
+      this.overrideBody(block, statementCode)
+    }
 
-      const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-      if (goal) {
-        const code = goal.codegen()
-        const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
-        goal.markCodegenOverride(newCode)
+    this.markDirty()
+  }
+
+  insertState(identifier, attributes, statementCode = null) {
+    const block = this.insertBlock(SyntaxBlockKind.State, this.getLatestBlockId(SyntaxBlockKind.Machine), {
+      attributes,
+      identifier,
+    })
+    if (statementCode) {
+      this.overrideBody(block, statementCode)
+    }
+    return block
+  }
+
+  updateMachine(block, keyword, identifier) {
+    block.data.keyword = keyword
+    block.data.identifier = identifier
+    this.markDirty()
+  }
+
+  insertMachine(keyword, identifier) {
+    return this.insertBlock(SyntaxBlockKind.Machine, this.getLatestBlockId(SyntaxBlockKind.Program), {
+      keyword,
+      identifier
+    })
+  }
+
+  updateOption(block, name, value) {
+    block.data.name = name
+    block.data.value = value
+
+    this.markDirty()
+  }
+
+  insertOption(name, value) {
+    return this.insertBlock(SyntaxBlockKind.CompilerOption, this.getLatestBlockId(SyntaxBlockKind.Program), {
+      name,
+      value
+    })
+  }
+
+  insertVariableGroup(parentId, varKind, enums = null) {
+    // const {type, identifier, codeWhere, codeInit} = firstVariable
+
+    return this.insertBlock(SyntaxBlockKind.SingleTypedVariableGroup, parentId, {
+      enums,
+      varKind,
+    })
+
+    // this.createBlock(SyntaxBlockKind.Variable, null, group.id, {
+    //   kind: varKind,
+    //   type,
+    //   identifier,
+    //   codeWhere,
+    //   codeInit
+    // })
+
+    // this.markDirty()
+  }
+
+  updateVariableGroup(block, identKind, identType, enums = null) {
+    let overrideType = false
+    let overrideKind = false
+    if (identKind != null) {
+      block.data.kind = identKind
+      overrideKind = true
+    }
+
+    if (identType != null) {
+      overrideType = true
+    }
+
+    if (enums) {
+      block.data.enums = enums
+    }
+
+    if (overrideType || overrideKind) {
+      for (let child of block.children) {
+        if (overrideKind) {
+          child.kind = identKind
+        }
+        if (overrideType) {
+          child.type = identType
+        }
+      }
+    }
+  }
+
+  insertVariable(groupId, identifier, codeInit, codeWhere, type) {
+    const parent = this.getBlockById(groupId)
+    if (!parent) {
+      return null
+    }
+    return this.insertBlock(SyntaxBlockKind.Variable, groupId, {
+      identifier,
+      codeInit,
+      codeWhere,
+      kind: parent.data.kind,
+      type: type ?? parent.children[0]?.type
+    })
+  }
+
+  updateVariable(block, identifier, codeInit, codeWhere, type, isRefactorMode) {
+    if (codeInit != null) {
+      block.data.codeInit = codeInit
+    }
+
+    if (codeWhere != null) {
+      block.data.codeWhere = codeWhere
+    }
+
+    if (type != null) {
+      block.data.type = type
+    }
+
+    if (identifier) {
+      const oldIdent = block.data.identifier
+      block.data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        const parent = this.getBlockById(block.parentId)
+        const blockKind = block.data.kind
+        switch (blockKind) {
+          case IdentifierKind.FnParam:
+          case IdentifierKind.LocalVariable:{
+            // do refactor inside fn
+            // fn :: parent :: block :: []
+            const fn = this.getBlockById(parent.parentId)
+            const replacements = {
+              commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+            }
+            for (let i = parent.parentIndex + 1; i < fn.children.length; i++) {
+              // this iteration implicitly skipped kind = FnParamGroup
+              const child = fn.children[i]
+              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+                replaceIdentifiers(
+                  child.codegen(),
+                  this.findBlockParsingEntry(child),
+                  replacements
+                )
+              }
+            }
+            if (blockKind === IdentifierKind.LocalVariable) {
+              for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
+                const child = parent.children[i]
+                if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+                  replaceIdentifiers(
+                    child.codegen(),
+                    this.findBlockParsingEntry(child),
+                    replacements
+                  )
+                }
+              }
+            }
+            break
+          }
+          case IdentifierKind.RecordField: {
+            // do refactor with dotExpr
+            const record = this.getBlockById(parent.parentId)
+            const recordIdent = record.data.identifier
+            const machine = this.getBlockById(record.parentId)
+            for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
+              const child = machine.children[i]
+              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+                replaceIdentifiers(
+                  child.codegen(),
+                  this.findBlockParsingEntry(child),
+                  {
+                    dotIdentifiersMap: new Map([[`${recordIdent}.${oldIdent}`, `${recordIdent}.${identifier}`]])
+                  }
+                )
+              }
+            }
+            break
+          }
+          case IdentifierKind.GlobalVariable:
+          case IdentifierKind.GlobalConst: {
+            // do global scan
+            const replacements = {
+              commonIdentifiersMap: new Map([[oldIdent, identifier]])
+            }
+            // for each parent
+            for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
+              const child = parent.children[i]
+              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+                replaceIdentifiers(
+                  child.codegen(),
+                  this.findBlockParsingEntry(child),
+                  replacements
+                )
+              }
+            }
+            // for each machine
+            const machine = this.getBlockById(parent.parentId)
+            for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
+              const child = machine.children[i]
+              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+                replaceIdentifiers(
+                  child.codegen(),
+                  this.findBlockParsingEntry(child),
+                  replacements
+                )
+              }
+            }
+            break
+          }
+        }
       }
     }
 
     this.markDirty()
-    return true
+  }
+
+  insertRecord(identifier) {
+    return this.insertBlock(SyntaxBlockKind.Record, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier})
+  }
+
+  updateRecord(block, identifier, isRefactorMode) {
+    const oldIdent = block.data.identifier
+    block.data.identifier = identifier
+
+    if (isRefactorMode && !block.isNewlyInserted()) {
+      const allMembers = block.children
+        .map(it => it.children[0].data?.identifier)
+        .filter(it => !!it)
+        .map(it => [`${oldIdent}.${it}`, `${identifier}.${it}`])
+      for (let i = block.index + 1; i < this.context.blocks.length; i++) {
+        const child = this.context.blocks[i]
+        if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+          const code = replaceIdentifiers(
+            child.codegen(),
+            this.findBlockParsingEntry(child), {
+              commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+              dotIdentifiersMap: new Map(allMembers)
+            }
+          )
+          child.markCodegenOverride(code)
+        }
+      }
+    }
+
+    this.markDirty()
+  }
+
+  insertFunction(identifier, returnType) {
+    // manually insert local variables + parameter variables after
+    const fnBlock = this.insertBlock(SyntaxBlockKind.Func, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier, returnType})
+
+    this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id)
+
+    return fnBlock
+  }
+
+  insertSingleStatement(parentId, code) {
+    return this.insertBlock(SyntaxBlockKind.Statement, parentId, {code})
+  }
+
+  insertMultiStatements(parentId, codePieces) {
+    const s = this.insertBlock(SyntaxBlockKind.Statement, parentId, null)
+    s.markCodegenOverride(codePieces)
+    return s
+  }
+
+  updateFunction(block, identifier, returnType, codeBody, isRefactorMode = true) {
+    if (returnType != null) {
+      block.data.returnType = returnType
+    }
+    if (codeBody != null) {
+      const statementFirstIdx = block.children.findIndex(child => child.kind === SyntaxBlockKind.Statement)
+      const statement = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, false)
+      statement.markCodegenOverride(codeBody)
+      if (statementFirstIdx !== -1) {
+        block.children = block.children.slice(0, statementFirstIdx)
+      }
+      block.pushChild(statement)
+    }
+
+    if (identifier) {
+      const oldIdent = block.data.identifier
+      block.data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        // const parent = this.getBlockById(block.parentId)
+        for (let i = block.index + 1; i < this.context.blocks.length; i++) {
+          const child = this.context.blocks[i]
+          if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+            // const stop = block.position.stopPosition
+            const code = replaceIdentifiers(
+              child.codegen(),
+              this.findBlockParsingEntry(child), {
+                commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+                // rangePair: posPair(stop.line, stop.column)
+              }
+            )
+            child.markCodegenOverride(code)
+          }
+        }
+      }
+    }
+
+    this.markDirty()
+  }
+
+  insertInvariant(identifier, inIdentifiers = []) {
+    return this.insertBlock(SyntaxBlockKind.Invariant, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier, inIdentifiers})
+  }
+
+  updateInvariant(block, identifier, inIdentifiers, isRefactorMode = false) {
+    if (inIdentifiers != null) {
+      block.data.inIdentifiers = inIdentifiers
+    }
+    if (identifier) {
+      const oldIdent = block.data.identifier
+      block.data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        if (goal) {
+          const code = goal.codegen()
+          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+          goal.markCodegenOverride(newCode)
+        }
+      }
+    }
+    this.markDirty()
+  }
+
+  insertGoal() {
+    return this.insertBlock(SyntaxBlockKind.Goal, this.getLatestBlockId(SyntaxBlockKind.Machine))
+  }
+
+  updateGoal(block, goalCode) {
+    block.markCodegenOverride(goalCode)
+    this.markDirty()
+  }
+
+  insertAssertion(code, inIdentifiers = []) {
+    return this.insertBlock(SyntaxBlockKind.Assertion, this.getLatestBlockId(SyntaxBlockKind.Goal), {code, inIdentifiers})
+  }
+
+  updateAssertion(block, code, inIdentifiers) {
+    if (code != null) {
+      block.data.code = code
+    }
+    if (inIdentifiers != null) {
+      block.data.inIdentifiers = inIdentifiers
+    }
+    this.markDirty()
+  }
+
+  insertPathVariable(identifier, codeInit) {
+    return this.insertBlock(SyntaxBlockKind.PathVariable, this.getLatestBlockId(SyntaxBlockKind.Goal), {codeInit})
+  }
+
+  updatePathVariable(block, identifier, codeInit, isRefactorMode = true) {
+    if (codeInit != null) {
+      block.data.codeInit = codeInit
+    }
+
+    if (identifier) {
+      const oldIdent = block.data.identifier
+      block.data.identifier = identifier
+      if (isRefactorMode && !block.isNewlyInserted()) {
+        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        if (goal) {
+          const code = goal.codegen()
+          const position = block.position
+          const goalStop = goal.position?.stopPosition
+          const newCode = replaceIdentifiers(code, "goal", {
+            commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+            rangePair: posPair(position.stopPosition.line, position.stopPosition.column, goalStop?.line, goalStop?.column)
+          })
+          goal.markCodegenOverride(newCode)
+        }
+      }
+    }
+
+    this.markDirty()
+  }
+
+  insertPathStatement(code) {
+    return this.insertBlock(SyntaxBlockKind.PathStatement, this.getLatestBlockId(SyntaxBlockKind.Goal), {code})
+  }
+
+  updatePathStatement(block, code) {
+    block.data.code = code
+    this.markDirty()
+  }
+
+  insertGoalFinal(mainExpr, stopKeyword, invariants, states) {
+    return this.insertBlock(SyntaxBlockKind.GoalFinal, this.getLatestBlockId(SyntaxBlockKind.Goal), {code: mainExpr, stopKeyword, invariants, states})
+  }
+
+  updateGoalFinal(block, mainExpr, stopKeyword, invariants, states) {
+    if (mainExpr != null) {
+      block.data.code = mainExpr
+    }
+    if (stopKeyword != null) {
+      block.data.stopKeyword = stopKeyword
+    }
+    if (invariants) {
+      block.data.invariants = invariants
+    }
+    if (states) {
+      block.data.states = states
+    }
+    this.markDirty()
   }
 
   searchReferences(blockIds) {
@@ -953,6 +1479,23 @@ export default class SyntaxBlockBuilder {
     }
 
     return s
+  }
+
+  searchReferencesInDepthWithSet(block, set) {
+    if (block.references.size) {
+      for (let r of block.references) {
+        set.add(r)
+      }
+    }
+
+    for (let child of block.children) {
+      this.searchReferencesInDepthWithSet(child, set)
+    }
+  }
+
+  searchReferencesInDepth(block) {
+    const s = new Set()
+    return this.searchReferencesInDepthWithSet(block, s)
   }
 
   getParentChildrenLength(block) {
@@ -971,6 +1514,24 @@ export default class SyntaxBlockBuilder {
 
   isLastOfParentChildren(block) {
     return block.parentIndex === this.getParentChildrenLength(block) - 1
+  }
+
+  previousBlock(block) {
+    if (!block.parentId) {
+      return null
+    }
+
+    const parent = this.getBlockById(block.parentId)
+    return parent?.children[block.parentIndex - 1]
+  }
+
+  nextBlock(block) {
+    if (!block.parentId) {
+      return null
+    }
+
+    const parent = this.getBlockById(block.parentId)
+    return parent?.children[block.parentIndex + 1]
   }
 
   attach(analyzer) {

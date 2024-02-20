@@ -53,24 +53,6 @@ trans:
   transScope
   ;
 
-//transScope:
-//  LBRACE
-//  (identifier)
-//  (
-//    (ARROW
-//        (identifier (COMMA identifier)*
-//        | STAR (LBRACK identifier (COMMA identifier)* RBRACK)?
-//        | PLUS (LBRACK identifier (COMMA identifier)* RBRACK)?))
-//    | (BI_ARROW
-//        (identifier (COMMA identifier)*
-//        | STAR (LBRACK identifier (COMMA identifier)* RBRACK)?
-//        | PLUS (LBRACK identifier (COMMA identifier)* RBRACK)?))
-//  )
-//  ((ON | LABEL) label)?
-//  (whereExpr SEMI)?
-//  RBRACE
-//  ;
-
 transScope:
     LBRACE identifier
     (transOp transDef)
@@ -115,14 +97,19 @@ goal:
   ;
 
 checkExpr:
-  (CHECK | ENUMERATE) forExpr (viaExpr)? (withExpr)? (stopExpr)?
+  checkMainExpr (withExpr)? (stopExpr)?
   ;
+
+checkMainExpr:
+  (CHECK | ENUMERATE) forExpr (viaExpr)?
+  ;
+
 forExpr:
   (FOR | EACH | UPTO) intLiteral (COMMA intLiteral)*
   ;
 
 stopExpr:
-  ((REACH | STOP) LPAREN identifier (COMMA identifier)* RPAREN)
+  (REACH | STOP) LPAREN identifier (COMMA identifier)* RPAREN
   ;
 
 viaExpr:
@@ -343,9 +330,14 @@ variableInitializer:
 // reference
 assertExpr:
   (annotationExpr)?
-  ASSERT (ALWAYS | SOME)? expression
+  ASSERT
+  assertMainExpr
   (inExpr)?
   SEMI
+  ;
+
+assertMainExpr:
+  (ALWAYS | SOME)? expression
   ;
 
 statement:
@@ -432,9 +424,13 @@ functionBodyScope:
 
 functionParamsDecl:
   LPAREN
-  (identifier COLON primitiveType )?
-  (COMMA identifier COLON primitiveType )*
+  functionParam?
+  (COMMA functionParam )*
   RPAREN
+  ;
+
+functionParam:
+  identifier COLON primitiveType
   ;
 
 returnExpr:

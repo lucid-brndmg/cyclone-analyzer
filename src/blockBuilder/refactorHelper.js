@@ -1,4 +1,4 @@
-import {firstSymbol, listenerWalk, parseCycloneSyntax} from "../utils/antlr.js";
+import {firstSymbol, getBlockPositionPair, listenerWalk, parseCycloneSyntax} from "../utils/antlr.js";
 import CycloneParserListener from "../generated/antlr/CycloneParserListener.js";
 import antlr4 from "antlr4";
 
@@ -13,8 +13,30 @@ class IdentifierReplacer extends CycloneParserListener {
     this.replacements = replacements
   }
 
+  isInRange(ctx) {
+    if (!this.replacements.rangePair) {
+      return true
+    }
+    const {startPosition, stopPosition} = getBlockPositionPair(ctx)
+    if (this.replacements.rangePair.startPosition) {
+      const {line, column} = this.replacements.rangePair.startPosition
+      if (startPosition.line < line || (startPosition.line === line && column < startPosition.column)) {
+        return false
+      }
+    }
+
+    if (this.replacements.isStrictRange && this.replacements.rangePair.stopPosition) {
+      const {line, column} = this.replacements.rangePair.stopPosition
+      if (stopPosition.line > line || (stopPosition.line === line && column > stopPosition.column)) {
+        return false
+      }
+    }
+
+    return true
+  }
+
   enterEnumLiteral(ctx) {
-    if (!this.replacements.enumLiteralsMap) {
+    if (!this.replacements.enumLiteralsMap || !this.isInRange(ctx)) {
       return
     }
     const text = ctx.start.text
@@ -24,7 +46,7 @@ class IdentifierReplacer extends CycloneParserListener {
   }
 
   enterIdentifier(ctx) {
-    if (this.isDotMode || !this.replacements.commonIdentifiersMap) {
+    if (this.isDotMode || !this.replacements.commonIdentifiersMap || !this.isInRange(ctx)) {
       return
     }
     const text = ctx.start.text
@@ -43,7 +65,7 @@ class IdentifierReplacer extends CycloneParserListener {
   exitDotIdentifierExpr(ctx) {
     if (this.isDotMode) {
       this.isDotMode = false
-      if (!this.replacements.dotIdentifiersMap) {
+      if (!this.replacements.dotIdentifiersMap || !this.isInRange(ctx)) {
         return
       }
       const ident = `${ctx.start.text}.${ctx.stop.text}`
@@ -58,7 +80,16 @@ class IdentifierReplacer extends CycloneParserListener {
   }
 }
 
-export const replaceIdentifiers = (code, parsingEntry, {commonIdentifiersMap = null, enumLiteralsMap = null, dotIdentifiersMap = null}) => {
+export const replaceIdentifiers = (
+  code,
+  parsingEntry,
+  {
+    commonIdentifiersMap = null,
+    enumLiteralsMap = null,
+    dotIdentifiersMap = null,
+    rangePair = null,
+    isStrictRange = false,
+  }) => {
   const {tokenStream, tree} = parseCycloneSyntax({
     input: code,
     entry: parsingEntry
@@ -67,7 +98,9 @@ export const replaceIdentifiers = (code, parsingEntry, {commonIdentifiersMap = n
   const replacer = new IdentifierReplacer(tokenStream, {
     commonIdentifiersMap,
     enumLiteralsMap,
-    dotIdentifiersMap
+    dotIdentifiersMap,
+    rangePair,
+    isStrictRange
   })
 
   listenerWalk(replacer, tree)

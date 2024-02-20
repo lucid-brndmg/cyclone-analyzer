@@ -1,8 +1,8 @@
 export const ErrorSource = {
-  Lexer: 0,
-  Parser: 1,
-  Semantic: 2,
-  Remote: 3
+  Lexer: 1,
+  Parser: 2,
+  Semantic: 3,
+  Remote: 4
 }
 
 export const ErrorType = {
@@ -21,6 +21,7 @@ export const ErrorType = {
   InvalidStatement: 2011,
   LetBodyUndefined: 2012,
   LocalVariableEnum: 2013,
+  InvalidNodeModifier: 2014,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,
@@ -35,12 +36,13 @@ export const ErrorType = {
   DuplicatedEdge: 4004,
   EmptyEdge: 4005,
   DuplicatedEnumField: 4006,
+  DuplicatedEdgeTarget: 4007,
 
   RemoteError: 5001,
 }
 
 export const SemanticContextType = {
-  ProgramScope: 0,
+  ProgramScope: 1,
 
   MachineDecl: 10, // decl, scope
   MachineScope: 11,
@@ -121,26 +123,21 @@ export const SemanticContextType = {
 }
 
 export const IdentifierKind = {
-  // Enum: 0,
-  // Record: 2,
-  // State: 3,
-  // Variable: 4,
-  // LetVariable: 5,
-  Machine: 0,
-  State: 1,
-  Trans: 2,
-  Let: 3,
-  Record: 4,
-  GlobalConst: 5,
-  EnumField: 6,
-  GlobalVariable: 7,
-  LocalVariable: 8,
-  FnName: 9,
-  FnParam: 10,
-  Annotation: 11,
+  Machine: 1,
+  State: 2,
+  Trans: 3,
+  Let: 4,
+  Record: 5,
+  GlobalConst: 6,
+  EnumField: 7,
+  GlobalVariable: 8,
+  LocalVariable: 9,
+  FnName: 10,
+  FnParam: 11,
+  Annotation: 12,
 
-  Invariant: 12,
-  RecordField: 13,
+  Invariant: 13,
+  RecordField: 14,
 
   Unknown: -1
 }
@@ -165,10 +162,10 @@ export const IdentifierType = {
 }
 
 export const ActionKind = {
-  InfixOperator: 0, // a x b
-  PrefixOperator: 1, // x a
-  SuffixOperator: 2, // a x
-  Function: 3, // x(a)
+  InfixOperator: 1, // a x b
+  PrefixOperator: 2, // x a
+  SuffixOperator: 3, // a x
+  Function: 4, // x(a)
 }
 
 export const SyntaxBlockKind = {

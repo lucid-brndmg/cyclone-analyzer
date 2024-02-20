@@ -29,7 +29,7 @@ const codegenTransitionBody = ({
     parts.push(`[${excludedStates.join(", ")}]`)
   }
 
-  if (labelKeyword) {
+  if (labelKeyword != null && label != null) {
     parts.push(`${labelKeyword} "${label}"`)
   }
 
@@ -89,6 +89,13 @@ export default class SyntaxBlock {
     }
   }
 
+  overrideChildren(children) {
+    this.children = children
+    for (let i = 0; i < children.length; i++) {
+      children[i].parentIndex = i
+    }
+  }
+
   markData(data) {
     this.data = {...this.data, ...data}
   }
@@ -111,6 +118,14 @@ export default class SyntaxBlock {
 
   isBefore(block) {
     return this.index < block.index
+  }
+
+  isNewlyInserted() {
+    return this.position == null
+  }
+
+  isCodeOverridden() {
+    return !!this.codegenOverride
   }
 
   codegen(codegenOpts) {
@@ -140,7 +155,12 @@ export default class SyntaxBlock {
         for (let child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
-        return `${this.data.attributes.join(" ")} ${this.data.identifier} {${body.join("\n")}}`
+
+        const modifiers = this.data.attributes.filter(a => ["abstract", "normal", "start", "final"].includes(a))
+
+        const keyword = this.data.attributes.includes("state") ? "state" : "node"
+
+        return `${modifiers.join(" ")} ${keyword} ${this.data.identifier} {${body.join("\n")}}`
       }
 
       case SyntaxBlockKind.Transition: {
@@ -152,11 +172,27 @@ export default class SyntaxBlock {
         return `${keyword}${identifier ? " " + identifier : ""} {${codegenTransitionBody(this.data)}}`
       }
 
-      case SyntaxBlockKind.GoalFinal:
       case SyntaxBlockKind.Statement:
-      case SyntaxBlockKind.PathStatement:
-      case SyntaxBlockKind.Assertion: {
+      case SyntaxBlockKind.PathStatement: {
         return this.data.code
+      }
+
+      case SyntaxBlockKind.GoalFinal: {
+        const {code, invariants, states, stopKeyword} = this.data
+        const withExpr = invariants.length
+          ? ` with (${invariants.join(", ")})`
+          : ""
+        const stopExpr = states.length
+          ? ` ${stopKeyword} (${states.join(", ")})`
+          : ""
+        return `${code}${withExpr}${stopExpr}`
+      }
+
+      case SyntaxBlockKind.Assertion: {
+        const inExpr = this.data.inIdentifiers?.length
+          ? `in (${this.data.inIdentifiers.join(", ")})`
+          : ""
+        return `assert ${this.data.code} ${inExpr};`
       }
 
       case SyntaxBlockKind.Variable: {
@@ -166,7 +202,7 @@ export default class SyntaxBlock {
           case IdentifierKind.RecordField:
           case IdentifierKind.GlobalConst:
           case IdentifierKind.GlobalVariable:
-          case IdentifierKind.LocalVariable: return `${identifier}${codeInit ? ` = ${codeInit}` : ""}${codeWhere ? ` where ${codeWhere}` : ""}`
+          case IdentifierKind.LocalVariable: return `${identifier}${codeInit?.length ? ` = ${codeInit}` : ""}${codeWhere ? ` where ${codeWhere}` : ""}`
         }
         return ""
       }
@@ -188,7 +224,7 @@ export default class SyntaxBlock {
               break
           }
         }
-        return `function ${identifier}: ${typeToString(returnType)} (${paramsExpr}) {${body.join("\n")}}`
+        return `function ${identifier}: ${typeToString(returnType)} ${paramsExpr} {${body.join("\n")}}`
       }
       case SyntaxBlockKind.Goal: {
         const body = []
@@ -202,10 +238,13 @@ export default class SyntaxBlock {
         for (let child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
-        return `invariant ${this.data.identifier} {${body.join("\n")}}`
+        const inExpr = this.data.inIdentifiers?.length
+          ? ` in (${this.data.inIdentifiers.join(", ")})`
+          : ""
+        return `invariant ${this.data.identifier} {${body.join("\n")}}${inExpr}`
       }
       case SyntaxBlockKind.PathVariable: {
-        return `let ${this.data.identifier}${this.data.codeInit ?? ""};`
+        return `let ${this.data.identifier}${this.data.codeInit?.length ? ` = ${this.data.codeInit}` : ""};`
       }
       case SyntaxBlockKind.Record: {
         const body = []
@@ -245,7 +284,7 @@ export default class SyntaxBlock {
         for (let child of this.children) {
           body.push(child.codegen(codegenOpts))
         }
-        return body.join(", ")
+        return '(' + body.join(", ") + ')'
       }
 
       case SyntaxBlockKind.Program: {
@@ -257,6 +296,4 @@ export default class SyntaxBlock {
       }
     }
   }
-
-  // TODO: insert child, swap child index
 }

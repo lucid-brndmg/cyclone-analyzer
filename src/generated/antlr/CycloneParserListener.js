@@ -167,6 +167,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#checkMainExpr.
+	enterCheckMainExpr(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#checkMainExpr.
+	exitCheckMainExpr(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#forExpr.
 	enterForExpr(ctx) {
 	}
@@ -563,6 +572,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#assertMainExpr.
+	enterAssertMainExpr(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#assertMainExpr.
+	exitAssertMainExpr(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#statement.
 	enterStatement(ctx) {
 	}
@@ -731,6 +749,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 
 	// Exit a parse tree produced by CycloneParser#functionParamsDecl.
 	exitFunctionParamsDecl(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#functionParam.
+	enterFunctionParam(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#functionParam.
+	exitFunctionParam(ctx) {
 	}
 
 
