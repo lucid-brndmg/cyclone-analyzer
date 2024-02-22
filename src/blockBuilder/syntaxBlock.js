@@ -178,14 +178,40 @@ export default class SyntaxBlock {
       }
 
       case SyntaxBlockKind.GoalFinal: {
-        const {code, invariants, states, stopKeyword} = this.data
-        const withExpr = invariants.length
-          ? ` with (${invariants.join(", ")})`
-          : ""
-        const stopExpr = states.length
-          ? ` ${stopKeyword} (${states.join(", ")})`
-          : ""
-        return `${code}${withExpr}${stopExpr}`
+        const {
+          invariants,
+          states,
+          checkKeyword,
+          forKeyword,
+          forValues,
+          viaKeyword,
+          viaExpr,
+          stopKeyword
+        } = this.data
+
+        const parts = [
+          `${checkKeyword} ${forKeyword} ${forValues.join(", ")}`
+        ]
+
+        if (viaKeyword) {
+          `${viaKeyword} (${viaExpr})`
+        }
+
+        if (invariants.length) {
+          parts.push(`with (${invariants.join(", ")})`)
+        }
+
+        if (states.length) {
+          parts.push(`${stopKeyword ?? "reach"} (${states.join(", ")})`)
+        }
+
+        // const withExpr = invariants.length
+        //   ? ` `
+        //   : ""
+        // const stopExpr = states.length
+        //   ? ` ${stopKeyword ?? "reach"} (${states.join(", ")})`
+        //   : ""
+        return parts.join(" ")
       }
 
       case SyntaxBlockKind.Assertion: {

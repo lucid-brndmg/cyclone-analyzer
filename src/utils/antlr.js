@@ -36,8 +36,8 @@ export const getParentExpression = ctx => ctx.parentCtx.start.getInputStream().g
 
 export const getExpression = ctx => ctx.start.getInputStream().getText(ctx.start.start, ctx.stop.stop)
 
-export const getOnlyExpression = ctx => {
-  const expr = ctx.children?.find(c => c instanceof CycloneParser.AssertMainExprContext)
+export const getOnlyExpression = (ctx, parserContext) => {
+  const expr = ctx.children?.find(c => c instanceof parserContext)
   if (expr) {
     return getExpression(expr)
   }

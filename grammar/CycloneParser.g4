@@ -97,12 +97,12 @@ goal:
   ;
 
 checkExpr:
-  checkMainExpr (withExpr)? (stopExpr)?
+  (CHECK | ENUMERATE) forExpr (viaExpr)? (withExpr)? (stopExpr)?
   ;
 
-checkMainExpr:
-  (CHECK | ENUMERATE) forExpr (viaExpr)?
-  ;
+//checkMainExpr:
+//  (CHECK | ENUMERATE) forExpr (viaExpr)?
+//  ;
 
 forExpr:
   (FOR | EACH | UPTO) intLiteral (COMMA intLiteral)*

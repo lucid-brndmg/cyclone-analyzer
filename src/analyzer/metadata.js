@@ -75,7 +75,7 @@ const goalScopeMetadata = () => ({
   states: [],
   expr: "",
   finalPosition: null,
-  stopKeyword: "stop"
+  // stopKeyword: "stop"
 })
 
 const letDeclMetadata = () => ({

@@ -1112,11 +1112,11 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleStopExpr(keyword, identifiers) {
+  handleStopExpr(identifiers) {
     const def = this.context.peekScope()
-    if (keyword) {
-      def.metadata.stopKeyword = keyword
-    }
+    // if (keyword) {
+    //   def.metadata.stopKeyword = keyword
+    // }
     if (identifiers?.length) {
       const s = new Set()
       for (let {identifier, position} of identifiers) {
@@ -1157,18 +1157,19 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleCheckExpr() {
+  handleCheckExpr(expr) {
     // this.context.peekScope().metadata.keyword = keyword
     const goal = this.context.peekScope()
     // goal.metadata.expr = expr
     goal.metadata.finalPosition = this.context.peekBlock().position
+    goal.metadata.expr = expr
 
     // this.emitLangComponent(context, null)
   }
 
-  handleCheckMainExpr(expr) {
-    this.context.peekScope().metadata.expr = expr
-  }
+  // handleCheckMainExpr(expr) {
+  //   this.context.peekScope().metadata.expr = expr
+  // }
 
   handleExpression() {
     const block = this.context.peekBlock()

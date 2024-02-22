@@ -1,5 +1,5 @@
 import {IdentifierKind, IdentifierType, SemanticContextType, SyntaxBlockKind} from "../language/definitions.js";
-import {getExpression, getOnlyExpression} from "../utils/antlr.js";
+import {getExpression, getOnlyExpression, listenerWalk, parseCycloneSyntax} from "../utils/antlr.js";
 import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
@@ -8,6 +8,8 @@ import SyntaxBlock from "./syntaxBlock.js";
 import {elementReplacer, findLast} from "../lib/list.js";
 import {replaceIdentifiers} from "./refactorHelper.js";
 import {posPair} from "../lib/position.js";
+import CycloneParser from "../generated/antlr/CycloneParser.js";
+import CheckExprListener from "./checkExprListener.js";
 
 const idPrefixKind = (() => {
   const result = {}
@@ -438,7 +440,7 @@ export default class SyntaxBlockBuilder {
 
       case SemanticContextType.AssertExpr: {
         this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal), {
-          code: getOnlyExpression(payload) // getExpression(payload)
+          code: getOnlyExpression(payload, CycloneParser.AssertMainExprContext) // getExpression(payload)
         })
         break
       }
@@ -596,12 +598,35 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.GoalScope: {
-        this.markData(SyntaxBlockKind.GoalFinal, {
-          code: metadata.expr,
+        const code = metadata.expr
+        const {tree} = parseCycloneSyntax({
+          input: code,
+          entry: "checkExpr"
+        })
+
+        const lis = new CheckExprListener()
+        listenerWalk(lis, tree)
+        const {
+          checkKeyword,
+          forKeyword,
+          forValues,
+          viaKeyword,
+          viaExpr,
+          stopKeyword
+        } = lis.result
+
+        const data = {
           invariants: metadata.invariants,
           states: metadata.states,
-          stopKeyword: metadata.stopKeyword
-        })
+          checkKeyword,
+          forKeyword,
+          forValues,
+          viaKeyword,
+          viaExpr,
+          stopKeyword
+        }
+
+        this.markData(SyntaxBlockKind.GoalFinal, data)
         this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Goal))
         break
       }
@@ -1450,13 +1475,25 @@ export default class SyntaxBlockBuilder {
     this.markDirty()
   }
 
-  insertGoalFinal(mainExpr, stopKeyword, invariants, states) {
-    return this.insertBlock(SyntaxBlockKind.GoalFinal, this.getLatestBlockId(SyntaxBlockKind.Goal), {code: mainExpr, stopKeyword, invariants, states})
+  insertGoalFinal(checkKeyword, forKeyword, forValues, viaKeyword, viaExpr, stopKeyword, invariants, states) {
+    return this.insertBlock(SyntaxBlockKind.GoalFinal, this.getLatestBlockId(SyntaxBlockKind.Goal), {checkKeyword, forKeyword, forValues, viaKeyword, viaExpr, stopKeyword, invariants, states})
   }
 
-  updateGoalFinal(block, mainExpr, stopKeyword, invariants, states) {
-    if (mainExpr != null) {
-      block.data.code = mainExpr
+  updateGoalFinal(block, checkKeyword, forKeyword, invariants, states, forValues, viaKeyword, viaExpr, stopKeyword) {
+    if (checkKeyword != null) {
+      block.data.checkKeyword = checkKeyword
+    }
+    if (forKeyword != null) {
+      block.data.forKeyword = forKeyword
+    }
+    if (forValues != null) {
+      block.data.forValues = forValues
+    }
+    if (viaKeyword != null) {
+      block.data.viaKeyword = viaKeyword
+    }
+    if (viaExpr != null) {
+      block.data.viaExpr = viaExpr
     }
     if (stopKeyword != null) {
       block.data.stopKeyword = stopKeyword

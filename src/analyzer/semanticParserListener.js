@@ -266,7 +266,7 @@ export default class SemanticParserListener extends CycloneParserListener {
     const idents = getPositionedIdentifiersInList(ctx)
     // const [line, column] = [ctx.parentCtx.start.start, ctx.parentCtx.stop.stop]
     // const expr = ctx.parentCtx.start.getInputStream().getText(line, column)
-    this.analyzer.handleStopExpr(firstSymbol(ctx), idents)
+    this.analyzer.handleStopExpr(idents)
   }
 
   exitStopExpr(ctx) {
@@ -299,12 +299,12 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterCheckExpr(ctx) {
     this.#pushBlock(SemanticContextType.GoalFinal, ctx)
-    this.analyzer.handleCheckExpr()
+    this.analyzer.handleCheckExpr(getExpression(ctx))
   }
 
-  enterCheckMainExpr(ctx) {
-    this.analyzer.handleCheckMainExpr(getExpression(ctx))
-  }
+  // enterCheckMainExpr(ctx) {
+  //   this.analyzer.handleCheckMainExpr(getExpression(ctx))
+  // }
 
   exitCheckExpr(ctx) {
     this.analyzer.popBlock(ctx)

@@ -167,15 +167,6 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
-	// Enter a parse tree produced by CycloneParser#checkMainExpr.
-	enterCheckMainExpr(ctx) {
-	}
-
-	// Exit a parse tree produced by CycloneParser#checkMainExpr.
-	exitCheckMainExpr(ctx) {
-	}
-
-
 	// Enter a parse tree produced by CycloneParser#forExpr.
 	enterForExpr(ctx) {
 	}
