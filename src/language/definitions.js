@@ -23,6 +23,7 @@ export const ErrorType = {
   // LocalVariableEnum: 2013,
   EnumNotAllowedInVariable: 2013,
   InvalidNodeModifier: 2014,
+  WhereInlineVariable: 2015,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,

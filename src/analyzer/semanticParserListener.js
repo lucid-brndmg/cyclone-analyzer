@@ -199,7 +199,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   enterWhereExpr(ctx) {
     this.#pushBlock(SemanticContextType.WhereExpr, ctx)
     const expr = getExpression(ctx)
-    this.analyzer.handleWhereExpr(expr)
+    this.analyzer.handleWhereExpr(expr, getBlockPositionPair(ctx))
   }
 
   exitWhereExpr(ctx) {

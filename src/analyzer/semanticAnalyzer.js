@@ -1009,7 +1009,7 @@ export default class SemanticAnalyzer {
     block.metadata.labelKeyword = labelKeywordIsLabel ? "label" : "on"
   }
 
-  handleWhereExpr(expr) {
+  handleWhereExpr(expr, position) {
     const transBlock = this.context.findNearestBlock(SemanticContextType.TransDecl)
 
     // const block = this.context.peekBlock(1)
@@ -1020,6 +1020,12 @@ export default class SemanticAnalyzer {
 
     if (transBlock) {
       transBlock.metadata.whereExpr = sanitized
+    } else if (this.context.findNearestBlock(SemanticContextType.LocalVariableGroup)) {
+      this.emit("errors", [{
+        ...position,
+        source: ErrorSource.Semantic,
+        type: ErrorType.WhereInlineVariable
+      }])
     }
 
     this.context.peekBlock().metadata.expr = sanitized
