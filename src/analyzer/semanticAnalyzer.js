@@ -467,7 +467,7 @@ export default class SemanticAnalyzer {
   }
 
   // 'int', 'real', 'bool', etc
-  handleTypeToken(typeText) {
+  handleTypeToken(typeText, position) {
     const block = this.context.peekBlock()
     if (!block) {
       console.log("warn: block type not found")
@@ -476,8 +476,9 @@ export default class SemanticAnalyzer {
 
     const type = typeTokenToType[typeText]
       ?? IdentifierType.Hole
+    const blockType = block.type
 
-    switch (block.type) {
+    switch (blockType) {
       case SemanticContextType.FnDecl: {
         block.metadata.signatures[0].output = type
         break
@@ -507,12 +508,21 @@ export default class SemanticAnalyzer {
       }
 
       default: {
-        if (singleTypedDeclarationGroupContextType.has(block.type)) {
+        if (singleTypedDeclarationGroupContextType.has(blockType)) {
           // case SemanticContextType.EnumGroup:
           // case SemanticContextType.GlobalConstantGroup:
           // case SemanticContextType.GlobalVariableGroup:
           // case SemanticContextType.LocalVariableGroup:
           block.metadata.fieldType = type
+
+          if ((blockType === SemanticContextType.GlobalConstantGroup || blockType === SemanticContextType.LocalVariableGroup) && typeText === "enum") {
+            this.emit("errors", [{
+              source: ErrorSource.Semantic,
+              ...position,
+
+              type: ErrorType.EnumNotAllowedInVariable,
+            }])
+          }
         }
 
         break
@@ -1216,14 +1226,14 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleLocalVariableDeclGroup() {
-    const block = this.context.peekBlock()
-    if (block.metadata.fieldType === IdentifierType.Enum) {
-      this.emit("errors", [{
-        source: ErrorSource.Semantic,
-        type: ErrorType.LocalVariableEnum,
-        ...block.position
-      }])
-    }
-  }
+  // handleLocalVariableDeclGroup() {
+  //   const block = this.context.peekBlock()
+  //   if (block.metadata.fieldType === IdentifierType.Enum) {
+  //     this.emit("errors", [{
+  //       source: ErrorSource.Semantic,
+  //       type: ErrorType.LocalVariableEnum,
+  //       ...block.position
+  //     }])
+  //   }
+  // }
 }

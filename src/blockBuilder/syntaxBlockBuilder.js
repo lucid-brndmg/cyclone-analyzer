@@ -1152,7 +1152,7 @@ export default class SyntaxBlockBuilder {
   updateVariableGroup(block, identKind, identType, enums = null) {
     let overrideType = false
     let overrideKind = false
-    if (identKind != null) {
+    if (identKind != null && block.data.kind !== identKind) {
       block.data.kind = identKind
       overrideKind = true
     }
@@ -1168,10 +1168,10 @@ export default class SyntaxBlockBuilder {
     if (overrideType || overrideKind) {
       for (let child of block.children) {
         if (overrideKind) {
-          child.kind = identKind
+          child.data.kind = identKind
         }
         if (overrideType) {
-          child.type = identType
+          child.data.type = identType
         }
       }
     }

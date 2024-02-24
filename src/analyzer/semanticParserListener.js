@@ -359,7 +359,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitLocalVariableGroup(ctx) {
-    this.analyzer.handleLocalVariableDeclGroup()
+    // this.analyzer.handleLocalVariableDeclGroup()
     this.analyzer.popBlock(ctx)
   }
 
@@ -400,7 +400,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   enterEnumType(ctx) {
-    this.analyzer.handleTypeToken("enum")
+    this.analyzer.handleTypeToken("enum", getBlockPositionPair(ctx))
   }
 
   enterEnumDecl(ctx) {
@@ -506,7 +506,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterPrimitiveType(ctx) {
     const text = ctx.start.text
-    this.analyzer.handleTypeToken(text)
+    this.analyzer.handleTypeToken(text, getBlockPositionPair(ctx))
   }
 
   enterBoolLiteral(ctx) {
