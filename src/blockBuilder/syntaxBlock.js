@@ -89,6 +89,11 @@ export default class SyntaxBlock {
     }
   }
 
+  replaceChild(childBlock, atIndex) {
+    this.children[atIndex] = childBlock
+    childBlock.parentIndex = atIndex
+  }
+
   overrideChildren(children) {
     this.children = children
     for (let i = 0; i < children.length; i++) {

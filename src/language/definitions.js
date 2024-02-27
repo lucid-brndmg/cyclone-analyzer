@@ -20,7 +20,6 @@ export const ErrorType = {
   InvalidNamedExprScope: 2010,
   InvalidStatement: 2011,
   LetBodyUndefined: 2012,
-  // LocalVariableEnum: 2013,
   EnumNotAllowedInVariable: 2013,
   InvalidNodeModifier: 2014,
   WhereInlineVariable: 2015,

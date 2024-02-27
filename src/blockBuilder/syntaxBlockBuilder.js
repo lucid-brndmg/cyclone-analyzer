@@ -1152,8 +1152,8 @@ export default class SyntaxBlockBuilder {
   updateVariableGroup(block, identKind, identType, enums = null) {
     let overrideType = false
     let overrideKind = false
-    if (identKind != null && block.data.kind !== identKind) {
-      block.data.kind = identKind
+    if (identKind != null && block.data.varKind !== identKind) {
+      block.data.varKind = identKind
       overrideKind = true
     }
 
@@ -1168,7 +1168,7 @@ export default class SyntaxBlockBuilder {
     if (overrideType || overrideKind) {
       for (let child of block.children) {
         if (overrideKind) {
-          child.data.kind = identKind
+          child.data.varKind = identKind
         }
         if (overrideType) {
           child.data.type = identType
@@ -1177,7 +1177,7 @@ export default class SyntaxBlockBuilder {
     }
   }
 
-  insertVariable(groupId, identifier, codeInit, codeWhere, type) {
+  insertVariable(groupId, identifier, codeInit, codeWhere, type, kind) {
     const parent = this.getBlockById(groupId)
     if (!parent) {
       return null
@@ -1186,7 +1186,7 @@ export default class SyntaxBlockBuilder {
       identifier,
       codeInit,
       codeWhere,
-      kind: parent.data.kind,
+      kind: kind ?? parent.data.varKind,
       type: type ?? parent.children[0]?.type
     })
   }
@@ -1351,10 +1351,34 @@ export default class SyntaxBlockBuilder {
     return s
   }
 
-  updateFunction(block, identifier, returnType, codeBody, isRefactorMode = true) {
+  updateFunction(block, identifier, returnType, codeVariables, codeBody, isRefactorMode = true) {
     if (returnType != null) {
       block.data.returnType = returnType
     }
+
+    if (codeVariables != null) {
+      const vars = this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, null, block.id, null, null, false)
+      vars.markCodegenOverride(codeVariables)
+      let statementIdx = -1
+      for (let i = 0; i < block.children.length; i++) {
+        const child = block.children[i]
+        if (child.kind === SyntaxBlockKind.SingleTypedVariableGroup) {
+          this.removeBlock(child)
+        } else if (child.kind === SyntaxBlockKind.Statement) {
+          if (statementIdx === -1) {
+            statementIdx = i
+            break
+          }
+        }
+      }
+
+      if (statementIdx === -1) {
+        block.pushChild(vars)
+      } else {
+        block.insertChild(vars, statementIdx)
+      }
+    }
+
     if (codeBody != null) {
       const statementFirstIdx = block.children.findIndex(child => child.kind === SyntaxBlockKind.Statement)
       const statement = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, false)
@@ -1364,6 +1388,7 @@ export default class SyntaxBlockBuilder {
       }
       block.pushChild(statement)
     }
+
 
     if (identifier) {
       const oldIdent = block.data.identifier
@@ -1388,6 +1413,13 @@ export default class SyntaxBlockBuilder {
     }
 
     this.markDirty()
+  }
+
+  clearFunctionParamGroup(fnBlock) {
+    const params = this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id, null, null, false)
+    fnBlock.replaceChild(params, 0)
+    this.markDirty()
+    return params
   }
 
   insertInvariant(identifier, inIdentifiers = []) {

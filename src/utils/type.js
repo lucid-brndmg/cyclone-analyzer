@@ -35,9 +35,20 @@ const typeMsgRepr = {
   [IdentifierType.Hole]: "unknown"
 }
 
+const msgTypeRepr = (() => {
+  const o = {}
+  for (let [key, value] of Object.entries(typeMsgRepr)) {
+    o[value] = parseInt(key)
+  }
+  return o
+})()
+
 export const typeToString = ty => typeMsgRepr[ty] ?? "undefined"
+
+export const typeFromString = ty => msgTypeRepr[ty] ?? IdentifierType.Hole
 
 export default {
   checkSignature,
-  typeToString
+  typeToString,
+  typeFromString
 }
