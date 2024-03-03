@@ -350,6 +350,7 @@ export default class SyntaxBlockBuilder {
           varKind: type === SemanticContextType.GlobalVariableGroup
             ? IdentifierKind.GlobalVariable
             : IdentifierKind.GlobalConst,
+          type: null
         })
         break
       }
@@ -360,7 +361,8 @@ export default class SyntaxBlockBuilder {
       }
       case SemanticContextType.RecordVariableDeclGroup: {
         this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Record), {
-          varKind: IdentifierKind.RecordField
+          varKind: IdentifierKind.RecordField,
+          type: null
         })
         break
       }
@@ -412,7 +414,8 @@ export default class SyntaxBlockBuilder {
       case SemanticContextType.LocalVariableGroup: {
         // For now, local var can only exist in fn
         this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Func), {
-          varKind: IdentifierKind.LocalVariable
+          varKind: IdentifierKind.LocalVariable,
+          type: null
         })
 
         break
@@ -821,7 +824,7 @@ export default class SyntaxBlockBuilder {
     return searchedBlock?.parentIndex
   }
 
-  findBlockInsertionIndex(kind) {
+  findBlockInsertionIndex(kind, parentId) {
     switch (kind) {
       // insert AT last
       case SyntaxBlockKind.Variable:
@@ -869,6 +872,7 @@ export default class SyntaxBlockBuilder {
 
       // complicated kinds
       case SyntaxBlockKind.SingleTypedVariableGroup: {
+        const parent = this.getBlockById(parentId)
         switch (parent.kind) {
           case SyntaxBlockKind.Machine: {
             // global variable, constant, etc
@@ -896,7 +900,7 @@ export default class SyntaxBlockBuilder {
     //   return null
     // }
 
-    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind))
+    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind, parentId))
     this.markDirty()
 
     return block
@@ -1130,12 +1134,13 @@ export default class SyntaxBlockBuilder {
     })
   }
 
-  insertVariableGroup(parentId, varKind, enums = null) {
+  insertVariableGroup(parentId, varKind, enums = null, type = null) {
     // const {type, identifier, codeWhere, codeInit} = firstVariable
 
     return this.insertBlock(SyntaxBlockKind.SingleTypedVariableGroup, parentId, {
       enums,
       varKind,
+      type
     })
 
     // this.createBlock(SyntaxBlockKind.Variable, null, group.id, {
@@ -1159,6 +1164,7 @@ export default class SyntaxBlockBuilder {
 
     if (identType != null) {
       overrideType = true
+      block.data.type = identType
     }
 
     if (enums) {
@@ -1182,13 +1188,17 @@ export default class SyntaxBlockBuilder {
     if (!parent) {
       return null
     }
+    if (parent.data.type == null && type != null) {
+      parent.data.type = type
+    }
     return this.insertBlock(SyntaxBlockKind.Variable, groupId, {
       identifier,
       codeInit,
       codeWhere,
       kind: kind ?? parent.data.varKind,
-      type: type ?? parent.children[0]?.type
+      type: type ?? parent.data.type ?? parent.children[0]?.type
     })
+
   }
 
   updateVariable(block, identifier, codeInit, codeWhere, type, isRefactorMode) {
