@@ -72,6 +72,7 @@ const semanticTypePathToBlockKind = path => {
       case SemanticContextType.CompilerOption: return SyntaxBlockKind.CompilerOption
       case SemanticContextType.Statement: return SyntaxBlockKind.Statement
       case SemanticContextType.PathAssignStatement: return SyntaxBlockKind.PathStatement
+      case SemanticContextType.ProgramScope: return SyntaxBlockKind.Program
     }
   }
 
@@ -1198,7 +1199,6 @@ export default class SyntaxBlockBuilder {
       kind: kind ?? parent.data.varKind,
       type: type ?? parent.data.type ?? parent.children[0]?.type
     })
-
   }
 
   updateVariable(block, identifier, codeInit, codeWhere, type, isRefactorMode) {

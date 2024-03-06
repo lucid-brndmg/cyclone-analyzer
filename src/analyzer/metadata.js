@@ -98,7 +98,8 @@ const machineDeclMetadata = () => ({
 
 const compilerOptionMetadata = () => ({
   name: null,
-  value: null
+  value: null,
+  position: null
 })
 
 const whereExprMetadata = () => ({

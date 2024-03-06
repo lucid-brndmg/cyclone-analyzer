@@ -14,7 +14,7 @@ export default class SemanticAnalyzerContext {
     this.#scopedBlocks = []
     this.#actionTable = new CategorizedStackTable(builtinActions)
     this.#typeStack = []
-    this.#definedOptions = new Set()
+    this.#definedOptions = new Map()
   }
 
   get currentMachineBlock() {
@@ -175,11 +175,15 @@ export default class SemanticAnalyzerContext {
     return fn
   }
 
-  addDefinedOption(option) {
-    this.#definedOptions.add(option)
+  addDefinedOption(option, literal, position) {
+    this.#definedOptions.set(option, {literal, position})
   }
 
   isOptionDefined(option) {
     return this.#definedOptions.has(option)
+  }
+
+  getDefinedOption(option) {
+    return this.#definedOptions.get(option)
   }
 }

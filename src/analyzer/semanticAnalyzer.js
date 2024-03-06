@@ -714,9 +714,10 @@ export default class SemanticAnalyzer {
 
   checkOption(optName, lit) {
     const block = this.context.peekBlock()
+    const position = block.position
+    block.metadata.position = position
     block.metadata.name = optName
     block.metadata.value = lit
-    const position = block.position
     // this.emitLangComponent(context, {name: optName, value: lit})
 
     const opt = optionAcceptableValues.get(optName)
@@ -758,7 +759,7 @@ export default class SemanticAnalyzer {
       })
     }
 
-    this.context.addDefinedOption(optName)
+    this.context.addDefinedOption(optName, lit, position)
 
     if (es.length) {
       this.emit("errors", es)
@@ -1229,6 +1230,19 @@ export default class SemanticAnalyzer {
     const blockType = this.context.peekBlock().type
     if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
       this.pushTypeStack(IdentifierType.Int)
+    }
+  }
+
+  handleAnalyzeOptions() {
+    const trace = this.context.getDefinedOption("trace")
+    const out = this.context.getDefinedOption("output")
+    if (trace?.literal !== "true" && out) {
+      const {position} = out
+      this.emit("errors", [{
+        source: ErrorSource.Semantic,
+        kind: ErrorType.OptionTraceNotFound,
+        ...position
+      }])
     }
   }
 

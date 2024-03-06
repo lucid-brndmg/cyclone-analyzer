@@ -38,6 +38,7 @@ export const ErrorType = {
   EmptyEdge: 4005,
   DuplicatedEnumField: 4006,
   DuplicatedEdgeTarget: 4007,
+  OptionTraceNotFound: 4008,
 
   RemoteError: 5001,
 }

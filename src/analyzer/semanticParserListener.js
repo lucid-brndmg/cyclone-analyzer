@@ -60,6 +60,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   enterMachineDecl(ctx) {
+    this.analyzer.handleAnalyzeOptions()
     const token = ctx.children.find(child => {
       const kwd = child?.symbol?.text
       return kwd === "machine" || kwd === "graph"
