@@ -1240,7 +1240,7 @@ export default class SemanticAnalyzer {
       const {position} = out
       this.emit("errors", [{
         source: ErrorSource.Semantic,
-        kind: ErrorType.OptionTraceNotFound,
+        type: ErrorType.OptionTraceNotFound,
         ...position
       }])
     }
