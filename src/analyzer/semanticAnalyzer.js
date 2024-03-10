@@ -1,7 +1,6 @@
 import {
   ActionKind,
-  ErrorSource,
-  ErrorType,
+  SemanticErrorType,
   IdentifierKind,
   IdentifierType,
   SemanticContextType
@@ -123,10 +122,9 @@ export default class SemanticAnalyzer {
     const machine = this.context.currentMachineBlock
     if (!machine.metadata.enumFields.has(identText)) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.UndefinedIdentifier,
+        type: SemanticErrorType.UndefinedIdentifier,
         params: {desc: "enum literal", ident: `#${identText}`}
       }])
     }
@@ -164,10 +162,9 @@ export default class SemanticAnalyzer {
 
     if (hasCount) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...identPos,
 
-        type: ErrorType.IdentifierRedeclaration,
+        type: SemanticErrorType.IdentifierRedeclaration,
         params: {ident: identText}
       }])
     }
@@ -191,8 +188,7 @@ export default class SemanticAnalyzer {
         const prev = this.context.peekBlock(1)
         if (prev.metadata.enums.includes(identText)) {
           this.emit("errors", [{
-            source: ErrorSource.Semantic,
-            type: ErrorType.DuplicatedEnumField,
+            type: SemanticErrorType.DuplicatedEnumField,
             params: {text: identText},
             ...identPos
           }])
@@ -318,10 +314,9 @@ export default class SemanticAnalyzer {
       case SemanticContextType.GoalScope: {
         if (ident && ident.type !== IdentifierType.Bool) {
           es.push({
-            source: ErrorSource.Semantic,
             ...identPos,
 
-            type: ErrorType.TypeMismatchVarRef,
+            type: SemanticErrorType.TypeMismatchVarRef,
             params: {ident: identText, expected: IdentifierType.Bool}
           })
         }
@@ -334,10 +329,9 @@ export default class SemanticAnalyzer {
           const fnName = functionDecl?.metadata.identifier
           if (fnName === identText && ident.kind === IdentifierKind.FnName) {
             es.push({
-              source: ErrorSource.Semantic,
               ...identPos,
 
-              type: ErrorType.RecursiveFunction,
+              type: SemanticErrorType.RecursiveFunction,
               params: {ident: identText}
             })
           }
@@ -361,10 +355,9 @@ export default class SemanticAnalyzer {
         const ident = variableDeclBlock.metadata.identifier
         if (ident !== identText && identifiers.peek(identText)?.kind !== IdentifierKind.GlobalConst) {
           es.push({
-            source: ErrorSource.Semantic,
             ...identPos,
 
-            type: ErrorType.WhereFreeVariable,
+            type: SemanticErrorType.WhereFreeVariable,
             params: {ident, freeVariable: identText}
           })
         }
@@ -373,10 +366,9 @@ export default class SemanticAnalyzer {
 
     if (!ident || (kindLimitations != null && !kindLimitations.includes(ident.kind))) {
       es.push({
-        source: ErrorSource.Semantic,
         ...identPos,
 
-        type: ErrorType.UndefinedIdentifier,
+        type: SemanticErrorType.UndefinedIdentifier,
         params: errParams
       })
     }
@@ -409,10 +401,9 @@ export default class SemanticAnalyzer {
     const hasRecord = ident && ident.kind === IdentifierKind.Record // this.context.identifierCounts.hasCounts([IdentifierKind.Record], parentIdentText)
     if (!hasRecord) {
       es.push({
-        source: ErrorSource.Semantic,
         ...parentPos,
 
-        type: ErrorType.UndefinedIdentifier,
+        type: SemanticErrorType.UndefinedIdentifier,
         params: {desc: "record", ident: parentIdentText}
       })
     }
@@ -420,10 +411,9 @@ export default class SemanticAnalyzer {
     const hasRecordField = hasRecord && machineCtx.recordFieldStack.getLength(parentIdentText, identText) > 0 // this.context.recordCounts.hasCounts([parentIdentText], identText)
     if (!hasRecordField) {
       es.push({
-        source: ErrorSource.Semantic,
         ...identPos,
 
-        type: ErrorType.UndefinedIdentifier,
+        type: SemanticErrorType.UndefinedIdentifier,
         params: {desc: "record field", ident: `${parentIdentText}.${identText}`}
       })
       this.pushTypeStack(IdentifierType.Hole)
@@ -517,10 +507,9 @@ export default class SemanticAnalyzer {
 
           if ((blockType === SemanticContextType.GlobalConstantGroup || blockType === SemanticContextType.LocalVariableGroup) && typeText === "enum") {
             this.emit("errors", [{
-              source: ErrorSource.Semantic,
               ...position,
 
-              type: ErrorType.EnumNotAllowedInVariable,
+              type: SemanticErrorType.EnumNotAllowedInVariable,
             }])
           }
         }
@@ -536,10 +525,9 @@ export default class SemanticAnalyzer {
     const position = block.position
     if (this.context.findNearestBlock(SemanticContextType.WhereExpr)) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.WhereFunctionCall
+        type: SemanticErrorType.WhereFunctionCall
       }])
     }
     this.deduceActionCall(actionKind, block.metadata.fnName, block.metadata.gotParams, position)
@@ -582,10 +570,9 @@ export default class SemanticAnalyzer {
     } else {
       const currentTypesOrdered = this.context.popMultiTypeStack(inputActualLength).reverse() // popMultiStore(this.context.typeStack, inputActualLength).reverse()
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchFunction,
+        type: SemanticErrorType.TypeMismatchFunction,
         params: {ident: action, got: currentTypesOrdered, expected: fn.signatures}
       }])
       output = IdentifierType.Hole
@@ -622,10 +609,9 @@ export default class SemanticAnalyzer {
     const isException = type === IdentifierType.Int && identInfo.type === IdentifierType.Real // that's dangerous ...
     if (type !== identInfo.type && type !== IdentifierType.Hole && !isException) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...pos,
 
-        type: ErrorType.TypeMismatchVarDecl,
+        type: SemanticErrorType.TypeMismatchVarDecl,
         params: {ident, expected: identInfo.type, got: type}
       }])
 
@@ -648,10 +634,9 @@ export default class SemanticAnalyzer {
 
     if (!isCorrect) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...(position ?? this.context.peekBlock().position),
 
-        type: ErrorType.TypeMismatchExpr,
+        type: SemanticErrorType.TypeMismatchExpr,
         params: {expected: [type], got: [actualType]}
       }])
     }
@@ -667,10 +652,9 @@ export default class SemanticAnalyzer {
 
     if (!isCorrect) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchExpr,
+        type: SemanticErrorType.TypeMismatchExpr,
         params: {expected: types, got: [actualType]}
       }])
     }
@@ -693,10 +677,9 @@ export default class SemanticAnalyzer {
 
     if (!isCorrect) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchExpr,
+        type: SemanticErrorType.TypeMismatchExpr,
         params: {expected: [type], got: actualTypes, minLength: atLeast}
       }])
     }
@@ -727,10 +710,9 @@ export default class SemanticAnalyzer {
 
     if (this.context.isOptionDefined(optName)) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.CompilerOptionDuplicated,
+        type: SemanticErrorType.CompilerOptionDuplicated,
         params: {ident: optName}
       }])
       return
@@ -741,20 +723,18 @@ export default class SemanticAnalyzer {
     const {values, regex, description} = opt
     if (values && !values.includes(lit)) {
       es.push({
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchCompilerOption,
+        type: SemanticErrorType.TypeMismatchCompilerOption,
         params: {ident: optName, expected: values}
       })
     }
 
     if (regex && !regex.test(lit)) {
       es.push({
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchCompilerOption,
+        type: SemanticErrorType.TypeMismatchCompilerOption,
         params: {ident: optName, desc: description}
       })
     }
@@ -777,7 +757,7 @@ export default class SemanticAnalyzer {
 
     if (!valid) {
       this.emit("errors", [{
-        type: ErrorType.InvalidNamedExprScope,
+        type: SemanticErrorType.InvalidNamedExprScope,
         ...position,
         params: {
           ident: "initial",
@@ -797,7 +777,7 @@ export default class SemanticAnalyzer {
 
     if (!valid) {
       this.emit("errors", [{
-        type: ErrorType.InvalidNamedExprScope,
+        type: SemanticErrorType.InvalidNamedExprScope,
         ...position,
         params: {
           ident: "fresh",
@@ -816,9 +796,8 @@ export default class SemanticAnalyzer {
 
     if (attrs.includes("normal") && attrs.includes("abstract")) {
       es.push({
-        source: ErrorSource.Semantic,
         ...position,
-        type: ErrorType.InvalidNodeModifier,
+        type: SemanticErrorType.InvalidNodeModifier,
         params: {combination: ["normal", "abstract"]}
       })
     }
@@ -829,10 +808,9 @@ export default class SemanticAnalyzer {
       const startIdent = machine.metadata.startNodeIdentifier
       if (startIdent != null) {
         es.push({
-          source: ErrorSource.Semantic,
           ...position,
 
-          type: ErrorType.StartNodeDuplicated,
+          type: SemanticErrorType.StartNodeDuplicated,
           params: {ident: startIdent}
         })
       } else {
@@ -842,10 +820,9 @@ export default class SemanticAnalyzer {
 
     if (attrs.includes("abstract") && block.metadata.hasChildren === true) {
       es.push({
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.CodeInsideAbstractNode,
+        type: SemanticErrorType.CodeInsideAbstractNode,
       })
     }
 
@@ -882,19 +859,17 @@ export default class SemanticAnalyzer {
     const es = []
     if (!block.metadata.goalDefined) {
       es.push({
-        source: ErrorSource.Semantic,
         ...pos,
 
-        type: ErrorType.NoGoalDefined,
+        type: SemanticErrorType.NoGoalDefined,
       })
     }
 
     if (block.metadata.startNodeIdentifier == null) {
       es.push({
-        source: ErrorSource.Semantic,
         ...pos,
 
-        type: ErrorType.NoStartNodeDefined
+        type: SemanticErrorType.NoStartNodeDefined
       })
     }
 
@@ -908,10 +883,9 @@ export default class SemanticAnalyzer {
 
     if (!scope) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.ReturnExprViolation
+        type: SemanticErrorType.ReturnExprViolation
       }])
 
       return
@@ -933,10 +907,9 @@ export default class SemanticAnalyzer {
     const expectedType = decl.metadata.signatures[0].output
     if (type !== expectedType) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.TypeMismatchReturn,
+        type: SemanticErrorType.TypeMismatchReturn,
         params: {expected: expectedType, got: type}
       }])
     }
@@ -948,10 +921,9 @@ export default class SemanticAnalyzer {
     const scope = this.context.peekScope()
     if (scope && scope.type === SemanticContextType.FnBodyScope && scope.metadata.isReturned) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
 
-        type: ErrorType.StatementAfterReturn
+        type: SemanticErrorType.StatementAfterReturn
       }])
     }
   }
@@ -960,11 +932,10 @@ export default class SemanticAnalyzer {
     const type = this.context.peekTypeStack()
     if (type != null && type !== IdentifierType.Hole && type !== IdentifierType.Bool) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
         params: {got: type},
 
-        type: ErrorType.InvalidStatement
+        type: SemanticErrorType.InvalidStatement
       }])
     }
     this.resetTypeStack()
@@ -990,11 +961,10 @@ export default class SemanticAnalyzer {
       trans.toStates.push(identifier)
       if (s.has(identifier)) {
         this.emit("errors", [{
-          source: ErrorSource.Semantic,
           ...position,
           params: {block: SemanticContextType.TransDecl, identifier},
 
-          type: ErrorType.DuplicatedEdgeTarget
+          type: SemanticErrorType.DuplicatedEdgeTarget
         }])
       } else {
         s.add(identifier)
@@ -1024,8 +994,7 @@ export default class SemanticAnalyzer {
     } else if (this.context.findNearestBlock(SemanticContextType.LocalVariableGroup)) {
       this.emit("errors", [{
         ...position,
-        source: ErrorSource.Semantic,
-        type: ErrorType.WhereInlineVariable
+        type: SemanticErrorType.WhereInlineVariable
       }])
     }
 
@@ -1048,9 +1017,8 @@ export default class SemanticAnalyzer {
       const machine = this.context.currentMachineBlock
       if (machine.metadata.transitionSet.has(label)) {
         es.push({
-          source: ErrorSource.Semantic,
           ...position,
-          type: ErrorType.DuplicatedEdge
+          type: SemanticErrorType.DuplicatedEdge
         })
       } else {
         machine.metadata.transitionSet.add(label)
@@ -1069,9 +1037,8 @@ export default class SemanticAnalyzer {
 
     if (targetStates.size === 0) {
       es.push({
-        source: ErrorSource.Semantic,
         ...position,
-        type: ErrorType.EmptyEdge
+        type: SemanticErrorType.EmptyEdge
       })
     }
 
@@ -1116,11 +1083,10 @@ export default class SemanticAnalyzer {
         identsArr.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
-            source: ErrorSource.Semantic,
             ...position,
             params: {block: SemanticContextType.InExpr, identifier},
 
-            type: ErrorType.DuplicatedEdgeTarget
+            type: SemanticErrorType.DuplicatedEdgeTarget
           }])
         } else {
           s.add(identifier)
@@ -1140,11 +1106,10 @@ export default class SemanticAnalyzer {
         def.metadata.states.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
-            source: ErrorSource.Semantic,
             ...position,
             params: {block: SemanticContextType.Stop, identifier},
 
-            type: ErrorType.DuplicatedEdgeTarget
+            type: SemanticErrorType.DuplicatedEdgeTarget
           }])
         } else {
           s.add(identifier)
@@ -1161,11 +1126,10 @@ export default class SemanticAnalyzer {
         def.metadata.invariants.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
-            source: ErrorSource.Semantic,
             ...position,
             params: {block: SemanticContextType.With, identifier},
 
-            type: ErrorType.DuplicatedEdgeTarget
+            type: SemanticErrorType.DuplicatedEdgeTarget
           }])
         } else {
           s.add(identifier)
@@ -1210,9 +1174,8 @@ export default class SemanticAnalyzer {
     this.deduceToType(IdentifierType.Bool, position, null, true)
     if (block.type === SemanticContextType.LetDecl && !block.metadata.body) {
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
         ...position,
-        type: ErrorType.LetBodyUndefined
+        type: SemanticErrorType.LetBodyUndefined
       }])
     } else if (block.type !== SemanticContextType.LetDecl) {
       console.log("warn: let block not found")
@@ -1239,8 +1202,7 @@ export default class SemanticAnalyzer {
     if (trace?.literal !== "true" && out) {
       const {position} = out
       this.emit("errors", [{
-        source: ErrorSource.Semantic,
-        type: ErrorType.OptionTraceNotFound,
+        type: SemanticErrorType.OptionTraceNotFound,
         ...position
       }])
     }
@@ -1251,7 +1213,7 @@ export default class SemanticAnalyzer {
   //   if (block.metadata.fieldType === IdentifierType.Enum) {
   //     this.emit("errors", [{
   //       source: ErrorSource.Semantic,
-  //       type: ErrorType.LocalVariableEnum,
+  //       type: SemanticErrorType.LocalVariableEnum,
   //       ...block.position
   //     }])
   //   }

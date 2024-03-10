@@ -1,13 +1,4 @@
-export const ErrorSource = {
-  Lexer: 1,
-  Parser: 2,
-  Semantic: 3,
-  Remote: 4
-}
-
-export const ErrorType = {
-  SyntaxError: 1001,
-
+export const SemanticErrorType = {
   UndefinedIdentifier: 2001,
   IdentifierRedeclaration: 2002,
   RecursiveFunction: 2003,
@@ -39,8 +30,6 @@ export const ErrorType = {
   DuplicatedEnumField: 4006,
   DuplicatedEdgeTarget: 4007,
   OptionTraceNotFound: 4008,
-
-  RemoteError: 5001,
 }
 
 export const SemanticContextType = {
@@ -192,8 +181,7 @@ export const SyntaxBlockKind = {
 }
 
 export default {
-  ErrorSource,
-  ErrorType,
+  SemanticErrorType,
   SemanticContextType,
   IdentifierKind,
   IdentifierType,
