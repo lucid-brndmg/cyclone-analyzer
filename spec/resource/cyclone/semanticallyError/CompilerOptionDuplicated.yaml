@@ -1,20 +1,18 @@
 expectedErrors: ["CompilerOptionDuplicated"]
 notExpectedErrors: ["TypeMismatchCompilerOption"]
 cases:
-  - "
-option-trace=true;
-option-trace=true;
-machine G {}
-"
-  - "
-option-precision=2;
-option-precision=3;
-machine G {}
-"
+  - |
+    option-trace=true;
+    option-trace=true;
+    machine G {}
+
+  - |
+    option-precision=2;
+    option-precision=3;
+    machine G {}
 
 casesCounter:
-  - "
-  option-trace=true;
-  option-precision=3;
-  machine G {}
-"
+  - |
+    option-trace=true;
+    option-precision=3;
+    machine G {}

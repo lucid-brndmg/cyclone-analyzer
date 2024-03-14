@@ -1,9 +1,9 @@
-expectedErrors: ["LetBodyUndefined"]
+expectedErrors: ["TypeMismatchExpr"]
 cases:
   - |
     graph G {
       goal {
-        let a;
+        assert 1;
         check for 1
       }
     }

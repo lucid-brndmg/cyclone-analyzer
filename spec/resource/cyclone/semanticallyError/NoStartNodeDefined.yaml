@@ -1,0 +1,6 @@
+expectedErrors: ["NoStartNodeDefined"]
+cases:
+  - |
+    graph G{}
+  - |
+    machine M {}

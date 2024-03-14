@@ -1,0 +1,7 @@
+expectedErrors: ["TypeMismatchVarDecl"]
+cases:
+  - |
+    graph G {
+      int a = 1.1;
+      int b = false;
+    }

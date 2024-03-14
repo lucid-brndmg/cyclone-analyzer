@@ -1,0 +1,34 @@
+expectedErrors: ["DuplicatedEdge"]
+cases:
+  - |
+    graph G {
+      node A {}
+      node B {}
+      
+      edge { A -> B }
+      edge { A -> B }
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+
+      edge { A -> + }
+      edge { A -> + }
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+
+      edge { A -> * }
+      edge { A -> * }
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+
+      edge { A -> *[A] }
+      edge { A -> *[A] }
+    }

@@ -1,21 +1,20 @@
 expectedErrors: ["IdentifierRedeclaration"]
 cases:
-  - "
-machine M {
-    int a = 1;
-    int a = 2;
-}
-"
-  - "
-graph G {
-  record Foo {int a = 1;};
-  record Foo {int b = 1;};
-}
-"
+  - |
+    machine M {
+        int a = 1;
+        int a = 2;
+    }
+
+  - |
+    graph G {
+      record Foo {int a = 1;};
+      record Foo {int b = 1;};
+    }
+
 casesCounter:
-  - "
-graph G {
-  record Foo1 {int a = 1;};
-  record Foo2 {int a = 1;};
-}
-"
+  - |
+    graph G {
+      record Foo1 {int a = 1;};
+      record Foo2 {int a = 1;};
+    }

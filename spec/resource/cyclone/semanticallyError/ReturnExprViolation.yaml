@@ -1,7 +1,6 @@
 expectedErrors: ["ReturnExprViolation"]
 cases:
-  - "
-graph G {
-  int a = return 1;
-}
-"
+  - |
+    graph G {
+      int a = return 1;
+    }

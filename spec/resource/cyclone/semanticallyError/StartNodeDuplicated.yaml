@@ -1,20 +1,19 @@
 expectedErrors: ["StartNodeDuplicated"]
 cases:
-  - "
-graph G {
-  start node A {}
-  start node B {}
-}
-"
-  - "
-graph G {
-  start state A {}
-  start state B {}
-}  
-"
-  - "
-graph G {
-  start state A {}
-  start state A {}
-}  
-  "
+  - |
+    graph G {
+      start node A {}
+      start node B {}
+    }
+
+  - |
+    graph G {
+      start state A {}
+      start state B {}
+    }  
+
+  - |
+    graph G {
+      start state A {}
+      start state A {}
+    }

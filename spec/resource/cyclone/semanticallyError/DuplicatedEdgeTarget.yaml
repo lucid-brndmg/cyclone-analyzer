@@ -1,0 +1,35 @@
+expectedErrors: ["DuplicatedEdgeTarget"]
+cases:
+  - |
+    graph G {
+      node A {}
+      node B {}
+    
+      edge {A -> A, B, A}
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+    
+      invariant I {true;} in (A, A)
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+    
+      goal {
+        assert true in (A, A);
+        check for 1
+      }
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+    
+      goal {
+        check for 1 reach (A, A)
+      }
+    }

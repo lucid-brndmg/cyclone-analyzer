@@ -1,0 +1,6 @@
+expectedErrors: ["NoGoalDefined"]
+cases:
+  - |
+    graph G{}
+  - |
+    machine M {}

@@ -1,0 +1,23 @@
+/* 
+ * Test anonymous transitions.
+ * 	
+ */
+machine test6{
+
+	abstract start node S{}
+
+	abstract final node A{}
+	abstract final node B{}
+	abstract final node C{}
+	abstract final node D{}
+	
+
+	edge {S->A}
+	edge {A->B}
+	edge {A->C}
+	edge {A->D}
+
+	goal{
+		enumerate for 2
+	}
+}

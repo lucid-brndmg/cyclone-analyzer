@@ -1,9 +1,8 @@
 expectedErrors: ["RecursiveFunction"]
 cases:
-  - "
-machine M {
-    function f: int (x: int) {
-        return x + f(x + 1);
+  - |
+    machine M {
+        function f: int (x: int) {
+            return x + f(x + 1);
+        }
     }
-}
-"

@@ -1,0 +1,8 @@
+expectedErrors: ["TypeMismatchReturn"]
+cases:
+  - |
+    graph G {
+      function f:int(x:int) {
+        return false;
+      }
+    }

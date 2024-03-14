@@ -1,8 +1,7 @@
 expectedErrors: ["WhereFunctionCall"]
 cases:
-  - "
-graph G {
-  function incr:int (x: int) {return x + 1;}
-  int a = 1 where incr(3) == 4;
-}  
-"
+  - |
+    graph G {
+      function incr:int (x: int) {return x + 1;}
+      int a = 1 where incr(3) == 4;
+    }  

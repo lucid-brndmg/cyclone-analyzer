@@ -1,0 +1,5 @@
+expectedErrors: ["TypeMismatchCompilerOption"]
+cases:
+  - |
+    option-trace=1;
+    graph G{}

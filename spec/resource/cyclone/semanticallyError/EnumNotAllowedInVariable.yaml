@@ -1,10 +1,9 @@
 expectedErrors: ["EnumNotAllowedInVariable"]
 cases:
-  - "
-  graph G {
-    function f:int(a:int) {
-      enum {Foo, Bar} e;
-      return a;
+  - |
+    graph G {
+      function f:int(a:int) {
+        enum {Foo, Bar} e;
+        return a;
+      }
     }
-  }
-  "

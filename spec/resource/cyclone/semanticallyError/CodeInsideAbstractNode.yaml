@@ -1,0 +1,9 @@
+expectedErrors: ["CodeInsideAbstractNode"]
+cases:
+  - |
+    graph G {
+      int a;
+      abstract node S {
+        a ++;
+      }
+    }

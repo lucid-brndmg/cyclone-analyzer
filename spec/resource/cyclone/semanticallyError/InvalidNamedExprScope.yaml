@@ -1,20 +1,19 @@
 expectedErrors: ["InvalidNamedExprScope"]
 cases:
-  - "
-  graph G {
-    int a;
-    function f:int (a: int) {
-      int x = initial(a);
-      return a;
+  - |
+    graph G {
+      int a;
+      function f:int (a: int) {
+        int x = initial(a);
+        return a;
+      }
     }
-  }
-  "
-  - "
-  graph G {
-    int a;
-    function f:int (a: int) {
-      int x = fresh(a);
-      return a;
+
+  - |
+    graph G {
+      int a;
+      function f:int (a: int) {
+        int x = fresh(a);
+        return a;
+      }
     }
-  }
-  "

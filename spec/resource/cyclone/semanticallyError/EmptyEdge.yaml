@@ -1,0 +1,24 @@
+expectedErrors: ["EmptyEdge"]
+cases:
+  - |
+    graph G {
+      node A {}
+      node B {}
+      node C {}
+
+      edge { A -> *[A, B, C] }
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+      node C {}
+    
+      edge { A -> +[B, C] }
+    }
+  - |
+    graph G {
+      node A {}
+
+      edge { A -> + }
+    }

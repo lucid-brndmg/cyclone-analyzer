@@ -1,0 +1,8 @@
+expectedErrors: ["OptionTraceNotFound"]
+cases:
+  - |
+    option-output = "trace";
+    graph G {}
+  - |
+    option-output = "dot";
+    graph G {}

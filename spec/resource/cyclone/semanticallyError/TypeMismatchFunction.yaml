@@ -1,0 +1,16 @@
+expectedErrors: ["TypeMismatchFunction"]
+cases:
+  - |
+    graph G {
+      function id_int:int(x: int) {
+        return x;
+      }
+    
+      int a = id_int("a");
+      int b = id_int('a');
+      int c = id_int(1.1);
+    }
+  - |
+    graph G {
+      int a = 1 + false;
+    }

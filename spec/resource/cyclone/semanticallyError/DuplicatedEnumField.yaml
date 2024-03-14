@@ -1,0 +1,13 @@
+expectedErrors: ["DuplicatedEnumField"]
+cases:
+  - |
+    graph G {
+      enum {Red, Green, Red} color;
+    }
+
+  - |
+    graph G {
+      record R {
+        enum {Red, Green, Red} color;
+      };
+    }
