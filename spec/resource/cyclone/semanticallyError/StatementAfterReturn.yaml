@@ -1,0 +1,11 @@
+expectedErrors: ["StatementAfterReturn"]
+cases:
+  - "
+  graph G {
+    function f:int (a: int) {
+      int x;
+      return a;
+      x += 1;
+    }
+  }
+  "

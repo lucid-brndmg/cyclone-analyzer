@@ -1,6 +1,6 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "A semantic analyzer for the cyclone language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",
@@ -8,7 +8,8 @@
   "scripts": {
     "gen-lexer": "antlr4 -o src/generated/antlr -Dlanguage=JavaScript grammar/CycloneLexer.g4",
     "gen-parser": "antlr4 -o src/generated/antlr -listener -Dlanguage=JavaScript grammar/CycloneParser.g4",
-    "build": "webpack"
+    "build": "webpack",
+    "test": "jasmine"
   },
   "keywords": [
     "cyclone"
@@ -30,10 +31,12 @@
     "@babel/preset-env": "^7.23.9",
     "babel-loader": "^9.1.3",
     "compression-webpack-plugin": "^11.0.0",
+    "jasmine": "^5.1.0",
     "source-map-support": "^0.5.21",
     "terser-webpack-plugin": "^5.3.10",
     "webpack": "^5.90.0",
-    "webpack-cli": "^5.1.4"
+    "webpack-cli": "^5.1.4",
+    "yaml": "^2.4.1"
   },
   "exports": {
     ".": {

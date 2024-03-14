@@ -1,0 +1,7 @@
+expectedErrors: ["UndefinedIdentifier"]
+cases:
+  - "
+machine M {
+    int a = b;
+}  
+"

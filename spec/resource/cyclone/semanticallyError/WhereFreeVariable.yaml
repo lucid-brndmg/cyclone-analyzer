@@ -1,0 +1,8 @@
+expectedErrors: ["WhereFreeVariable"]
+cases:
+  - "
+graph G {
+  int b = 0;
+  int a = 1 where b == 0;
+}
+"

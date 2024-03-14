@@ -14,6 +14,7 @@ export const SemanticErrorType = {
   EnumNotAllowedInVariable: 2013,
   InvalidNodeModifier: 2014,
   WhereInlineVariable: 2015,
+  InvalidCheckForPathLength: 2016,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,
@@ -30,6 +31,7 @@ export const SemanticErrorType = {
   DuplicatedEnumField: 4006,
   DuplicatedEdgeTarget: 4007,
   OptionTraceNotFound: 4008,
+  DuplicatedCheckForPathLength: 4009
 }
 
 export const SemanticContextType = {

@@ -1,0 +1,10 @@
+expectedErrors: ["InvalidStatement"]
+cases:
+  - "
+  graph G {
+    function f:int(a:int) {
+      1 + 1;
+      return a;
+    }
+  }
+  "

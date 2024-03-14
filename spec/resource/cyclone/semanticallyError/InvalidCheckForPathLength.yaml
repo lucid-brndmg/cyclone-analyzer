@@ -1,0 +1,9 @@
+expectedErrors: ["InvalidCheckForPathLength"]
+cases:
+  - "
+  graph G {
+    goal {
+      check for 0
+    }
+  }
+  "

@@ -1,0 +1,10 @@
+expectedErrors: ["LetBodyUndefined"]
+cases:
+  - "
+  graph G {
+    goal {
+      let a;
+      check for 1
+    }
+  }
+  "

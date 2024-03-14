@@ -1,0 +1,7 @@
+expectedErrors: ["ReturnExprViolation"]
+cases:
+  - "
+graph G {
+  int a = return 1;
+}
+"

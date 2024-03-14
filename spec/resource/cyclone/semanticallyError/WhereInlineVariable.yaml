@@ -1,0 +1,10 @@
+expectedErrors: ["WhereInlineVariable"]
+cases:
+  - "
+  graph G {
+    function f:int (x: int) {
+      int a = 1 where true;
+      return x;
+    }
+  }
+  "

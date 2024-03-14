@@ -1,0 +1,19 @@
+expectedErrors: ["InvalidNodeModifier"]
+cases:
+  - "
+  graph G {
+    abstract normal state A {}
+  }
+  "
+  - "
+  // invalid
+  graph G {
+    abstract normal node A {}
+  }
+  "
+  - "
+  // duplication
+  graph G {
+    abstract abstract node A {}
+  }
+  "

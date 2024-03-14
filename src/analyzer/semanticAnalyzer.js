@@ -10,7 +10,7 @@ import {
   declarationContextTypeToIdentifierKind,
   declarationGroupContextTypeToIdentifierKind,
   identifierKindToType,
-  identifierNoPushTypeStackBlocks,
+  identifierNoPushTypeStackBlocks, invalidNodeModifierCombo,
   optionAcceptableValues,
   scopedContextType,
   scopeSupportsShadowing,
@@ -25,6 +25,7 @@ import {
 } from "./metadata.js";
 import {checkSignature} from "../utils/type.js";
 import SemanticAnalyzerContext from "./semanticAnalyzerContext.js";
+import {findDuplications, firstCombo} from "../lib/list.js";
 
 export default class SemanticAnalyzer {
   context
@@ -794,11 +795,21 @@ export default class SemanticAnalyzer {
 
     block.metadata.attributes = attrs
 
-    if (attrs.includes("normal") && attrs.includes("abstract")) {
+    const invalidComboIdx = firstCombo(attrs, invalidNodeModifierCombo)
+    if (invalidComboIdx !== -1) {
       es.push({
         ...position,
         type: SemanticErrorType.InvalidNodeModifier,
-        params: {combination: ["normal", "abstract"]}
+        params: {combination: invalidNodeModifierCombo[invalidComboIdx]}
+      })
+    }
+
+    const dup = findDuplications(attrs)
+    if (dup.size) {
+      es.push({
+        ...position,
+        type: SemanticErrorType.InvalidNodeModifier,
+        params: {duplication: [...dup]}
       })
     }
 
@@ -1146,6 +1157,35 @@ export default class SemanticAnalyzer {
     goal.metadata.expr = expr
 
     // this.emitLangComponent(context, null)
+  }
+
+  handleCheckForExpr(pathLengths) {
+    const pathSet = new Set()
+    const es = []
+    for (let {text, position} of pathLengths) {
+      if (pathSet.has(text)) {
+        es.push({
+          type: SemanticErrorType.DuplicatedCheckForPathLength,
+          params: {text},
+          ...position
+        })
+      } else {
+        pathSet.add(text)
+      }
+
+      const num = parseInt(text)
+      if (isNaN(num) || num < 1) {
+        es.push({
+          type: SemanticErrorType.InvalidCheckForPathLength,
+          params: {text},
+          ...position
+        })
+      }
+    }
+
+    if (es.length) {
+      this.emit("errors", es)
+    }
   }
 
   // handleCheckMainExpr(expr) {
