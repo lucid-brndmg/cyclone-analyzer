@@ -1,3 +1,11 @@
+/*
+This grammar specification referenced the original grammar specification in the Cyclone compiler source code, which is written in ANTLR3.
+
+This grammar definition has rewritten the original definition to ANTLR4 format with modifications for adapting the semantic analyzer.
+
+Original author: Hao Wu
+*/
+
 parser grammar CycloneParser;
 options { tokenVocab = CycloneLexer; }
 
