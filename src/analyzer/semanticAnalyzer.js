@@ -26,6 +26,7 @@ import {
 import {checkSignature} from "../utils/type.js";
 import SemanticAnalyzerContext from "./semanticAnalyzerContext.js";
 import {findDuplications, firstCombo} from "../lib/list.js";
+import {isAnonymous} from "../utils/edge.js";
 
 export default class SemanticAnalyzer {
   context
@@ -1018,10 +1019,17 @@ export default class SemanticAnalyzer {
     const block = this.context.peekBlock()
     const position = block.position
     const md = block.metadata
-    const {fromState, toStates, operators, excludedStates} = md
+    const {fromState, toStates, operators, excludedStates, identifier} = md
     const es = []
     const targetStates = new Set(toStates)
     const excludedStatesSet = new Set(excludedStates)
+
+    if (isAnonymous(md) && identifier != null) {
+      es.push({
+        ...position,
+        type: SemanticErrorType.AnonymousEdgeIdentifier
+      })
+    }
 
     if (!md.whereExpr) {
       const label = `${fromState ?? ""}|${[...targetStates].sort().join(",")}|${[...operators].sort().join(",")}|${[...excludedStatesSet].sort().join(",")}`
@@ -1043,6 +1051,10 @@ export default class SemanticAnalyzer {
         if (!(isExcludeSelf && state === fromState) && !excludedStatesSet.has(state)) {
           targetStates.add(state)
         }
+      }
+
+      if (operators.has("<->") && !isExcludeSelf && !excludedStatesSet.has(fromState)) {
+        targetStates.add(fromState)
       }
     }
 

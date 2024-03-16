@@ -1,0 +1,26 @@
+expectedErrors: ["AnonymousEdgeIdentifier"]
+cases:
+  - |
+    graph G {
+      node S1 {}
+      node S2 {}
+      edge T {S1 <-> S2}
+    }
+  - |
+    graph G {
+      node S1 {}
+      node S2 {}
+      edge T {S1 -> S2, S1}
+    }
+  - |
+    graph G {
+      node S1 {}
+      node S2 {}
+      edge T {S1 <-> *}
+    }
+  - |
+    graph G {
+      node S1 {}
+      node S2 {}
+      edge T {S1 <-> +}
+    }
