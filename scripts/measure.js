@@ -8,7 +8,7 @@ graph G {
     node S1 {} 
     node S2 {}
     
-    transition {S1 <-> +}
+    transition {S1 <-> S2}
 
     goal {
         check for 1
