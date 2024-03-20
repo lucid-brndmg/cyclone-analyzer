@@ -46,3 +46,9 @@ casesCounter:
               check for 1
           }
         }
+  - |
+    graph G {
+      node S1 {}
+      node S2 {}
+      edge {S1 -> S2}
+    }

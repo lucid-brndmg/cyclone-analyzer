@@ -9,7 +9,7 @@ const buildConfig = ( platform, extensions ) => ({
   entry: `./src/index.js`,
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: `cyclone-analyzer.${platform}.${extensions}`,
+    filename: `cyclone-analyzer.${extensions === "mjs" ? platform : "common" }.${extensions}`,
     chunkFormat: extensions === "mjs" ? "module" : "commonjs",
     library: {
       type: extensions === "mjs" ? "module" : "commonjs"
@@ -42,7 +42,7 @@ const buildConfig = ( platform, extensions ) => ({
 
 
 export default [
-  buildConfig("node", "cjs"),
+  // buildConfig("node", "cjs"),
   buildConfig("node", "mjs"),
   buildConfig("web", "cjs"),
   buildConfig("web", "mjs"),

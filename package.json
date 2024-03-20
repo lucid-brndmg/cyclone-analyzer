@@ -1,6 +1,6 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A semantic analyzer for the cyclone language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",
@@ -42,12 +42,12 @@
     ".": {
       "node": {
         "import": "./dist/cyclone-analyzer.node.mjs",
-        "require": "./dist/cyclone-analyzer.node.cjs",
+        "require": "./dist/cyclone-analyzer.common.cjs",
         "default": "./dist/cyclone-analyzer.node.mjs"
       },
       "browser": {
         "import": "./dist/cyclone-analyzer.web.mjs",
-        "require": "./dist/cyclone-analyzer.web.cjs",
+        "require": "./dist/cyclone-analyzer.common.cjs",
         "default": "./dist/cyclone-analyzer.web.mjs"
       }
     }
