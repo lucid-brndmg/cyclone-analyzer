@@ -2,6 +2,9 @@ import CycloneParserListener from "../generated/antlr/CycloneParserListener.js";
 import {firstSymbol, getExpression} from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 
+/*
+* a specific parser listener for handling check expressions
+* */
 export default class CheckExprListener extends CycloneParserListener {
   result
 

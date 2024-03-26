@@ -1,0 +1,23 @@
+machine ParserTC5{
+	abstract start final node S{}
+	abstract final node A{}
+	abstract final node B{}
+	abstract node C{}
+	abstract node D{}
+	abstract node E{}
+
+	edge { S -> * }
+	edge { A -> * }
+	edge { B -> * }
+	edge { C -> + }
+	edge { D -> + }
+	edge { E -> + }
+
+	goal{
+
+		let cond1 = S->_[A,C,D]->B->_;
+		let cond2 = _[A,B]->_->_->_[S];
+		check for 5 condition (cond1 && cond2)
+	}
+
+}

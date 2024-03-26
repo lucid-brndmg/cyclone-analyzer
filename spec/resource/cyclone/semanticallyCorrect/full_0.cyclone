@@ -1,0 +1,55 @@
+
+option-trace=true;
+option-log=true;
+option-debug=true;
+option-timeout=10;
+option-precision=5;
+option-detect=true;
+option-output="trace";
+machine full_0{
+	int a where a>0;
+	real b;
+	bool c = !true;
+	enum{T1,T2}type_a;
+	const int K=10;
+	const real PI=3.1415926;
+
+	record P{
+		int x where x>=0;
+		real y;
+		enum{F1,F2}flag;
+	};
+
+	function f:bool (x:real,y:int){
+		real c=x+y;
+		return c>0;
+	}
+
+	abstract start node S{}
+	normal final node A{
+		a++;
+		f(b,a);
+		P.x=a;
+		P.y=b;
+	}
+
+	normal final node B{
+		b = PI*a*a;
+		type_a=#T2;
+	}
+
+	trans { S -> + }
+	trans { A -> * }
+	trans { A -> B where a>0;}
+	trans { B -> * }
+
+	invariant inv{ a >0; } in (S,A,B)
+
+	goal{
+
+		assert (initial(a)>=0 && initial(b)>=0);
+
+		check for 1,2,3 condition (S->A) with (inv)
+	}
+
+}

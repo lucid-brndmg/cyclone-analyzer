@@ -6,3 +6,23 @@ cases:
         check for 1, 2, 1
       }
     }
+  - |
+    graph G {
+      goal {
+        check for 3, 3, 0 reach (A)
+      }
+    }
+
+casesCounter:
+  - |
+    graph G {
+      goal {
+        check for 1, 2, 3
+      }
+    }
+  - |
+    graph G {
+      goal {
+        check for 1
+      }
+    }

@@ -30,15 +30,20 @@ describe('SemanticAnalyzer', () => {
   it('should report syntax error', () => {
     const pathSyntaxError = path.join(dirCycloneSrc, "syntacticallyError")
     const codes = readDirFileContent(pathSyntaxError, [".cyclone"])
+    let i = 0
     for (let src of codes) {
       const {syntaxErrorsCount} = parseCycloneSyntax({input: src, entry: "program"})
       expect(syntaxErrorsCount).toBeGreaterThan(0)
+      i++
     }
+
+    console.log("syntactically error files passed", i)
   });
 
   it("should be semantically correct", () => {
     const pathCorrectSrc = path.join(dirCycloneSrc, "semanticallyCorrect")
     const codes = readDirFileContentWithFilename(pathCorrectSrc, [".cyclone"])
+    let i = 0
     for (let {content, filename} of codes) {
       console.log("checking ", filename)
       const {syntaxErrorsCount, tree} = parseCycloneSyntax({input: content, entry: "program"})
@@ -54,7 +59,10 @@ describe('SemanticAnalyzer', () => {
       const listener = new SemanticParserListener(analyzer)
       listenerWalk(listener, tree)
       expect(errors.length).toEqual(0)
+      i++
     }
+
+    console.log("semantically correct files passed", i)
   })
 
   it('should be semantically incorrect', () => {

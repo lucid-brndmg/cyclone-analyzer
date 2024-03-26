@@ -1,0 +1,5 @@
+machine G {
+    goal {
+        check for 1;
+    }
+}

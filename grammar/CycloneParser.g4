@@ -404,7 +404,7 @@ unaryExpressionNotPlusMinus:
 
 // bool, bool (at least 2 expression, all bool)
 oneExpr:
-  ONE LPAREN (COMMA expression)+ RPAREN
+  ONE LPAREN expression (COMMA expression)+ RPAREN
   ;
 
 freshExpr:

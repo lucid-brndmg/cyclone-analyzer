@@ -1,6 +1,7 @@
 import {IdentifierKind, IdentifierType, SyntaxBlockKind} from "../language/definitions.js";
 import {typeToString} from "../utils/type.js";
 
+// generates source code from an edge definition object
 const codegenTransitionBody = ({
   label,
   codeWhere,
@@ -41,19 +42,22 @@ const codegenTransitionBody = ({
   return parts.join(" ")
 }
 
+/*
+* Syntax block object, as a code block of Cyclone
+* */
 export default class SyntaxBlock {
-  id
-  data
+  id // auto-assigned id
+  data // data of code generation
   kind
-  parentId
-  position
-  errors
-  childErrors
-  references
-  children
-  index
-  parentIndex
-  codegenOverride = null
+  parentId // parent syntax block id
+  position // code position, null if newly inserted
+  errors // semantic errors
+  childErrors // semantic errors in children
+  references // identifier references (as a set)
+  children // child blocks
+  index // the block index, as in parent block
+  parentIndex // the parent block's index
+  codegenOverride = null // If this field is defined, the code generation function would take this field as generated code
 
   constructor(id, kind, parentId, data, position, index) {
     this.id = id
@@ -133,6 +137,7 @@ export default class SyntaxBlock {
     return !!this.codegenOverride
   }
 
+  // code generation function
   codegen(codegenOpts) {
     if (this.codegenOverride != null) {
       return this.codegenOverride

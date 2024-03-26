@@ -1,3 +1,10 @@
+/**
+ * The semantic analyzer module
+ * This analyzer declared methods that detects semantic errors in Cyclone
+ * Handled by SemanticParserListener
+ * */
+
+
 import {
   ActionKind,
   SemanticErrorType,
@@ -133,6 +140,7 @@ export default class SemanticAnalyzer {
     // return null
   }
 
+  // Handles identifier declaration
   registerIdentifier(block, identText, identPos) {
     // check duplication
     const blockType = block.type
@@ -276,6 +284,7 @@ export default class SemanticAnalyzer {
     // this.context.identifierCounts.incr(identKind, identText)
   }
 
+  // checks identifier usage (reference)
   referenceIdentifier(blockType, identText, identPos) {
     // check existence
     this.emit("identifier:reference", {references: [{position: identPos, text: identText, isEnum: false}]})
@@ -386,6 +395,7 @@ export default class SemanticAnalyzer {
     }
   }
 
+  // checks reference on record fields
   referenceRecordField(parentIdentText, parentPos, identText, identPos) {
     // pop the Record pushed before
     this.context.popTypeStack()
@@ -430,6 +440,7 @@ export default class SemanticAnalyzer {
 
   }
 
+  // called when entering identifier literal
   handleIdentifier(identifierText, identifierPos) {
     const block = this.context.peekBlock()
     if (!block) {
@@ -1249,15 +1260,4 @@ export default class SemanticAnalyzer {
       }])
     }
   }
-
-  // handleLocalVariableDeclGroup() {
-  //   const block = this.context.peekBlock()
-  //   if (block.metadata.fieldType === IdentifierType.Enum) {
-  //     this.emit("errors", [{
-  //       source: ErrorSource.Semantic,
-  //       type: SemanticErrorType.LocalVariableEnum,
-  //       ...block.position
-  //     }])
-  //   }
-  // }
 }

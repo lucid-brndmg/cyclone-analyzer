@@ -1,0 +1,18 @@
+
+machine ParserTC2{
+	int x;
+	start final node S{x++;}
+	final node A{x--;}
+	final node B{x++;}
+
+	edge { S -> * }
+	edge { A -> * }
+	edge { B -> * }
+
+	invariant inv1 { x>=0; }
+	invariant inv2 { x<0; }
+
+	goal{
+		check for 3 with (inv1)
+	}
+}

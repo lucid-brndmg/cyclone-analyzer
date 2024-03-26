@@ -1,0 +1,13 @@
+machine ParserTC3{
+	abstract start final node S{}
+	abstract final node A{}
+	abstract final node B{}
+
+	edge { S -> * }
+	edge { A -> * }
+	edge { B -> * }
+
+	goal{
+		check for 5 condition ( A && B, S || A, A ^ B, (S), (S->A), (A->B) && (B->A) || (S->S) ^ (S->B) )
+	}
+}

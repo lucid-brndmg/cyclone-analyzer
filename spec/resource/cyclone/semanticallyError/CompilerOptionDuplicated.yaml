@@ -10,9 +10,17 @@ cases:
     option-precision=2;
     option-precision=3;
     machine G {}
+  - |
+    option-output="trace";
+    option-output="trace";
+    graph H {}
 
 casesCounter:
   - |
     option-trace=true;
     option-precision=3;
+    machine G {}
+  - |
+    option-output="trace";
+    option-debug=true;
     machine G {}

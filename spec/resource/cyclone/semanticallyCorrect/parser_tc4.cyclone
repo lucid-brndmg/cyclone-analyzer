@@ -1,0 +1,30 @@
+machine ParserTC4{
+	abstract start final node S{}
+	abstract final node A{}
+	abstract final node B{}
+	abstract node C{}
+	abstract node D{}
+	abstract node E{}
+
+	edge { S -> * }
+	edge { A -> * }
+	edge { B -> * }
+	edge { C -> + }
+	edge { D -> + }
+	edge { E -> + }
+
+	goal{
+
+		let cond1 = true;
+		let cond2 = false;
+		let cond3 = >>2(S->A->A)^{0:1};
+		let cond4=<<(S^{1:2});
+		let cond5=cond1 && cond2 || cond3 ^ !cond4;
+		
+		check for 5 condition (A && B, 
+			S || !A || B ^ D && !E && !(S->A) && >>2(A->S)^{1} || !(<<1(E->D)^{2}),
+			cond5
+		)
+	}
+
+}

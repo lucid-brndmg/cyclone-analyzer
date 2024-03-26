@@ -1,0 +1,69 @@
+/* 
+ * Test variables, expressions, invaraints AST constructions 
+ * semantic and type checking.
+ * 	
+ */
+machine test1{
+	
+	//global variables
+	int people=2 where people >=2 && people<=10; 
+	int room_capacity=50; 
+	bool flag = true;
+	bool transition_flag = !true && false;
+	enum {monday, tuesday, wednesday, thursday, friday, saturday, sunday} week;
+	string name ="test";
+	real pi=3.1415926; //watch out, this variable may throw an error.
+	int x = 5;
+	int y = 0;
+	//int y = !(x++); //type error
+	//int z = a; //semantic error
+	//bool r = x>3 || y<4 || z<=0;  //type error
+	
+	//states
+	/* starting state
+	 * increase the number of people 
+	 */
+	start state S0{
+		//local variables
+		int count where count>=0 && count<=10;
+		//bool visit=true;
+		people = people + count;
+		//x>5;
+		//x+y=x+y;
+		//(x+y>=5) => 
+		//(x+y>=5) => (x=5);
+		//&& (y=x+y-5 && x=5);
+		//(x-y>5) => (y=0 && x=x+y);
+	}
+
+	/* 
+	 * final state
+	 * decrease the number of people 
+	 */
+	final state S1{
+		//local variables
+		int count where count>=0 && count<=5;
+		//bool visit=false;
+		people = people - count;
+	}
+
+	//transitions
+	transition t1 {S0 -> S1 on "people leave"}
+	transition t2 {S1 -> S0 on "people enter"}
+	transition t3 {S0 -> S0 on "people enter"}
+	transition t4 {S1 -> S1 on "people leave"}
+
+	//invariants
+	/* any time the number of people cannot be negative*/
+	invariant Positive { people >= 0; }
+	invariant inv1 { people = people + 1; }
+
+	/* any time the number of people cannot be greater than room capacity*/
+	invariant Capacity {people<=room_capacity;}
+
+	/*goal{
+		check for 4 via (S0, S1,((S1->_->S1) ) reach (S0)
+	}*/
+
+
+}

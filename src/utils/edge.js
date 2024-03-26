@@ -1,18 +1,29 @@
+/*
+* The module that performs edge analysis
+* used by the semantic analyzer
+* */
+
+// is the edge anonymous
 export const isAnonymousEdge = ({operators, toStates}) =>
   operators.has("<->")
   || operators.has("+")
   || operators.has("*")
   || toStates.length > 1
 
+// is the edge a closure edge: +, *
 export const isClosureEdge = operators => operators.has("*") || operators.has("+")
 
+// remove duplicated edge relations detected
 export const removeEdgeDuplication = edges => [...new Set(edges.map(({source, target}) => `${source}:${target}`))].map(it => {
   const [source, target] = it.split(":")
   return {source, target}
 })
 
+// the index of edge that helps checking edge duplications
 export const edgeIndex = (fromState, operators, targetStatesSet, excludedStatesSet) => `${fromState ?? ""}|${[...targetStatesSet].sort().join(",")}|${[...operators].sort().join(",")}|${[...excludedStatesSet].sort().join(",")}`
 
+// iterate edge relations
+// function f would iterate through edge's relations
 export const withEdgeStates = ({operators, toStates, fromState, excludedStates}, allStates, f) => {
   const isBi = operators.has("<->")
   const isPlus = operators.has("+")
@@ -38,6 +49,7 @@ export const withEdgeStates = ({operators, toStates, fromState, excludedStates},
   }
 }
 
+// get every target node of edge
 export const edgeTargets = ({operators, toStates, fromState, excludedStates}, allStates) => {
   const targets = new Set(toStates)
   withEdgeStates({operators, toStates, fromState, excludedStates}, allStates, (_, to) => targets.add(to))
@@ -45,6 +57,7 @@ export const edgeTargets = ({operators, toStates, fromState, excludedStates}, al
   return targets
 }
 
+// get the node relations of anonymous edge
 export const expandAnonymousEdge = ({operators, toStates, fromState, excludedStates}, allStates) => {
   if (!isAnonymousEdge({operators, toStates})) {
     return []
@@ -56,6 +69,7 @@ export const expandAnonymousEdge = ({operators, toStates, fromState, excludedSta
   return removeEdgeDuplication(edges)
 }
 
+// the length of the nodes an edge targeted
 export const edgeLengths = (edgeMetadataList, allStates) => {
   const edges = []
   let total = 0

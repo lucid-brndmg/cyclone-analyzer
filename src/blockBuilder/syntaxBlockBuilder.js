@@ -11,6 +11,7 @@ import {posPair} from "../lib/position.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 import CheckExprListener from "./checkExprListener.js";
 
+// Get the syntax block kind using id prefix
 const idPrefixKind = (() => {
   const result = {}
   Object.entries(syntaxBlockIdPrefix).forEach(([kind, pref]) => {
@@ -80,7 +81,10 @@ const semanticTypePathToBlockKind = path => {
   return null
 }
 
-// "IR-I"
+/*
+* an IR builder via semantic analysis
+*
+* */
 export default class SyntaxBlockBuilder {
   context
 

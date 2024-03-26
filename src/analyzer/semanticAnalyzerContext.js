@@ -1,13 +1,20 @@
 import {CategorizedStackTable} from "../lib/storage.js";
 import {builtinActions, scopedContextType} from "../language/specifications.js";
 import {popMulti, popMultiStore} from "../lib/list.js";
+import {SemanticContextType} from "../language/definitions.js";
+
+/*
+* The context of semantic analyzer
+* which stored intermediate states of the analyzing program
+* */
+
 
 export default class SemanticAnalyzerContext {
-  #blockContextStack
-  #scopedBlocks
-  #actionTable
-  #typeStack
-  #definedOptions
+  #blockContextStack // the stack of semantic context
+  #scopedBlocks // the stack of scoped semantic context
+  #actionTable // the table of builtin functions
+  #typeStack // the type stack
+  #definedOptions // defined compiler options
 
   constructor() {
     this.#blockContextStack = []
@@ -17,8 +24,13 @@ export default class SemanticAnalyzerContext {
     this.#definedOptions = new Map()
   }
 
+  // get the current graph / machine context
   get currentMachineBlock() {
-    return this.#blockContextStack[1]
+    const machine = this.#blockContextStack[1]
+    if (machine?.type === SemanticContextType.MachineDecl) {
+      return machine
+    }
+    return null
   }
 
   get currentBlockPath() {
@@ -86,6 +98,7 @@ export default class SemanticAnalyzerContext {
     return null
   }
 
+  // get the nearest semantic context in stack
   findNearestBlock(type, stopAt = null) {
     for (let i = this.#blockContextStack.length - 1; i >= 0; i--) {
       const block = this.#blockContextStack[i]
@@ -122,6 +135,7 @@ export default class SemanticAnalyzerContext {
     return null
   }
 
+  // clear the type stack, or set to a specified state
   resetTypeStack(types = null) {
     if (types) {
       this.#typeStack = types

@@ -33,6 +33,11 @@ cases:
           check for 1
       }
     }
+  - |
+    graph G { 
+      node S1 {} 
+      transition {S1 <-> +}
+    }
 
 casesCounter:
   - |
@@ -51,4 +56,9 @@ casesCounter:
       node S1 {}
       node S2 {}
       edge {S1 -> S2}
+    }
+  - |
+    graph G {
+      node S1 {}
+      edge {S1 -> *}
     }

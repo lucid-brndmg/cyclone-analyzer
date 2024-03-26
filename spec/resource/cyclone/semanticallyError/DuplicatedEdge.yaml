@@ -32,3 +32,10 @@ cases:
       edge { A -> *[A] }
       edge { A -> *[A] }
     }
+casesCounter:
+  - |
+    graph G {
+    
+      edge T1 {A -> B where true;}
+      edge T2 {A -> B where false;}
+    }

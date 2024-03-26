@@ -7,3 +7,11 @@ cases:
         check for 1
       }
     }
+  - |
+    graph G {
+      int PI = 3;
+      goal {
+        assert 1;
+        check for 1 reach (PI)
+      }
+    }

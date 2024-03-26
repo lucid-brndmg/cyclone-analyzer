@@ -2,6 +2,9 @@ import {firstSymbol, getBlockPositionPair, listenerWalk, parseCycloneSyntax} fro
 import CycloneParserListener from "../generated/antlr/CycloneParserListener.js";
 import antlr4 from "antlr4";
 
+/*
+* A specific parser listener that used for replacing identifiers in the program
+* */
 class IdentifierReplacer extends CycloneParserListener {
   rewriter
   replacements

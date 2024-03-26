@@ -1,0 +1,24 @@
+option-trace=true;
+machine ParserTC6{
+	real x,y;
+
+	start normal node S{x+=y;}
+	normal final node A{x-=2;}
+	normal final node B{x*=3;}
+	normal final node C{x/=2;}
+	normal final node D{x+=y;}
+	normal final node E{y--;}
+
+	edge { S -> * }
+	edge { A -> * }
+	edge { B -> * }
+	edge { C -> + }
+	edge { D -> + }
+	edge { E -> + }
+
+	goal{
+		assert (x>0.0 && y>0.0) in (S);
+		check for 5 condition (>>(S->S))
+	}
+
+}

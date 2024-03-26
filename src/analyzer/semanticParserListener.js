@@ -9,6 +9,14 @@ import {
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 
+
+/*
+* The parse listener that uses the semantic analyzer to check for each block
+* This listener does these things:
+* 1. Mark / Un-mark semantic context
+* 2. Get certain keywords / literals from ANTLR parser context
+* 3. Call corresponding method of semantic analyzer to check specific block
+* */
 export default class SemanticParserListener extends CycloneParserListener {
   analyzer
 

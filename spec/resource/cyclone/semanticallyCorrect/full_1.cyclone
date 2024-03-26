@@ -1,0 +1,44 @@
+
+option-trace=true;
+option-detect=true;
+machine full_1{
+	int counter;
+	bool r1,r2,r3;
+
+	function pred : bool (x:int){
+		return x<0;
+	}
+
+	function inc:int (x:int){
+		return x+1;
+	}
+
+	function dec:int (x:int){
+		return x-1;
+	}
+
+	normal start state S{
+		counter = inc(counter);
+		one(r1,r2,r3);
+	}
+
+	normal state R{
+		counter = dec(counter);
+	}
+
+	abstract state T{}
+
+	trans { S -> + }
+	trans { R -> * }
+	trans { T -> * }
+
+	invariant inv1{ counter >0; } in (S,R,T)
+	invariant inv2{ pred(counter);}
+
+	goal{
+
+		assert (initial(counter)>=0);
+		check for 1,2,3 condition (S->R) with (inv2) reach (S,R,T)
+	}
+
+}

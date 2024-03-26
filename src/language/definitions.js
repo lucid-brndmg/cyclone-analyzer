@@ -1,3 +1,14 @@
+/*
+* Definitions of the analyzer mainly helps semantic analysis, including:
+* - Semantic Error Types
+* - Semantic Context Types
+* - Identifier Scoping Kind
+* - Identifier Data Type
+* - ...
+* */
+
+
+// Semantic error types defined by the analyzer
 export const SemanticErrorType = {
   UndefinedIdentifier: 2001,
   IdentifierRedeclaration: 2002,
@@ -35,6 +46,7 @@ export const SemanticErrorType = {
   DuplicatedCheckForPathLength: 4009
 }
 
+// Semantic Context Type that helps the analyzer positioning
 export const SemanticContextType = {
   ProgramScope: 1,
 
@@ -116,6 +128,7 @@ export const SemanticContextType = {
 
 }
 
+// Identifier scoping kind
 export const IdentifierKind = {
   Machine: 1,
   State: 2,
@@ -136,6 +149,7 @@ export const IdentifierKind = {
   Unknown: -1
 }
 
+// Identifier data type, following Cyclone
 export const IdentifierType = {
   Machine: 1,
   State: 2,
@@ -151,10 +165,10 @@ export const IdentifierType = {
   Real: 11,
   Bool: 12,
 
-  // Unknown: -2, // fallback
-  Hole: -1, // not expected to show to user yet
+  Hole: -1, // The Epsilon type, used to prevent triggering duplicated type error msg
 }
 
+// Function / Operator kind
 export const ActionKind = {
   InfixOperator: 1, // a x b
   PrefixOperator: 2, // x a
@@ -162,6 +176,7 @@ export const ActionKind = {
   Function: 4, // x(a)
 }
 
+// Syntax block kinds for the IR
 export const SyntaxBlockKind = {
   CompilerOption: 1,
   Machine: 2,

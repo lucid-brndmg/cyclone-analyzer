@@ -1,3 +1,7 @@
+/*
+* Language specifications of Cyclone that helps the semantic analyzer
+* */
+
 import {
   ActionKind,
   IdentifierKind,

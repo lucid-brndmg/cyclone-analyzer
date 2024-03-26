@@ -2,7 +2,7 @@
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import CycloneParserListener from './CycloneParserListener.js';
-const serializedATN = [4,1,114,941,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,114,942,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
 2,13,7,13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
 20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,
@@ -66,28 +66,28 @@ const serializedATN = [4,1,114,941,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 9,70,1,71,1,71,1,71,5,71,801,8,71,10,71,12,71,804,9,71,1,72,1,72,1,72,5,
 72,809,8,72,10,72,12,72,812,9,72,1,73,1,73,1,73,5,73,817,8,73,10,73,12,73,
 820,9,73,1,74,1,74,1,74,1,74,1,74,3,74,827,8,74,1,75,1,75,1,75,1,75,3,75,
-833,8,75,3,75,835,8,75,1,76,1,76,1,76,1,76,4,76,841,8,76,11,76,12,76,842,
-1,76,1,76,1,77,1,77,1,77,1,77,1,77,1,78,1,78,1,78,1,78,1,78,1,79,1,79,1,
-79,1,79,1,79,1,79,1,80,1,80,1,80,5,80,866,8,80,10,80,12,80,869,9,80,1,80,
-4,80,872,8,80,11,80,12,80,873,1,80,1,80,1,81,1,81,3,81,880,8,81,1,81,1,81,
-5,81,884,8,81,10,81,12,81,887,9,81,1,81,1,81,1,82,1,82,1,82,1,82,1,83,1,
-83,1,83,1,84,1,84,1,84,1,84,1,84,1,84,1,84,1,84,3,84,906,8,84,1,85,1,85,
-1,85,3,85,911,8,85,1,86,1,86,1,86,1,86,1,87,1,87,1,87,1,87,1,87,5,87,922,
-8,87,10,87,12,87,925,9,87,1,87,1,87,1,88,1,88,1,88,1,88,1,88,3,88,934,8,
-88,1,89,1,89,1,89,1,89,1,89,1,89,0,0,90,0,2,4,6,8,10,12,14,16,18,20,22,24,
-26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,
-74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,
-118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,148,150,152,
-154,156,158,160,162,164,166,168,170,172,174,176,178,0,20,1,0,49,55,1,0,58,
-59,1,0,56,57,1,0,60,62,1,0,65,66,1,0,1,2,2,0,81,81,89,89,3,0,82,82,91,91,
-100,100,2,0,83,83,87,87,1,0,85,86,1,0,75,78,1,0,47,48,2,0,68,70,72,72,1,
-0,97,98,2,0,11,11,40,43,2,0,21,21,46,46,2,0,12,13,17,18,2,0,20,20,28,28,
-2,0,26,27,37,37,1,0,34,35,969,0,180,1,0,0,0,2,182,1,0,0,0,4,188,1,0,0,0,
-6,193,1,0,0,0,8,199,1,0,0,0,10,203,1,0,0,0,12,239,1,0,0,0,14,246,1,0,0,0,
-16,255,1,0,0,0,18,261,1,0,0,0,20,277,1,0,0,0,22,295,1,0,0,0,24,297,1,0,0,
-0,26,308,1,0,0,0,28,314,1,0,0,0,30,326,1,0,0,0,32,330,1,0,0,0,34,343,1,0,
-0,0,36,354,1,0,0,0,38,363,1,0,0,0,40,375,1,0,0,0,42,387,1,0,0,0,44,399,1,
-0,0,0,46,406,1,0,0,0,48,410,1,0,0,0,50,413,1,0,0,0,52,415,1,0,0,0,54,417,
+833,8,75,3,75,835,8,75,1,76,1,76,1,76,1,76,1,76,4,76,842,8,76,11,76,12,76,
+843,1,76,1,76,1,77,1,77,1,77,1,77,1,77,1,78,1,78,1,78,1,78,1,78,1,79,1,79,
+1,79,1,79,1,79,1,79,1,80,1,80,1,80,5,80,867,8,80,10,80,12,80,870,9,80,1,
+80,4,80,873,8,80,11,80,12,80,874,1,80,1,80,1,81,1,81,3,81,881,8,81,1,81,
+1,81,5,81,885,8,81,10,81,12,81,888,9,81,1,81,1,81,1,82,1,82,1,82,1,82,1,
+83,1,83,1,83,1,84,1,84,1,84,1,84,1,84,1,84,1,84,1,84,3,84,907,8,84,1,85,
+1,85,1,85,3,85,912,8,85,1,86,1,86,1,86,1,86,1,87,1,87,1,87,1,87,1,87,5,87,
+923,8,87,10,87,12,87,926,9,87,1,87,1,87,1,88,1,88,1,88,1,88,1,88,3,88,935,
+8,88,1,89,1,89,1,89,1,89,1,89,1,89,0,0,90,0,2,4,6,8,10,12,14,16,18,20,22,
+24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,
+72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,
+116,118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,148,150,
+152,154,156,158,160,162,164,166,168,170,172,174,176,178,0,20,1,0,49,55,1,
+0,58,59,1,0,56,57,1,0,60,62,1,0,65,66,1,0,1,2,2,0,81,81,89,89,3,0,82,82,
+91,91,100,100,2,0,83,83,87,87,1,0,85,86,1,0,75,78,1,0,47,48,2,0,68,70,72,
+72,1,0,97,98,2,0,11,11,40,43,2,0,21,21,46,46,2,0,12,13,17,18,2,0,20,20,28,
+28,2,0,26,27,37,37,1,0,34,35,970,0,180,1,0,0,0,2,182,1,0,0,0,4,188,1,0,0,
+0,6,193,1,0,0,0,8,199,1,0,0,0,10,203,1,0,0,0,12,239,1,0,0,0,14,246,1,0,0,
+0,16,255,1,0,0,0,18,261,1,0,0,0,20,277,1,0,0,0,22,295,1,0,0,0,24,297,1,0,
+0,0,26,308,1,0,0,0,28,314,1,0,0,0,30,326,1,0,0,0,32,330,1,0,0,0,34,343,1,
+0,0,0,36,354,1,0,0,0,38,363,1,0,0,0,40,375,1,0,0,0,42,387,1,0,0,0,44,399,
+1,0,0,0,46,406,1,0,0,0,48,410,1,0,0,0,50,413,1,0,0,0,52,415,1,0,0,0,54,417,
 1,0,0,0,56,425,1,0,0,0,58,433,1,0,0,0,60,445,1,0,0,0,62,450,1,0,0,0,64,452,
 1,0,0,0,66,503,1,0,0,0,68,607,1,0,0,0,70,609,1,0,0,0,72,611,1,0,0,0,74,613,
 1,0,0,0,76,621,1,0,0,0,78,623,1,0,0,0,80,625,1,0,0,0,82,627,1,0,0,0,84,629,
@@ -98,10 +98,10 @@ const serializedATN = [4,1,114,941,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 727,1,0,0,0,124,737,1,0,0,0,126,741,1,0,0,0,128,744,1,0,0,0,130,749,1,0,
 0,0,132,757,1,0,0,0,134,765,1,0,0,0,136,773,1,0,0,0,138,781,1,0,0,0,140,
 789,1,0,0,0,142,797,1,0,0,0,144,805,1,0,0,0,146,813,1,0,0,0,148,826,1,0,
-0,0,150,834,1,0,0,0,152,836,1,0,0,0,154,846,1,0,0,0,156,851,1,0,0,0,158,
-856,1,0,0,0,160,862,1,0,0,0,162,877,1,0,0,0,164,890,1,0,0,0,166,894,1,0,
-0,0,168,905,1,0,0,0,170,907,1,0,0,0,172,912,1,0,0,0,174,916,1,0,0,0,176,
-928,1,0,0,0,178,935,1,0,0,0,180,181,5,111,0,0,181,1,1,0,0,0,182,183,5,96,
+0,0,150,834,1,0,0,0,152,836,1,0,0,0,154,847,1,0,0,0,156,852,1,0,0,0,158,
+857,1,0,0,0,160,863,1,0,0,0,162,878,1,0,0,0,164,891,1,0,0,0,166,895,1,0,
+0,0,168,906,1,0,0,0,170,908,1,0,0,0,172,913,1,0,0,0,174,917,1,0,0,0,176,
+929,1,0,0,0,178,936,1,0,0,0,180,181,5,111,0,0,181,1,1,0,0,0,182,183,5,96,
 0,0,183,184,3,4,2,0,184,185,5,11,0,0,185,186,3,76,38,0,186,187,5,25,0,0,
 187,3,1,0,0,0,188,189,7,0,0,0,189,5,1,0,0,0,190,192,3,2,1,0,191,190,1,0,
 0,0,192,195,1,0,0,0,193,191,1,0,0,0,193,194,1,0,0,0,194,196,1,0,0,0,195,
@@ -273,39 +273,40 @@ const serializedATN = [4,1,114,941,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 1,0,0,0,826,823,1,0,0,0,826,825,1,0,0,0,827,149,1,0,0,0,828,829,5,31,0,0,
 829,835,3,148,74,0,830,832,3,168,84,0,831,833,7,19,0,0,832,831,1,0,0,0,832,
 833,1,0,0,0,833,835,1,0,0,0,834,828,1,0,0,0,834,830,1,0,0,0,835,151,1,0,
-0,0,836,837,5,99,0,0,837,840,5,19,0,0,838,839,5,8,0,0,839,841,3,128,64,0,
-840,838,1,0,0,0,841,842,1,0,0,0,842,840,1,0,0,0,842,843,1,0,0,0,843,844,
-1,0,0,0,844,845,5,24,0,0,845,153,1,0,0,0,846,847,5,95,0,0,847,848,5,19,0,
-0,848,849,3,0,0,0,849,850,5,24,0,0,850,155,1,0,0,0,851,852,5,93,0,0,852,
-853,5,19,0,0,853,854,3,170,85,0,854,855,5,24,0,0,855,157,1,0,0,0,856,857,
-5,101,0,0,857,858,3,0,0,0,858,859,5,5,0,0,859,860,3,110,55,0,860,861,3,160,
-80,0,861,159,1,0,0,0,862,863,3,162,81,0,863,867,5,15,0,0,864,866,3,104,52,
-0,865,864,1,0,0,0,866,869,1,0,0,0,867,865,1,0,0,0,867,868,1,0,0,0,868,871,
-1,0,0,0,869,867,1,0,0,0,870,872,3,126,63,0,871,870,1,0,0,0,872,873,1,0,0,
-0,873,871,1,0,0,0,873,874,1,0,0,0,874,875,1,0,0,0,875,876,5,22,0,0,876,161,
-1,0,0,0,877,879,5,19,0,0,878,880,3,164,82,0,879,878,1,0,0,0,879,880,1,0,
-0,0,880,885,1,0,0,0,881,882,5,8,0,0,882,884,3,164,82,0,883,881,1,0,0,0,884,
-887,1,0,0,0,885,883,1,0,0,0,885,886,1,0,0,0,886,888,1,0,0,0,887,885,1,0,
-0,0,888,889,5,24,0,0,889,163,1,0,0,0,890,891,3,0,0,0,891,892,5,5,0,0,892,
-893,3,110,55,0,893,165,1,0,0,0,894,895,5,102,0,0,895,896,3,128,64,0,896,
-167,1,0,0,0,897,906,3,172,86,0,898,906,3,170,85,0,899,906,3,76,38,0,900,
-906,3,156,78,0,901,906,3,154,77,0,902,906,3,152,76,0,903,906,3,166,83,0,
-904,906,3,174,87,0,905,897,1,0,0,0,905,898,1,0,0,0,905,899,1,0,0,0,905,900,
-1,0,0,0,905,901,1,0,0,0,905,902,1,0,0,0,905,903,1,0,0,0,905,904,1,0,0,0,
-906,169,1,0,0,0,907,910,3,0,0,0,908,909,5,9,0,0,909,911,3,0,0,0,910,908,
-1,0,0,0,910,911,1,0,0,0,911,171,1,0,0,0,912,913,5,19,0,0,913,914,3,128,64,
-0,914,915,5,24,0,0,915,173,1,0,0,0,916,917,3,0,0,0,917,918,5,19,0,0,918,
-923,3,128,64,0,919,920,5,8,0,0,920,922,3,128,64,0,921,919,1,0,0,0,922,925,
-1,0,0,0,923,921,1,0,0,0,923,924,1,0,0,0,924,926,1,0,0,0,925,923,1,0,0,0,
-926,927,5,24,0,0,927,175,1,0,0,0,928,929,5,103,0,0,929,930,3,172,86,0,930,
-933,3,126,63,0,931,932,5,104,0,0,932,934,3,126,63,0,933,931,1,0,0,0,933,
-934,1,0,0,0,934,177,1,0,0,0,935,936,5,3,0,0,936,937,5,66,0,0,937,938,5,5,
-0,0,938,939,3,0,0,0,939,179,1,0,0,0,99,193,208,210,216,222,228,232,239,250,
-257,268,273,284,289,293,295,303,312,321,335,337,346,349,352,360,370,382,
-394,402,422,430,438,445,450,458,462,464,472,476,480,484,486,495,499,503,
-513,518,520,531,536,538,542,546,550,552,563,568,570,581,586,588,592,601,
-605,607,621,647,660,675,686,695,706,716,719,727,732,737,747,754,762,770,
-778,786,794,802,810,818,826,832,834,842,867,873,879,885,905,910,923,933];
+0,0,836,837,5,99,0,0,837,838,5,19,0,0,838,841,3,128,64,0,839,840,5,8,0,0,
+840,842,3,128,64,0,841,839,1,0,0,0,842,843,1,0,0,0,843,841,1,0,0,0,843,844,
+1,0,0,0,844,845,1,0,0,0,845,846,5,24,0,0,846,153,1,0,0,0,847,848,5,95,0,
+0,848,849,5,19,0,0,849,850,3,0,0,0,850,851,5,24,0,0,851,155,1,0,0,0,852,
+853,5,93,0,0,853,854,5,19,0,0,854,855,3,170,85,0,855,856,5,24,0,0,856,157,
+1,0,0,0,857,858,5,101,0,0,858,859,3,0,0,0,859,860,5,5,0,0,860,861,3,110,
+55,0,861,862,3,160,80,0,862,159,1,0,0,0,863,864,3,162,81,0,864,868,5,15,
+0,0,865,867,3,104,52,0,866,865,1,0,0,0,867,870,1,0,0,0,868,866,1,0,0,0,868,
+869,1,0,0,0,869,872,1,0,0,0,870,868,1,0,0,0,871,873,3,126,63,0,872,871,1,
+0,0,0,873,874,1,0,0,0,874,872,1,0,0,0,874,875,1,0,0,0,875,876,1,0,0,0,876,
+877,5,22,0,0,877,161,1,0,0,0,878,880,5,19,0,0,879,881,3,164,82,0,880,879,
+1,0,0,0,880,881,1,0,0,0,881,886,1,0,0,0,882,883,5,8,0,0,883,885,3,164,82,
+0,884,882,1,0,0,0,885,888,1,0,0,0,886,884,1,0,0,0,886,887,1,0,0,0,887,889,
+1,0,0,0,888,886,1,0,0,0,889,890,5,24,0,0,890,163,1,0,0,0,891,892,3,0,0,0,
+892,893,5,5,0,0,893,894,3,110,55,0,894,165,1,0,0,0,895,896,5,102,0,0,896,
+897,3,128,64,0,897,167,1,0,0,0,898,907,3,172,86,0,899,907,3,170,85,0,900,
+907,3,76,38,0,901,907,3,156,78,0,902,907,3,154,77,0,903,907,3,152,76,0,904,
+907,3,166,83,0,905,907,3,174,87,0,906,898,1,0,0,0,906,899,1,0,0,0,906,900,
+1,0,0,0,906,901,1,0,0,0,906,902,1,0,0,0,906,903,1,0,0,0,906,904,1,0,0,0,
+906,905,1,0,0,0,907,169,1,0,0,0,908,911,3,0,0,0,909,910,5,9,0,0,910,912,
+3,0,0,0,911,909,1,0,0,0,911,912,1,0,0,0,912,171,1,0,0,0,913,914,5,19,0,0,
+914,915,3,128,64,0,915,916,5,24,0,0,916,173,1,0,0,0,917,918,3,0,0,0,918,
+919,5,19,0,0,919,924,3,128,64,0,920,921,5,8,0,0,921,923,3,128,64,0,922,920,
+1,0,0,0,923,926,1,0,0,0,924,922,1,0,0,0,924,925,1,0,0,0,925,927,1,0,0,0,
+926,924,1,0,0,0,927,928,5,24,0,0,928,175,1,0,0,0,929,930,5,103,0,0,930,931,
+3,172,86,0,931,934,3,126,63,0,932,933,5,104,0,0,933,935,3,126,63,0,934,932,
+1,0,0,0,934,935,1,0,0,0,935,177,1,0,0,0,936,937,5,3,0,0,937,938,5,66,0,0,
+938,939,5,5,0,0,939,940,3,0,0,0,940,179,1,0,0,0,99,193,208,210,216,222,228,
+232,239,250,257,268,273,284,289,293,295,303,312,321,335,337,346,349,352,
+360,370,382,394,402,422,430,438,445,450,458,462,464,472,476,480,484,486,
+495,499,503,513,518,520,531,536,538,542,546,550,552,563,568,570,581,586,
+588,592,601,605,607,621,647,660,675,686,695,706,716,719,727,732,737,747,
+754,762,770,778,786,794,802,810,818,826,832,834,843,868,874,880,886,906,
+911,924,934];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -3610,19 +3611,21 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.match(CycloneParser.ONE);
 	        this.state = 837;
 	        this.match(CycloneParser.LPAREN);
-	        this.state = 840; 
+	        this.state = 838;
+	        this.expression();
+	        this.state = 841; 
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        do {
-	            this.state = 838;
-	            this.match(CycloneParser.COMMA);
 	            this.state = 839;
+	            this.match(CycloneParser.COMMA);
+	            this.state = 840;
 	            this.expression();
-	            this.state = 842; 
+	            this.state = 843; 
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        } while(_la===8);
-	        this.state = 844;
+	        this.state = 845;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3645,13 +3648,13 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 154, CycloneParser.RULE_freshExpr);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 846;
-	        this.match(CycloneParser.FRESH);
 	        this.state = 847;
-	        this.match(CycloneParser.LPAREN);
+	        this.match(CycloneParser.FRESH);
 	        this.state = 848;
-	        this.identifier();
+	        this.match(CycloneParser.LPAREN);
 	        this.state = 849;
+	        this.identifier();
+	        this.state = 850;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3674,13 +3677,13 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 156, CycloneParser.RULE_initialExpr);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 851;
-	        this.match(CycloneParser.INITIAL);
 	        this.state = 852;
-	        this.match(CycloneParser.LPAREN);
+	        this.match(CycloneParser.INITIAL);
 	        this.state = 853;
-	        this.dotIdentifierExpr();
+	        this.match(CycloneParser.LPAREN);
 	        this.state = 854;
+	        this.dotIdentifierExpr();
+	        this.state = 855;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3703,16 +3706,16 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 158, CycloneParser.RULE_functionDeclaration);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 856;
+	        this.state = 857;
 	        this.match(CycloneParser.FUNCTION);
 
-	        this.state = 857;
-	        this.identifier();
 	        this.state = 858;
-	        this.match(CycloneParser.COLON);
+	        this.identifier();
 	        this.state = 859;
-	        this.primitiveType();
+	        this.match(CycloneParser.COLON);
 	        this.state = 860;
+	        this.primitiveType();
+	        this.state = 861;
 	        this.functionBodyScope();
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3736,31 +3739,31 @@ export default class CycloneParser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 862;
-	        this.functionParamsDecl();
 	        this.state = 863;
+	        this.functionParamsDecl();
+	        this.state = 864;
 	        this.match(CycloneParser.LBRACE);
-	        this.state = 867;
+	        this.state = 868;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        while(((((_la - 68)) & ~0x1f) === 0 && ((1 << (_la - 68)) & 55) !== 0)) {
-	            this.state = 864;
+	            this.state = 865;
 	            this.localVariableGroup();
-	            this.state = 869;
+	            this.state = 870;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        }
-	        this.state = 871; 
+	        this.state = 872; 
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        do {
-	            this.state = 870;
+	            this.state = 871;
 	            this.statement();
-	            this.state = 873; 
+	            this.state = 874; 
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        } while((((_la) & ~0x1f) === 0 && ((1 << _la) & 2417491968) !== 0) || ((((_la - 93)) & ~0x1f) === 0 && ((1 << (_la - 93)) & 520773) !== 0));
-	        this.state = 875;
+	        this.state = 876;
 	        this.match(CycloneParser.RBRACE);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3784,29 +3787,29 @@ export default class CycloneParser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 877;
+	        this.state = 878;
 	        this.match(CycloneParser.LPAREN);
-	        this.state = 879;
+	        this.state = 880;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        if(_la===111) {
-	            this.state = 878;
+	            this.state = 879;
 	            this.functionParam();
 	        }
 
-	        this.state = 885;
+	        this.state = 886;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        while(_la===8) {
-	            this.state = 881;
-	            this.match(CycloneParser.COMMA);
 	            this.state = 882;
+	            this.match(CycloneParser.COMMA);
+	            this.state = 883;
 	            this.functionParam();
-	            this.state = 887;
+	            this.state = 888;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        }
-	        this.state = 888;
+	        this.state = 889;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3829,11 +3832,11 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 164, CycloneParser.RULE_functionParam);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 890;
-	        this.identifier();
 	        this.state = 891;
-	        this.match(CycloneParser.COLON);
+	        this.identifier();
 	        this.state = 892;
+	        this.match(CycloneParser.COLON);
+	        this.state = 893;
 	        this.primitiveType();
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3856,9 +3859,9 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 166, CycloneParser.RULE_returnExpr);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 894;
-	        this.match(CycloneParser.RETURN);
 	        this.state = 895;
+	        this.match(CycloneParser.RETURN);
+	        this.state = 896;
 	        this.expression();
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -3880,55 +3883,55 @@ export default class CycloneParser extends antlr4.Parser {
 	    let localctx = new PrimaryContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 168, CycloneParser.RULE_primary);
 	    try {
-	        this.state = 905;
+	        this.state = 906;
 	        this._errHandler.sync(this);
 	        var la_ = this._interp.adaptivePredict(this._input,95,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 897;
+	            this.state = 898;
 	            this.parExpression();
 	            break;
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 898;
+	            this.state = 899;
 	            this.dotIdentifierExpr();
 	            break;
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 899;
+	            this.state = 900;
 	            this.literal();
 	            break;
 
 	        case 4:
 	            this.enterOuterAlt(localctx, 4);
-	            this.state = 900;
+	            this.state = 901;
 	            this.initialExpr();
 	            break;
 
 	        case 5:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 901;
+	            this.state = 902;
 	            this.freshExpr();
 	            break;
 
 	        case 6:
 	            this.enterOuterAlt(localctx, 6);
-	            this.state = 902;
+	            this.state = 903;
 	            this.oneExpr();
 	            break;
 
 	        case 7:
 	            this.enterOuterAlt(localctx, 7);
-	            this.state = 903;
+	            this.state = 904;
 	            this.returnExpr();
 	            break;
 
 	        case 8:
 	            this.enterOuterAlt(localctx, 8);
-	            this.state = 904;
+	            this.state = 905;
 	            this.funCall();
 	            break;
 
@@ -3955,15 +3958,15 @@ export default class CycloneParser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 907;
+	        this.state = 908;
 	        this.identifier();
-	        this.state = 910;
+	        this.state = 911;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        if(_la===9) {
-	            this.state = 908;
-	            this.match(CycloneParser.DOT);
 	            this.state = 909;
+	            this.match(CycloneParser.DOT);
+	            this.state = 910;
 	            this.identifier();
 	        }
 
@@ -3988,11 +3991,11 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 172, CycloneParser.RULE_parExpression);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 912;
-	        this.match(CycloneParser.LPAREN);
 	        this.state = 913;
-	        this.expression();
+	        this.match(CycloneParser.LPAREN);
 	        this.state = 914;
+	        this.expression();
+	        this.state = 915;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -4016,25 +4019,25 @@ export default class CycloneParser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 916;
-	        this.identifier();
 	        this.state = 917;
-	        this.match(CycloneParser.LPAREN);
+	        this.identifier();
 	        this.state = 918;
+	        this.match(CycloneParser.LPAREN);
+	        this.state = 919;
 	        this.expression();
-	        this.state = 923;
+	        this.state = 924;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        while(_la===8) {
-	            this.state = 919;
-	            this.match(CycloneParser.COMMA);
 	            this.state = 920;
+	            this.match(CycloneParser.COMMA);
+	            this.state = 921;
 	            this.expression();
-	            this.state = 925;
+	            this.state = 926;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        }
-	        this.state = 926;
+	        this.state = 927;
 	        this.match(CycloneParser.RPAREN);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -4058,19 +4061,19 @@ export default class CycloneParser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 928;
-	        this.match(CycloneParser.IF);
 	        this.state = 929;
-	        this.parExpression();
+	        this.match(CycloneParser.IF);
 	        this.state = 930;
+	        this.parExpression();
+	        this.state = 931;
 	        this.statement();
-	        this.state = 933;
+	        this.state = 934;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
 	        if(_la===104) {
-	            this.state = 931;
-	            this.match(CycloneParser.ELSE);
 	            this.state = 932;
+	            this.match(CycloneParser.ELSE);
+	            this.state = 933;
 	            this.statement();
 	        }
 
@@ -4095,13 +4098,13 @@ export default class CycloneParser extends antlr4.Parser {
 	    this.enterRule(localctx, 178, CycloneParser.RULE_annotationExpr);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 935;
-	        this.match(CycloneParser.AT_SIGN);
 	        this.state = 936;
-	        this.match(CycloneParser.LABEL);
+	        this.match(CycloneParser.AT_SIGN);
 	        this.state = 937;
-	        this.match(CycloneParser.COLON);
+	        this.match(CycloneParser.LABEL);
 	        this.state = 938;
+	        this.match(CycloneParser.COLON);
+	        this.state = 939;
 	        this.identifier();
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -8384,6 +8387,17 @@ class OneExprContext extends antlr4.ParserRuleContext {
 	    return this.getToken(CycloneParser.LPAREN, 0);
 	};
 
+	expression = function(i) {
+	    if(i===undefined) {
+	        i = null;
+	    }
+	    if(i===null) {
+	        return this.getTypedRuleContexts(ExpressionContext);
+	    } else {
+	        return this.getTypedRuleContext(ExpressionContext,i);
+	    }
+	};
+
 	RPAREN() {
 	    return this.getToken(CycloneParser.RPAREN, 0);
 	};
@@ -8399,17 +8413,6 @@ class OneExprContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-
-	expression = function(i) {
-	    if(i===undefined) {
-	        i = null;
-	    }
-	    if(i===null) {
-	        return this.getTypedRuleContexts(ExpressionContext);
-	    } else {
-	        return this.getTypedRuleContext(ExpressionContext,i);
-	    }
-	};
 
 	enterRule(listener) {
 	    if(listener instanceof CycloneParserListener ) {

@@ -1,0 +1,18 @@
+/* This example tests ill-formed edge name
+ * Written by: Zheng CHENG
+ * Created: 2021-12-4
+ */
+
+machine test_syntax_illform_edge{
+    /* nodes */
+    abstract start node s0{}
+    abstract node s1{}
+
+    /* edges */
+    transition l1->sth {s0 -> s1}
+    transition l2 {s0 -> s0}
+    transition l3 {s1 -> s1}
+
+    /* expect to fail parsing */
+
+}

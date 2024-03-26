@@ -3,3 +3,22 @@ cases:
   - |
     option-trace=1;
     graph G{}
+  - |
+    option-trace=1;
+    option-log=2;
+    option-debug="trace";
+    option-timeout=false;
+    option-precision=10;
+    option-precision=2;
+    option-detect=2;
+    option-output=true;
+    option-output="html";
+    option-output="tex";
+    machine parser_tc8{
+
+    }
+casesCounter:
+  - |
+    option-trace=true;
+    option-timeout =10;
+    graph G {}
