@@ -649,7 +649,8 @@ export default class SyntaxBlockBuilder {
       case SemanticContextType.MachineDecl: {
         this.markData(SyntaxBlockKind.Machine, {
           identifier: metadata.identifier,
-          keyword: metadata.keyword
+          keyword: metadata.keyword,
+          stateSet: metadata.stateSet,
         })
         break
       }

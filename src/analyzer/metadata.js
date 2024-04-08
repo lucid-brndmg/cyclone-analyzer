@@ -132,6 +132,10 @@ const inExprMetadata = () => ({
   identifiers: [],
 })
 
+const assertExprMetadata = () => ({
+  inExpr: false
+})
+
 // make a table that corresponds to semantic context type to help the analyzer assign them
 export const semanticContextMetadataTable = {
   [SemanticContextType.FnBodyScope]: functionScopeMetadata,
@@ -147,5 +151,6 @@ export const semanticContextMetadataTable = {
   [SemanticContextType.MachineDecl]: machineDeclMetadata,
   [SemanticContextType.CompilerOption]: compilerOptionMetadata,
   [SemanticContextType.WhereExpr]: whereExprMetadata,
-  [SemanticContextType.InExpr]: inExprMetadata
+  [SemanticContextType.InExpr]: inExprMetadata,
+  [SemanticContextType.AssertExpr]: assertExprMetadata
 }

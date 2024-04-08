@@ -27,6 +27,7 @@ export const SemanticErrorType = {
   WhereInlineVariable: 2015,
   InvalidCheckForPathLength: 2016,
   AnonymousEdgeIdentifier: 2017,
+  AssertModifierInExpr: 2018,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,

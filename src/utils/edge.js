@@ -84,6 +84,15 @@ export const edgeLengths = (edgeMetadataList, allStates) => {
   return removeEdgeDuplication(edges).length + total
 }
 
+export const expandEdge = ({operators, toStates, fromState, excludedStates}, allStates) => {
+  if (isAnonymousEdge({operators, toStates})) {
+    return expandAnonymousEdge({operators, toStates, fromState, excludedStates}, allStates)
+  } else {
+    const target = toStates[0]
+    return [{source: fromState, target}]
+  }
+}
+
 export default {
   withEdgeStates,
   edgeTargets,
@@ -92,5 +101,6 @@ export default {
   removeEdgeDuplication,
   edgeIndex,
   expandAnonymousEdge,
-  edgeLengths
+  edgeLengths,
+  expandEdge
 }

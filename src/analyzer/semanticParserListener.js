@@ -442,7 +442,9 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitAssertExpr(ctx) {
-    this.analyzer.deduceToType(IdentifierType.Bool)
+    const main = ctx.children.find(c => c instanceof CycloneParser.AssertMainExprContext)
+    this.analyzer.handleAssertExpr(main ? firstSymbol(main) : null)
+    // this.analyzer.deduceToType(IdentifierType.Bool)
     this.analyzer.popBlock(ctx)
   }
 

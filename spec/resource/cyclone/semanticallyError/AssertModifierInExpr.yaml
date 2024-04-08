@@ -1,0 +1,46 @@
+expectedErrors: ["AssertModifierInExpr"]
+cases:
+  - |
+    graph G {
+      goal {
+        assert some a == 1 in (S1);
+        check for 1
+      }
+    }
+  - |
+    graph G {
+      goal {
+        assert always a == 1 in (S1);
+        check for 1
+      }
+    }
+
+casesCounter:
+  - |
+    graph G {
+      goal {
+        assert true;
+        check for 1, 2, 3
+      }
+    }
+  - |
+    graph G {
+      goal {
+        assert true in (S1, S2);
+        check for 1
+      }
+    }
+  - |
+    graph G {
+      goal {
+        assert always true;
+        check for 1
+      }
+    }
+  - |
+    graph G {
+      goal {
+        assert some true;
+        check for 1
+      }
+    }

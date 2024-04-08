@@ -841,7 +841,11 @@ export default class SemanticAnalyzer {
       }
     }
 
-    if (attrs.includes("abstract") && block.metadata.hasChildren === true) {
+
+    if (
+      (attrs.includes("abstract") || attrs.length === 1)
+      && block.metadata.hasChildren === true
+    ) {
       es.push({
         ...position,
 
@@ -1091,7 +1095,10 @@ export default class SemanticAnalyzer {
 
   handleInExpr(identifiers) {
     if (identifiers?.length) {
-      // const assertionBlock = this.context.findNearestBlock(SemanticContextType.AssertExpr)
+      const assertionBlock = this.context.findNearestBlock(SemanticContextType.AssertExpr)
+      if (assertionBlock) {
+        assertionBlock.metadata.inExpr = true
+      }
       // if (assertionBlock) {
       //   this.emit("lang:assertion:states", {expr, position: parentExprPos, identifiers})
       // } else {
@@ -1233,6 +1240,20 @@ export default class SemanticAnalyzer {
     } else if (block.type !== SemanticContextType.LetDecl) {
       console.log("warn: let block not found")
     }
+  }
+
+  handleAssertExpr(modifier) {
+    if (modifier) {
+      const block = this.context.peekBlock()
+      if (block.metadata.inExpr) {
+        this.emit("errors", [{
+          ...block.position,
+          type: SemanticErrorType.AssertModifierInExpr
+        }])
+      }
+    }
+
+    this.deduceToType(IdentifierType.Bool)
   }
 
   registerTypeForVariableDecl() {

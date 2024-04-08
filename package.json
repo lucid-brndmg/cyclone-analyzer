@@ -1,6 +1,6 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "A semantic analyzer for the cyclone language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",
