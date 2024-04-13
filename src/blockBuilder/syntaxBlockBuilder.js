@@ -276,16 +276,16 @@ export default class SyntaxBlockBuilder {
     gb.data.identifiers.push(ident, {blockId, scopeId})
   }
 
-  clearIdentifier(scopeId) {
+  clearIdentifier(tgtScopeId) {
     const gb = this.getLatestBlock(SyntaxBlockKind.Machine)
-    if (!gb || !scopeId) {
-      console.log("machine or scope id not found for ident", scopeId)
+    if (!gb || !tgtScopeId) {
+      console.log("machine or scope id not found for ident", tgtScopeId)
       return
     }
     // for (let ident of idents) {
     //   gb.data.identifiers.filtered(ident, blockKind => !graphicalBlockKinds.includes(blockKind))
     // }
-    gb.data.identifiers.filtered(({blockId, scopeId}) => scopeId === scopeId)
+    gb.data.identifiers.filtered(({scopeId}) => scopeId !== tgtScopeId)
   }
 
   markReference(kind, ident, blockRestrictions = []) {
@@ -526,13 +526,14 @@ export default class SyntaxBlockBuilder {
           returnType: output,
           identifier: metadata.identifier
         })
-        break
-      }
-
-      case SemanticContextType.FnBodyScope: {
         this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Func))
         break
       }
+
+      // case SemanticContextType.FnBodyScope: {
+      //   this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Func))
+      //   break
+      // }
 
       case SemanticContextType.StateDecl: {
         const {identifier, attributes} = metadata
@@ -658,9 +659,10 @@ export default class SyntaxBlockBuilder {
   }
 
   #onAnalyzerIdentifierRegister(context, {text, type, position, kind, blockType, recordIdent}) {
+    const machineId = this.getLatestBlockId(SyntaxBlockKind.Machine)
     switch (kind) {
       case IdentifierKind.EnumField: {
-        this.markIdentifier(`#${text}`, this.context.latestBlock.id)
+        this.markIdentifier(`#${text}`, this.context.latestBlock.id, machineId)
         break
       }
       case IdentifierKind.RecordField:
@@ -677,10 +679,10 @@ export default class SyntaxBlockBuilder {
         })
 
         if (kind !== IdentifierKind.RecordField) {
-          this.markIdentifier(text, id, kind === IdentifierKind.LocalVariable ? this.getLatestBlockId(SyntaxBlockKind.Func) : null)
+          this.markIdentifier(text, id, kind === IdentifierKind.LocalVariable ? this.getLatestBlockId(SyntaxBlockKind.Func) : machineId)
         } else {
           if (recordIdent) {
-            this.markIdentifier(`${recordIdent}.${text}`, id)
+            this.markIdentifier(`${recordIdent}.${text}`, id, machineId)
           }
         }
         break
@@ -698,17 +700,17 @@ export default class SyntaxBlockBuilder {
 
       case IdentifierKind.Machine: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Machine)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
       case IdentifierKind.State: {
         const id = this.getLatestBlockId(SyntaxBlockKind.State)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
       case IdentifierKind.Trans: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Transition)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
       case IdentifierKind.Let: {
@@ -718,17 +720,17 @@ export default class SyntaxBlockBuilder {
       }
       case IdentifierKind.Record: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Record)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
       case IdentifierKind.FnName: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Func)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
       case IdentifierKind.Invariant: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Invariant)
-        this.markIdentifier(text, id)
+        this.markIdentifier(text, id, machineId)
         break
       }
     }

@@ -2,31 +2,22 @@ expectedErrors: ["EmptyEdge"]
 cases:
   - |
     graph G {
-      node A {}
-      node B {}
-      node C {}
-
+      node A {} node B {} node C {}
       edge { A -> *[A, B, C] }
     }
   - |
     graph G {
-      node A {}
-      node B {}
-      node C {}
-    
+      node A {} node B {} node C {}
       edge { A -> +[B, C] }
     }
   - |
     graph G {
       node A {}
-
       edge { A -> + }
     }
   - |
     graph G { 
-      node S1 {} 
-      node S2 {}
-
+      node S1 {} node S2 {}
       transition {S1 <-> +[S2]}
 
       goal {
@@ -42,9 +33,7 @@ cases:
 casesCounter:
   - |
     graph G { 
-          node S1 {} 
-          node S2 {}
-
+          node S1 {} node S2 {}
           transition {S1 <-> +}
 
           goal {

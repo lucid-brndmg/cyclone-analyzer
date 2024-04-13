@@ -204,7 +204,7 @@ export default class SyntaxBlock {
         ]
 
         if (viaKeyword) {
-          `${viaKeyword} (${viaExpr})`
+          parts.push(`${viaKeyword} (${viaExpr})`)
         }
 
         if (invariants.length) {

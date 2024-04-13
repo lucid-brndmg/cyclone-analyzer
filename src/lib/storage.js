@@ -184,9 +184,10 @@ export class StackedTable extends Map {
     for (let [k, v] of this) {
       const filtered = v.filter(filterFn)
       if (!filtered.length) {
-        continue
+        this.delete(k)
+      } else {
+        this.set(k, filtered)
       }
-      this.set(k, filtered)
     }
   }
 
