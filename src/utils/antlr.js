@@ -45,20 +45,22 @@ export const getOnlyExpression = (ctx, parserContext) => {
   return undefined
 }
 
-export const firstSymbol = ctx => {
+export const firstSymbolObject = ctx => {
   if (!ctx.children) {
     return null
   }
 
   for (let child of ctx.children) {
-    const symbol = child.symbol
-    if (symbol) {
-      return symbol.text
+    const sym = child.symbol
+    if (sym) {
+      return sym
     }
   }
 
   return null
 }
+
+export const firstSymbol = ctx => firstSymbolObject(ctx)?.text
 
 export const existsSymbol = (ctx, symbol) => {
   if (!ctx.children) {
@@ -115,5 +117,6 @@ export default {
   firstSymbol,
   listenerWalk,
   ErrorListener,
-  parseCycloneSyntax
+  parseCycloneSyntax,
+  firstSymbolObject
 }

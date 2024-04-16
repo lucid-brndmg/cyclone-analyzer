@@ -760,7 +760,7 @@ export default class SemanticAnalyzer {
   }
 
   handleInitialExpr(position) {
-    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope]
+    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope, SemanticContextType.InvariantScope]
 
     const valid = this.checkNamedExpr(
       position,

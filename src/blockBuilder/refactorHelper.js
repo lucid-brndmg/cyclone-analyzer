@@ -1,4 +1,9 @@
-import {firstSymbol, getBlockPositionPair, listenerWalk, parseCycloneSyntax} from "../utils/antlr.js";
+import {
+  firstSymbol, firstSymbolObject,
+  getBlockPositionPair,
+  listenerWalk,
+  parseCycloneSyntax
+} from "../utils/antlr.js";
 import CycloneParserListener from "../generated/antlr/CycloneParserListener.js";
 import antlr4 from "antlr4";
 
@@ -111,6 +116,76 @@ export const replaceIdentifiers = (
   return replacer.getText()
 }
 
+class OperatorReplacer extends CycloneParserListener {
+  rewriter;
+  replacementMap;
+
+  getText() {
+    return this.rewriter.getText()
+  }
+
+  constructor(tokenStream, replacementMap) {
+    super();
+    this.rewriter = new antlr4.TokenStreamRewriter(tokenStream)
+    this.replacementMap = replacementMap
+  }
+
+  replaceSymbol(sym) {
+    const text = sym?.text
+    if (text && this.replacementMap.has(text)) {
+      console.log("replace", text)
+      // console.log("symbol", text, sym.start, sym.stop)
+      this.rewriter.replace(sym, sym, this.replacementMap.get(text))
+    }
+  }
+
+  replaceFirst(ctx) {
+    const sym = firstSymbolObject(ctx)
+    this.replaceSymbol(sym)
+  }
+
+  replaceRecursive(ctx) {
+    for (let child of ctx.children) {
+      if (child.symbol) {
+        this.replaceSymbol(child.symbol)
+      } else if (child.children) {
+        this.replaceRecursive(child)
+      }
+    }
+  }
+
+  enterTransOp(ctx) {
+    this.replaceFirst(ctx)
+  }
+
+  enterPathCondition(ctx) {
+    console.log("enter path")
+    this.replaceRecursive(ctx)
+  }
+
+  enterExpression(ctx) {
+    this.replaceRecursive(ctx)
+  }
+
+}
+
+export const replaceOperators = (
+  code,
+  parsingEntry,
+  replacementMap
+) => {
+  const {tokenStream, tree} = parseCycloneSyntax({
+    input: code,
+    entry: parsingEntry
+  })
+  const replacer = new OperatorReplacer(tokenStream, replacementMap)
+
+  listenerWalk(replacer, tree)
+
+  return replacer.getText()
+}
+
 export default {
-  replaceIdentifiers
+  replaceIdentifiers,
+  replaceOperators
 }
