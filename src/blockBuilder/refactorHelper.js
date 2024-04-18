@@ -119,35 +119,48 @@ export const replaceIdentifiers = (
 class OperatorReplacer extends CycloneParserListener {
   rewriter;
   replacementMap;
+  replacerFn
 
   getText() {
     return this.rewriter.getText()
   }
 
-  constructor(tokenStream, replacementMap) {
+  constructor(tokenStream, replacementMap, replacerFn) {
     super();
     this.rewriter = new antlr4.TokenStreamRewriter(tokenStream)
     this.replacementMap = replacementMap
+    this.replacerFn = replacerFn
   }
 
-  replaceSymbol(sym) {
+  replaceSymbol(sym, ctx, index) {
     const text = sym?.text
-    if (text && this.replacementMap.has(text)) {
-      console.log("replace", text)
-      // console.log("symbol", text, sym.start, sym.stop)
-      this.rewriter.replace(sym, sym, this.replacementMap.get(text))
+    if (this.replacementMap) {
+      if (text && this.replacementMap.has(text)) {
+        // console.log("symbol", text, sym.start, sym.stop)
+        this.rewriter.replace(sym, sym, this.replacementMap.get(text))
+      }
+    } else {
+      if (text) {
+        const resp = this.replacerFn(sym, ctx, index)
+        if (resp != null) {
+          this.rewriter.replace(sym, sym, resp)
+        }
+      }
     }
+
   }
 
   replaceFirst(ctx) {
     const sym = firstSymbolObject(ctx)
-    this.replaceSymbol(sym)
+    this.replaceSymbol(sym, ctx, 0)
   }
 
   replaceRecursive(ctx) {
+    let symIdx = 0
     for (let child of ctx.children) {
       if (child.symbol) {
-        this.replaceSymbol(child.symbol)
+        this.replaceSymbol(child.symbol, ctx, symIdx)
+        symIdx ++
       } else if (child.children) {
         this.replaceRecursive(child)
       }
@@ -159,7 +172,6 @@ class OperatorReplacer extends CycloneParserListener {
   }
 
   enterPathCondition(ctx) {
-    console.log("enter path")
     this.replaceRecursive(ctx)
   }
 
