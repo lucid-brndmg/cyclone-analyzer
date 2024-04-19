@@ -111,7 +111,7 @@ const machineDeclMetadata = () => ({
   transitionSet: new Set(), // all defined edges
   actionTable: new CategorizedStackTable(), // the table of declared functions
   identifierStack: new StackedTable(), // the table of identifier information, use a stack as value to store scope data
-  recordFieldStack: new CategorizedStackTable() // the table of record field information
+  recordFieldStack: new CategorizedStackTable(), // the table of record field information
 })
 
 // metadata for compiler options
@@ -136,6 +136,11 @@ const assertExprMetadata = () => ({
   inExpr: false
 })
 
+const statementMetadata = () => ({
+  isReturn: false,
+  exprStack: []
+})
+
 // make a table that corresponds to semantic context type to help the analyzer assign them
 export const semanticContextMetadataTable = {
   [SemanticContextType.FnBodyScope]: functionScopeMetadata,
@@ -152,5 +157,6 @@ export const semanticContextMetadataTable = {
   [SemanticContextType.CompilerOption]: compilerOptionMetadata,
   [SemanticContextType.WhereExpr]: whereExprMetadata,
   [SemanticContextType.InExpr]: inExprMetadata,
-  [SemanticContextType.AssertExpr]: assertExprMetadata
+  [SemanticContextType.AssertExpr]: assertExprMetadata,
+  [SemanticContextType.Statement]: statementMetadata
 }

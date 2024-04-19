@@ -4,3 +4,30 @@ cases:
     graph G {
       int a = return 1;
     }
+  - |
+    machine G{
+    	function g:int (x:int){
+          int a = return 1;
+    	  (return 1);
+    	}
+    }
+  - |
+    machine G{
+    	function g:int (x:int){
+    	  (return 1) + 1;
+    	}
+    }
+
+casesCounter:
+  - |
+    machine G{
+    	function g:int (x:int){
+    	  (return 1);
+    	}
+    }
+  - |
+    machine G{
+    	function g:int (x:int){
+    	  return 1;
+    	}
+    }

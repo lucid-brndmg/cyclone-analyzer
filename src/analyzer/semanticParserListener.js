@@ -5,7 +5,7 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression, existsSymbol, getIdentifierTokensInList, getPositionedIdentifiersInList
+  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext, tryGetIdentifierContext, getIdentTextPos
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 
@@ -25,22 +25,41 @@ export default class SemanticParserListener extends CycloneParserListener {
     this.analyzer = semanticAnalyzer
   }
 
-  // static walk(semanticAnalyzer, parseTree) {
-  //   ParseTreeWalker.DEFAULT.walk(new SemanticParserListener(semanticAnalyzer), parseTree)
-  // }
-
-  #handleBinaryOp(ctx) {
-    for (let child of ctx.children) {
+  #handleBinaryOp(ctx, isPathExpr) {
+    for (let i = 0; i < ctx.children.length; i++) {
+      const child = ctx.children[i]
       const symbol = child.symbol
       if (symbol) {
+        // console.log(tryGetIdentifierContext(ctx.children[i - 1])?.start.text)
+        // console.log(tryGetIdentifierContext(ctx.children[i + 1])?.start.text)
+        let identList = null
+        if (!isPathExpr) {
+          const lhs = tryGetIdentifierContext(ctx.children[i - 1])
+          const rhs = tryGetIdentifierContext(ctx.children[i + 1])
+          const lhsTextPos = lhs ? getIdentTextPos(lhs) : null
+          const rhsTextPos = rhs ? getIdentTextPos(rhs) : null
+          if (lhsTextPos || rhsTextPos) {
+            identList = [lhsTextPos, rhsTextPos]
+          }
+        }
+
         const op = symbol.text
         // console.log("exit bin op", op)
-        this.analyzer.deduceActionCall(ActionKind.InfixOperator, op, 2, getSymbolPosition(symbol, op.length))
+        this.analyzer.deduceActionCall(ActionKind.InfixOperator, op, 2, getSymbolPosition(symbol, op.length), identList)
       }
     }
+
+    // for (let child of ctx.children) {
+    //   const symbol = child.symbol
+    //   if (symbol) {
+    //     const op = symbol.text
+    //     // console.log("exit bin op", op)
+    //     this.analyzer.deduceActionCall(ActionKind.InfixOperator, op, 2, getSymbolPosition(symbol, op.length))
+    //   }
+    // }
   }
 
-  #handleUnaryOp(ctx) {
+  #handleUnaryOp(ctx, isPathExpr) {
     // console.log("possible unary", ctx)
 
     if (ctx.children.length !== 2) {
@@ -49,10 +68,17 @@ export default class SemanticParserListener extends CycloneParserListener {
 
     const isSuffix = ctx.children[1].hasOwnProperty("symbol")
     const symbol = ctx.children[isSuffix ? 1 : 0]?.symbol
+    const ident = isPathExpr ? null : tryGetIdentifierContext(ctx.children[isSuffix ? 0 : 1])
+    const textPos = ident ? getIdentTextPos(ident) : null
     const op = symbol?.text
     if (op) {
       // console.log("exit unary op", op)
-      this.analyzer.deduceActionCall(isSuffix ? ActionKind.SuffixOperator : ActionKind.PrefixOperator, op, 1, getSymbolPosition(symbol, op.length))
+      this.analyzer.deduceActionCall(
+        isSuffix ? ActionKind.SuffixOperator : ActionKind.PrefixOperator,
+        op, 1,
+        getSymbolPosition(symbol, op.length),
+        textPos ? [textPos] : null
+      )
     }
   }
 
@@ -429,12 +455,13 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   enterExpression(ctx) {
-    this.analyzer.handleExpression()
+    this.analyzer.handleExpressionEnter((deepestContext(ctx)).constructor.name)
     // this.analyzer.pushBlock(SemanticContextType.Expression, getBlockPositionPair(ctx))
   }
 
   exitExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.analyzer.handleExpressionExit()
+    this.#handleBinaryOp(ctx, false)
   }
 
   enterAssertExpr(ctx) {
@@ -469,7 +496,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   // }
 
   exitReturnExpr(ctx) {
-    this.analyzer.handleReturn(getBlockPositionPair(ctx))
+    this.analyzer.handleReturn(getBlockPositionPair(ctx), CycloneParser.ParExpressionContext.name)
   }
 
   enterFunctionParamsDecl(ctx) {
@@ -565,63 +592,63 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitAdditiveExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitMultiplicativeExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitPowExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitRelationalExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitEqualityExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitConditionalXorExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitConditionalAndExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitConditionalOrExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitConditionalImpliesExpression(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, false)
   }
 
   exitUnaryExpression(ctx) {
-    this.#handleUnaryOp(ctx)
+    this.#handleUnaryOp(ctx, false)
   }
 
   exitUnaryExpressionNotPlusMinus(ctx) {
-    this.#handleUnaryOp(ctx)
+    this.#handleUnaryOp(ctx, false)
   }
 
   exitUnaryPathCondition(ctx) {
-    this.#handleUnaryOp(ctx)
+    this.#handleUnaryOp(ctx, true)
   }
 
   exitXorPathCondition(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, true)
   }
 
   exitAndPathCondition(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, true)
   }
 
   exitOrPathCondition(ctx) {
-    this.#handleBinaryOp(ctx)
+    this.#handleBinaryOp(ctx, true)
   }
 
   exitPathCondition(ctx) {

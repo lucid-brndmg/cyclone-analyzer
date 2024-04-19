@@ -30,7 +30,9 @@ export const getIdentifierTokensInList = ctx => ctx.children?.filter(c => c inst
 
 export const getIdentifiersInList = ctx => getIdentifierTokensInList(ctx).map(it => it.start.text)
 
-export const getPositionedIdentifiersInList = ctx => getIdentifierTokensInList(ctx).map(it => ({identifier: it.start.text, position: getBlockPositionPair(ctx)}))
+export const getIdentTextPos = ctx => ({identifier: ctx.start.text, position: getBlockPositionPair(ctx)})
+
+export const getPositionedIdentifiersInList = ctx => getIdentifierTokensInList(ctx).map(getIdentTextPos)
 
 export const getParentExpression = ctx => ctx.parentCtx.start.getInputStream().getText(ctx.parentCtx.start.start, ctx.parentCtx.stop.stop)
 
@@ -108,6 +110,22 @@ export const parseCycloneSyntax = ({input, lexerErrorListener, parserErrorListen
   }
 }
 
+export const deepestContext = (ctx, stopInstance = null) => (stopInstance == null || !(ctx instanceof stopInstance)) && ctx.children?.length === 1
+  ? deepestContext(ctx.children[0], stopInstance)
+  : ctx
+
+export const tryGetIdentifierContext = ctx => {
+  if (ctx instanceof CycloneParser.IdentifierContext) {
+    return ctx
+  } else if (ctx instanceof CycloneParser.ParExpressionContext || ctx instanceof CycloneParser.ParPathConditionContext) {
+    return tryGetIdentifierContext(ctx.children[1])
+  } else if (ctx.children?.length === 1) {
+    return tryGetIdentifierContext(ctx.children[0])
+  } else {
+    return null
+  }
+}
+
 export default {
   getBlockPositionPair,
   getSymbolPosition,
@@ -118,5 +136,8 @@ export default {
   listenerWalk,
   ErrorListener,
   parseCycloneSyntax,
-  firstSymbolObject
+  firstSymbolObject,
+  deepestContext,
+  tryGetIdentifierContext,
+  getIdentTextPos
 }

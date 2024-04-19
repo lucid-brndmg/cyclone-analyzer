@@ -20,7 +20,6 @@ import {
   identifierNoPushTypeStackBlocks, invalidNodeModifierCombo,
   optionAcceptableValues,
   scopedContextType,
-  scopeSupportsShadowing,
   singleTypedDeclarationGroupContextType,
   typeTokenToType
 } from "../language/specifications.js";
@@ -30,10 +29,10 @@ import {
   semanticContextMetadataTable,
   singleTypedDeclGroupMetadata
 } from "./metadata.js";
-import {checkSignature} from "../utils/type.js";
 import SemanticAnalyzerContext from "./semanticAnalyzerContext.js";
 import {findDuplications, firstCombo} from "../lib/list.js";
 import {edgeIndex, edgeTargets, isAnonymousEdge, isClosureEdge} from "../utils/edge.js";
+import {checkSignature} from "../utils/type.js";
 
 export default class SemanticAnalyzer {
   context
@@ -155,30 +154,13 @@ export default class SemanticAnalyzer {
       const prev = this.context.peekBlock(1)
       identKind = declarationGroupContextTypeToIdentifierKind[prev.type] ?? IdentifierKind.Unknown
     }
-    let isEnum = blockType === SemanticContextType.EnumDecl
+    let isEnum = false // blockType === SemanticContextType.EnumDecl
 
     // NOTE: Enum fields don't have types, their types are always -1
     const type = identifierKindToType[identKind]
       ?? block.metadata.fieldType
     const machineCtx = this.context.currentMachineBlock.metadata
     // console.log("support shadowing: ", scopeSupportsShadowing.get(scope.type)?.has(identKind), scope.type, identKind)
-    const hasCount = !isEnum && (scope
-      ? scopeSupportsShadowing.get(scope.type)?.has(identKind)
-        ? scope.metadata.identifierCounts.get(identText) > 0
-        : machineCtx.identifierStack.getLength(identText) > 0
-      : machineCtx.identifierStack.getLength(identText) > 0)
-
-    // this.context.identifierCounts.hasCounts(registrationCheckKinds, identText)
-
-    if (hasCount) {
-      this.emit("errors", [{
-        ...identPos,
-
-        type: SemanticErrorType.IdentifierRedeclaration,
-        params: {ident: identText}
-      }])
-    }
-
     let fnSignature = null
 
     switch (blockType) {
@@ -194,6 +176,7 @@ export default class SemanticAnalyzer {
       }
 
       case SemanticContextType.EnumDecl: {
+        isEnum = true
         machineCtx.enumFields.add(identText)
         const prev = this.context.peekBlock(1)
         if (prev.metadata.enums.includes(identText)) {
@@ -211,12 +194,10 @@ export default class SemanticAnalyzer {
     if (declarationContextType.has(blockType)) {
       block.metadata.identifier = identText
     }
-
-    // this.context.editorCtx.pushScopeLayerIdent(identText, type, identPos, identKind, blockType, this.context.scopedBlocks.length)
     const isRecordMemberDef = !isEnum && scope.type === SemanticContextType.RecordScope
       // current block is not enum decl
       // (since enum decl also involves identifiers)
-      && this.context.peekBlock().type !== SemanticContextType.EnumDecl
+      // && this.context.peekBlock().type !== SemanticContextType.EnumDecl
     const recordDecl = isRecordMemberDef ? this.context.findNearestBlock(SemanticContextType.RecordDecl) : null
     const recordIdent = recordDecl?.metadata.identifier // this.context
     const payload = {
@@ -230,58 +211,125 @@ export default class SemanticAnalyzer {
     }
 
     this.emit("identifier:register", payload)
-    // this.emitLangComponent(context, payload)
 
-    if (!isEnum) {
-      const info = {
-        position: identPos,
-        kind: identKind,
-        type,
-        text: identText,
-        // recordIdent: null,
-        recordChild: [],
-        fnSignature,
-        fnParams: []
-      }
-      // this.context.findNearestBlock(SemanticContextType.EnumDecl, SemanticContextType.RecordScope) === null
-      // && this.searchNearestBlock(
-      //   block => block.metadata?.blockCurrentRecord === true,
-      //   SemanticContextType.RecordScope,
-      //   // this.context.blockContextStack.length - scope.index
-      // ) === null
-      if (recordIdent) {
-        // info.recordIdent = recordIdent
+    // const hasCount = !isEnum && (scope
+    //   ? scopeSupportsShadowing.get(scope.type)?.has(identKind)
+    //     ? scope.metadata.identifierCounts.get(identText) > 0
+    //     : machineCtx.identifierStack.getLength(identText) > 0
+    //   : machineCtx.identifierStack.getLength(identText) > 0)
+    //
+    // if (hasCount) {
+    //   this.emit("errors", [{
+    //     ...identPos,
+    //
+    //     type: SemanticErrorType.IdentifierRedeclaration,
+    //     params: {ident: identText}
+    //   }])
+    // }
 
-        const recordInfo = machineCtx.identifierStack.peek(recordIdent)
-        recordInfo?.recordChild?.push({
-          text: identText,
-          type,
-          kind: identKind
-        })
-        // no need to check current counts here
-        // cuz RecordScope is already a scope
-
-        // scope?.metadata.recordCounts.incr(recordIdent, identText)
-        const prevScope = this.context.peekScope(1)
-        if (prevScope) {
-          prevScope?.metadata.recordCounts.incr(recordIdent, identText)
-        } else {
-          console.log("warn: no previous scope exists before current scope")
-        }
-        // this.context.recordCounts.incr(recordIdent, identText)
-        machineCtx.recordFieldStack.push(recordIdent, identText, info)
-      }
-      // if (isRecordMemberDef) {
-      //   const recordDecl = this.context.findNearestBlock(SemanticContextType.RecordDecl)
-      //   const recordIdent = recordDecl.metadata.identifier // this.context.currentRecordIdent[this.context.currentRecordIdent.length - 1]
-      //
-      // }
-
-      machineCtx.identifierStack.push(identText, info)
-      scope.metadata.identifierCounts.incr(identText)
+    if (isEnum) {
+      return
     }
 
-    // this.context.identifierCounts.incr(identKind, identText)
+    const identStack = machineCtx.identifierStack
+    let exists = false
+    switch (identKind) {
+      // TODO: machine
+      case IdentifierKind.State: {
+        // search state
+        exists = identStack.exists(identText, payload => payload.kind === IdentifierKind.State)
+        break
+      }
+
+      case IdentifierKind.Trans: {
+        exists = identStack.exists(identText, payload =>  payload.kind === IdentifierKind.Trans)
+        // search trans
+        break
+      }
+
+      case IdentifierKind.RecordField: {
+        // todo: search record NAME, record field
+        exists = recordIdent === identText
+        break
+      }
+
+      case IdentifierKind.FnParam:
+      case IdentifierKind.LocalVariable: {
+        // search each other
+        exists = identStack.exists(identText, payload => [IdentifierKind.FnParam, IdentifierKind.LocalVariable].includes(payload.kind))
+        break
+      }
+
+      case IdentifierKind.Let: {
+        // search let
+        exists = identStack.exists(identText, payload => payload.kind === IdentifierKind.Let)
+        break
+      }
+
+      case IdentifierKind.FnName:
+      case IdentifierKind.Record:
+      case IdentifierKind.GlobalConst:
+      case IdentifierKind.GlobalVariable: {
+        // todo: search fn name, global var, global const, record name
+        exists = identStack.exists(identText, payload => [IdentifierKind.FnName, IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record].includes(payload.kind))
+        break
+      }
+    }
+
+    // this.context.editorCtx.pushScopeLayerIdent(identText, type, identPos, identKind, blockType, this.context.scopedBlocks.length)
+
+    // this.emitLangComponent(context, payload)
+
+    const info = {
+      position: identPos,
+      kind: identKind,
+      type,
+      text: identText,
+      // recordIdent: null,
+      recordChild: [],
+      fnSignature,
+      fnParams: []
+    }
+    // this.context.findNearestBlock(SemanticContextType.EnumDecl, SemanticContextType.RecordScope) === null
+    // && this.searchNearestBlock(
+    //   block => block.metadata?.blockCurrentRecord === true,
+    //   SemanticContextType.RecordScope,
+    //   // this.context.blockContextStack.length - scope.index
+    // ) === null
+    if (recordIdent) {
+      // info.recordIdent = recordIdent
+
+      const recordInfo = identStack.findLast(recordIdent, ({kind}) => kind === IdentifierKind.Record)
+      exists = !exists && recordInfo?.recordChild.find(({text}) => text === identText)
+      recordInfo?.recordChild?.push({
+        text: identText,
+        type,
+        kind: identKind
+      })
+      // no need to check current counts here
+      // cuz RecordScope is already a scope
+
+      // scope?.metadata.recordCounts.incr(recordIdent, identText)
+      const prevScope = this.context.peekScope(1)
+      if (prevScope) {
+        prevScope?.metadata.recordCounts.incr(recordIdent, identText)
+      } else {
+        console.log("warn: no previous scope exists before current scope")
+      }
+      // this.context.recordCounts.incr(recordIdent, identText)
+      machineCtx.recordFieldStack.push(recordIdent, identText, info)
+    }
+
+    identStack.push(identText, info)
+    scope.metadata.identifierCounts.incr(identText)
+    if (exists) {
+      this.emit("errors", [{
+        ...identPos,
+
+        type: SemanticErrorType.IdentifierRedeclaration,
+        params: {ident: identText}
+      }])
+    }
   }
 
   // checks identifier usage (reference)
@@ -292,12 +340,10 @@ export default class SemanticAnalyzer {
       desc: "identifier",
       ident: identText
     }
-    let kindLimitations = null
-    const identifiers = this.context.currentMachineBlock.metadata.identifierStack
-
-    const ident = identifiers.peek(identText)
+    // const ident = identifiers.peek(identText)
     let shouldNotPushTypeStackBlocks = identifierNoPushTypeStackBlocks.has(blockType)
     const es = []
+    let kindLimitations = null, foundIdent = null
 
     switch (blockType) {
       // case SemanticContextType.StateInc:
@@ -310,6 +356,8 @@ export default class SemanticAnalyzer {
         break
       }
 
+      case SemanticContextType.PathAssignStatement:
+      case SemanticContextType.LetDecl:
       case SemanticContextType.StateInc: {
         kindLimitations = [IdentifierKind.State, IdentifierKind.Let]
         errParams.desc = "state or path"
@@ -322,60 +370,144 @@ export default class SemanticAnalyzer {
         break
       }
 
-      case SemanticContextType.GoalScope: {
-        if (ident && ident.type !== IdentifierType.Bool) {
-          es.push({
-            ...identPos,
+      case SemanticContextType.DotExpr: {
+        kindLimitations = [IdentifierKind.Record]
+        errParams.desc = "record"
+        break
+      }
 
-            type: SemanticErrorType.TypeMismatchVarRef,
-            params: {ident: identText, expected: IdentifierType.Bool}
-          })
+      case SemanticContextType.Statement:
+      case SemanticContextType.InvariantScope:
+      case SemanticContextType.StateScope:
+      case SemanticContextType.FnCall:
+      case SemanticContextType.AssertExpr:
+      case SemanticContextType.FnBodyScope:
+      case SemanticContextType.VariableInit: {
+        kindLimitations = [IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record, IdentifierKind.FnName]
+        const fnBlockAllowed = [IdentifierKind.LocalVariable, IdentifierKind.FnParam]
+        const fnBlock = [
+          // These context types are likely exists inside a function body
+          SemanticContextType.Statement,
+          SemanticContextType.FnCall,
+          SemanticContextType.FnBodyScope,
+          SemanticContextType.VariableInit,
+          ].includes(blockType)
+          && this.context.findNearestBlock(SemanticContextType.FnDecl)
+        if (fnBlock) {
+          kindLimitations.push(...fnBlockAllowed)
+        }
+
+        if (blockType === SemanticContextType.FnCall) {
+          const block = this.context.peekBlock()
+          if (block.metadata.gotReference === 0) {
+            // the function itself can not be pushed to typeStack
+            shouldNotPushTypeStackBlocks = true
+          }
+          block.metadata.gotReference += 1
+          if (fnBlock) {
+            const fnName = fnBlock.metadata.identifier
+            // check for recursion
+            if (fnName) {
+              foundIdent = this.context.peekIdentifier(identText, kindLimitations)
+            }
+            if (foundIdent && fnName === identText && foundIdent?.kind === IdentifierKind.FnName) {
+              es.push({
+                ...identPos,
+
+                type: SemanticErrorType.RecursiveFunction,
+                params: {ident: identText}
+              })
+            }
+          }
         }
         break
       }
 
-      case SemanticContextType.FnCall: {
-        if (ident) {
-          const functionDecl = this.context.findNearestBlock(SemanticContextType.FnDecl)
-          const fnName = functionDecl?.metadata.identifier
-          if (fnName === identText && ident.kind === IdentifierKind.FnName) {
+      case SemanticContextType.WhereExpr: {
+        kindLimitations = [IdentifierKind.GlobalConst, IdentifierKind.GlobalVariable, IdentifierKind.RecordField]
+
+        const variableDeclBlock = this.context.findNearestBlock(SemanticContextType.VariableDecl)
+        if (variableDeclBlock) {
+          // check for free variable
+          const varIdent = variableDeclBlock.metadata.identifier
+          if (varIdent !== identText && !this.context.currentMachineBlock.metadata.identifierStack.exists(identText, ({kind}) => kind === IdentifierKind.GlobalConst)) {
             es.push({
               ...identPos,
 
-              type: SemanticErrorType.RecursiveFunction,
-              params: {ident: identText}
+              type: SemanticErrorType.WhereFreeVariable,
+              params: {ident: varIdent, freeVariable: identText}
             })
           }
+        } else {
+          // trans block
+          kindLimitations.push(IdentifierKind.Record)
         }
-
-        const block = this.context.peekBlock()
-        if (block.metadata.gotReference === 0) {
-          // the function itself can not be pushed to typeStack
-          shouldNotPushTypeStackBlocks = true
-        }
-        block.metadata.gotReference += 1
-
         break
       }
+
+      // case SemanticContextType.GoalScope: {
+      //   kindLimitations = [IdentifierKind.GlobalConst, IdentifierKind.GlobalVariable, IdentifierKind.Let, IdentifierKind.State]
+      //
+      //   // if (ident && ident.type !== IdentifierType.Bool) {
+      //   //   es.push({
+      //   //     ...identPos,
+      //   //
+      //   //     type: SemanticErrorType.TypeMismatchVarRef,
+      //   //     params: {ident: identText, expected: IdentifierType.Bool}
+      //   //   })
+      //   // }
+      //   break
+      // }
+
+      // case SemanticContextType.FnCall: {
+      //   if (ident) {
+      //     const functionDecl = this.context.findNearestBlock(SemanticContextType.FnDecl)
+      //     const fnName = functionDecl?.metadata.identifier
+      //     if (fnName === identText && ident.kind === IdentifierKind.FnName) {
+      //       es.push({
+      //         ...identPos,
+      //
+      //         type: SemanticErrorType.RecursiveFunction,
+      //         params: {ident: identText}
+      //       })
+      //     }
+      //   }
+      //
+      //   const block = this.context.peekBlock()
+      //   if (block.metadata.gotReference === 0) {
+      //     // the function itself can not be pushed to typeStack
+      //     shouldNotPushTypeStackBlocks = true
+      //   }
+      //   block.metadata.gotReference += 1
+      //
+      //   break
+      // }
     }
 
-    const whereBlock = this.context.findNearestBlock(SemanticContextType.WhereExpr)
-    if (whereBlock) {
-      const variableDeclBlock = this.context.findNearestBlock(SemanticContextType.VariableDecl)
-      if (variableDeclBlock) {
-        const ident = variableDeclBlock.metadata.identifier
-        if (ident !== identText && identifiers.peek(identText)?.kind !== IdentifierKind.GlobalConst) {
-          es.push({
-            ...identPos,
+    // const whereBlock = this.context.findNearestBlock(SemanticContextType.WhereExpr)
+    // if (whereBlock) {
+    //   const variableDeclBlock = this.context.findNearestBlock(SemanticContextType.VariableDecl)
+    //   if (variableDeclBlock) {
+    //     const ident = variableDeclBlock.metadata.identifier
+    //     if (ident !== identText && identifiers.peek(identText)?.kind !== IdentifierKind.GlobalConst) {
+    //       es.push({
+    //         ...identPos,
+    //
+    //         type: SemanticErrorType.WhereFreeVariable,
+    //         params: {ident, freeVariable: identText}
+    //       })
+    //     }
+    //   }
+    // }
 
-            type: SemanticErrorType.WhereFreeVariable,
-            params: {ident, freeVariable: identText}
-          })
-        }
-      }
+    if (kindLimitations && !foundIdent) {
+      foundIdent = this.context.peekIdentifier(identText, kindLimitations)
     }
 
-    if (!ident || (kindLimitations != null && !kindLimitations.includes(ident.kind))) {
+    if (!foundIdent) {
+      // if (identText === "Can") {
+      //   console.log(this.context.currentMachineBlock.metadata.identifierStack.get(identText))
+      // }
       es.push({
         ...identPos,
 
@@ -384,10 +516,19 @@ export default class SemanticAnalyzer {
       })
     }
 
+    // if (!ident || (kindLimitations != null && !kindLimitations.includes(ident.kind))) {
+    //   es.push({
+    //     ...identPos,
+    //
+    //     type: SemanticErrorType.UndefinedIdentifier,
+    //     params: errParams
+    //   })
+    // }
+
     // console.log("ref", identText, ident, shouldPushTypeStack, blockType)
 
     if (!shouldNotPushTypeStackBlocks) {
-      this.pushTypeStack(ident?.type ?? IdentifierType.Hole)
+      this.pushTypeStack(foundIdent?.type ?? IdentifierType.Hole)
     }
 
     if (es.length) {
@@ -408,9 +549,9 @@ export default class SemanticAnalyzer {
       console.log("warn: scope not found when reference record field", parentIdentText, identText, identPos)
     }
 
-    const ident = machineCtx.identifierStack.peek(parentIdentText)
+    const hasRecord = machineCtx.identifierStack.exists(parentIdentText, ({kind}) => kind === IdentifierKind.Record)
 
-    const hasRecord = ident && ident.kind === IdentifierKind.Record // this.context.identifierCounts.hasCounts([IdentifierKind.Record], parentIdentText)
+    // const hasRecord = ident && ident.kind === IdentifierKind.Record
     if (!hasRecord) {
       es.push({
         ...parentPos,
@@ -493,11 +634,11 @@ export default class SemanticAnalyzer {
           fnBlock.metadata.signatures[0].input.push(type)
           const currentIdentText = block.metadata.identifier
           const machineCtx = this.context.currentMachineBlock.metadata
-          const currentIdent = machineCtx.identifierStack.peek(currentIdentText)
+          const currentIdent = machineCtx.identifierStack.findLast(currentIdentText, ({kind}) => kind === IdentifierKind.FnParam)
           if (currentIdent) {
             currentIdent.type = type
             // block.metadata.currentIdentifier = null
-            const currentFn = machineCtx.identifierStack.peek(fnBlock.metadata.identifier)
+            const currentFn = machineCtx.identifierStack.findLast(fnBlock.metadata.identifier, ({kind}) => kind === IdentifierKind.FnName)
             if (currentFn) {
               currentFn.fnParams.push(currentIdentText)
             }
@@ -546,7 +687,7 @@ export default class SemanticAnalyzer {
     this.deduceActionCall(actionKind, block.metadata.fnName, block.metadata.gotParams, position)
   }
 
-  deduceActionCall(actionKind, action, inputActualLength, position) {
+  deduceActionCall(actionKind, action, inputActualLength, position, identList = null) {
     const fn = this.context.getAction(actionKind, action)
     if (!fn) {
       // This will happen when calling from an unregistered function
@@ -559,7 +700,27 @@ export default class SemanticAnalyzer {
 
     let output = IdentifierType.Hole
     let pass = false
-    for (let signature of fn.signatures) {
+    const es = []
+    const {signatures, mutation} = fn
+    // TODO: isMutation(ctx) function as parameter to check for more
+    if (mutation?.length && identList?.length) {
+      // const iterLength = Math.min(mutation.length, identList.length)
+      for (let i = 0; i < identList.length; i++) {
+        const ident = identList[i]
+        if (ident && mutation.includes(i)) {
+          const {identifier, position} = ident
+          const info = this.context.peekIdentifier(identifier, [IdentifierKind.LocalVariable, IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record, IdentifierKind.FnParam, IdentifierKind.RecordField])
+          if (info?.kind === IdentifierKind.GlobalConst) {
+            es.push({
+              type: SemanticErrorType.ConstantMutation,
+              ...position,
+              params: {ident: identifier}
+            })
+          }
+        }
+      }
+    }
+    for (let signature of signatures) {
       const inputExpectedLength = signature.input.length
       if (inputExpectedLength !== inputActualLength) {
         continue
@@ -582,13 +743,17 @@ export default class SemanticAnalyzer {
       this.context.removeMultiTypeStack(inputActualLength)
     } else {
       const currentTypesOrdered = this.context.popMultiTypeStack(inputActualLength).reverse() // popMultiStore(this.context.typeStack, inputActualLength).reverse()
-      this.emit("errors", [{
+      es.push({
         ...position,
 
         type: SemanticErrorType.TypeMismatchFunction,
         params: {ident: action, got: currentTypesOrdered, expected: fn.signatures}
-      }])
+      })
       output = IdentifierType.Hole
+    }
+
+    if (es.length) {
+      this.emit("errors", es)
     }
 
     this.pushTypeStack(output)
@@ -905,20 +1070,55 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleReturn(position) {
+  handleReturn(position, allowedCtxName) {
+    const stmt = this.context.peekBlock()
+    const notStatement = stmt?.type !== SemanticContextType.Statement
+    let isNested = false
+    if (notStatement) {
+      // invalid return statement - return xxx cannot be used as an initializer.
+      this.emit("errors", [{
+        ...position,
+        type: SemanticErrorType.ReturnExprViolation,
+        params: {isOutOfStatement: true}
+      }])
+      // this return is used as a expression
+      // this.pushTypeStack(IdentifierType.Hole)
+      // return
+    } else {
+      // mark stmt as return expr
+      stmt.metadata.isReturn = true
+      if (stmt.metadata.exprStack.slice(0, -1).some(ctxName => ctxName !== allowedCtxName)) {
+        this.emit("errors", [{
+          ...position,
+          type: SemanticErrorType.ReturnExprViolation,
+          params: {isOutOfStatement: true}
+        }])
+        // nested return expression
+        isNested = true
+
+
+        // return
+      }
+    }
+
+    // console.log(stmt.metadata.exprStack, CycloneParser.ParExpressionContext.name)
+
+
+
     const scope = this.context.findNearestScope(SemanticContextType.FnBodyScope)
 
     if (!scope) {
       this.emit("errors", [{
         ...position,
 
-        type: SemanticErrorType.ReturnExprViolation
+        type: SemanticErrorType.ReturnExprViolation,
+        params: {isOutOfFunction: true}
       }])
 
       return
     }
 
-    if (scope.metadata.isReturned) {
+    if (scope.metadata.isReturned || isNested) {
       return
     }
 
@@ -956,14 +1156,17 @@ export default class SemanticAnalyzer {
   }
 
   handleStatementExit(position) {
-    const type = this.context.peekTypeStack()
-    if (type != null && type !== IdentifierType.Hole && type !== IdentifierType.Bool) {
-      this.emit("errors", [{
-        ...position,
-        params: {got: type},
+    const isReturnExpr = this.context.peekBlock().metadata.isReturn
+    if (!isReturnExpr) {
+      const type = this.context.peekTypeStack()
+      if (type != null && type !== IdentifierType.Hole && type !== IdentifierType.Bool) {
+        this.emit("errors", [{
+          ...position,
+          params: {got: type},
 
-        type: SemanticErrorType.InvalidStatement
-      }])
+          type: SemanticErrorType.InvalidStatement
+        }])
+      }
     }
     this.resetTypeStack()
   }
@@ -1212,10 +1415,28 @@ export default class SemanticAnalyzer {
   //   this.context.peekScope().metadata.expr = expr
   // }
 
-  handleExpression() {
+  handleExpressionEnter(ctxName) {
     const block = this.context.peekBlock()
-    if (block.type === SemanticContextType.FnCall) {
-      block.metadata.gotParams += 1
+    // if (block.type === SemanticContextType.FnCall) {
+    //   block.metadata.gotParams += 1
+    // }
+
+    switch (block.type) {
+      case SemanticContextType.FnCall: {
+        block.metadata.gotParams += 1
+        break
+      }
+      case SemanticContextType.Statement: {
+        block.metadata.exprStack.push(ctxName)
+        break
+      }
+    }
+  }
+
+  handleExpressionExit() {
+    const block = this.context.peekBlock()
+    if (block.type === SemanticContextType.Statement) {
+      block.metadata.exprStack.pop()
     }
   }
 

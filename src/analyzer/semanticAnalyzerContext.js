@@ -200,4 +200,25 @@ export default class SemanticAnalyzerContext {
   getDefinedOption(option) {
     return this.#definedOptions.get(option)
   }
+
+  findStackedIdentifiers(identifier, kinds) {
+    const stack = this.currentMachineBlock.metadata.identifierStack.get(identifier)
+    if (stack) {
+      if (!kinds) {
+        return stack
+      }
+      return stack.filter(({kind}) => kinds.includes(kind))
+    }
+
+    return []
+  }
+
+  peekIdentifier(identifier, kinds) {
+    const stack = this.currentMachineBlock.metadata.identifierStack.get(identifier)
+    if (stack) {
+      return stack.findLast(({kind}) => kinds.includes(kind))
+    }
+
+    return undefined
+  }
 }

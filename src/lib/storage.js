@@ -213,6 +213,28 @@ export class StackedTable extends Map {
 
     return results
   }
+
+  findLast(key, fn) {
+    const stack = this.get(key)
+    if (stack) {
+      return stack.findLast(fn)
+    }
+
+    return undefined
+  }
+
+  exists(key, fn) {
+    const stack = this.get(key)
+    if (stack) {
+      for (let v of stack) {
+        if (fn(v)) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }
 }
 
 export class CategorizedStackTable extends Map {

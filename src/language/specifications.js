@@ -102,18 +102,6 @@ export const identifierNoPushTypeStackBlocks = new Set([
 // ])
 
 // TODO: annotation
-
-export const scopeSupportsShadowing = (() => {
-  const result = new Map()
-
-  for (let scope of scopedContextType) {
-    // all kinds && all scopes supports shadowing
-    result.set(scope, new Set(Object.values(IdentifierKind)))
-  }
-
-  return result
-})()
-
 export const typeTokenToType = {
   "int": IdentifierType.Int,
   "bool": IdentifierType.Bool,
@@ -210,11 +198,11 @@ const infixOperators = [
   {action: '=>', signatures: boolBinOpSignature},
 
   // assign
-  {action: '=', signatures: assignValueBinOpSignature},
-  {action: '+=', signatures: assignNumberBinOpSignature},
-  {action: '-=', signatures: assignNumberBinOpSignature},
-  {action: '*=', signatures: assignNumberBinOpSignature},
-  {action: '/=', signatures: assignNumberBinOpSignature},
+  {action: '=', signatures: assignValueBinOpSignature, mutation: [0]},
+  {action: '+=', signatures: assignNumberBinOpSignature, mutation: [0]},
+  {action: '-=', signatures: assignNumberBinOpSignature, mutation: [0]},
+  {action: '*=', signatures: assignNumberBinOpSignature, mutation: [0]},
+  {action: '/=', signatures: assignNumberBinOpSignature, mutation: [0]},
 ]
 
 const prefixOperators = [
@@ -224,8 +212,8 @@ const prefixOperators = [
 ]
 
 const suffixOperators = [
-  {action: '--', signatures: numberUnaryHoleOpSignature},
-  {action: '++', signatures: numberUnaryHoleOpSignature}
+  {action: '--', signatures: numberUnaryHoleOpSignature, mutation: [0]},
+  {action: '++', signatures: numberUnaryHoleOpSignature, mutation: [0]}
 ]
 
 export const builtinActions = (() => {
@@ -242,7 +230,7 @@ export const optionAcceptableValues = new Map([
   ["trace", {values: optBoolValues}],
   ["debug", {values: optBoolValues}],
   ["detect", {values: optBoolValues}],
-  ["output", {values: [`"trace"`, `"dot"`]}],
+  ["output", {values: [`"trace"`, `"dot"`, `"html"`]}],
   ["timeout", {regex: /^\d*$/, description: "integer values"}],
   ["precision", {regex: /^\d*$/, description: "integer values"}]
 ])
@@ -271,32 +259,6 @@ export const invalidNodeModifierCombo = [
   ["abstract", "normal"],
 ]
 
-// export const syntaxBlockOrdering = {
-//   [SyntaxBlockKind.Program]: [
-//     [SyntaxBlockKind.CompilerOption],
-//     [SyntaxBlockKind.Machine]
-//   ],
-//   [SyntaxBlockKind.Machine]: [
-//     [SyntaxBlockKind.Func, SyntaxBlockKind.Record, SyntaxBlockKind.SingleTypedVariableGroup],
-//     [SyntaxBlockKind.State],
-//     [SyntaxBlockKind.Transition],
-//     [SyntaxBlockKind.Invariant],
-//
-//     [SyntaxBlockKind.Goal]
-//   ],
-//
-//   [SyntaxBlockKind.Goal]: [
-//     [SyntaxBlockKind.PathVariable, SyntaxBlockKind.PathStatement, SyntaxBlockKind.Assertion],
-//     [SyntaxBlockKind.GoalFinal]
-//   ],
-//
-//   [SyntaxBlockKind.Func]: [
-//     [SyntaxBlockKind.FnParamGroup],
-//     [SyntaxBlockKind.SingleTypedVariableGroup],
-//     [SyntaxBlockKind.Statement]
-//   ],
-// }
-
 export default {
   scopedContextType,
   declarationContextType,
@@ -305,7 +267,6 @@ export default {
   declarationGroupContextTypeToIdentifierKind,
   identifierKindToType,
   identifierNoPushTypeStackBlocks,
-  scopeSupportsShadowing,
   typeTokenToType,
   builtinActions,
   optionAcceptableValues,
