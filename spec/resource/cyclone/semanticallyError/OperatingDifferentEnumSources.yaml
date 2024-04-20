@@ -1,0 +1,35 @@
+expectedErrors: ["OperatingDifferentEnumSources"]
+cases:
+  - |
+    graph G{
+      enum {Red, Green, Blue} color1, color2 = #Red;
+      enum {Student, Teacher} role1 = #Student, role2 = #Teacher;
+      node A {
+        role1 == color1;
+      }
+    }
+  - |
+    graph G{
+      enum {Red, Green, Blue} color1, color2 = #Red;
+      enum {Student, Teacher} role1 = #Student, role2 = #Teacher;
+      node A {
+        #Red == #Student;
+      }
+    }
+casesCounter:
+  - |
+    graph G{
+      enum {Red, Green, Blue} color1, color2 = #Red;
+      enum {Student, Teacher} role1 = #Student, role2 = #Teacher;
+      node A {
+        color1 == color2;
+      }
+    }
+  - |
+    graph G{
+      enum {Red, Green, Blue} color1, color2 = #Red;
+      enum {Student, Teacher} role1 = #Student, role2 = #Teacher;
+      node A {
+        role1 == role2;
+      }
+    }

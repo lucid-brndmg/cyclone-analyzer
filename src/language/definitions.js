@@ -28,7 +28,8 @@ export const SemanticErrorType = {
   InvalidCheckForPathLength: 2016,
   AnonymousEdgeIdentifier: 2017,
   AssertModifierInExpr: 2018,
-  ConstantMutation: 2019,
+  InvalidValueMutation: 2019,
+  OperatingDifferentEnumSources: 2020,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,

@@ -110,6 +110,12 @@ export class StackedTable extends Map {
     }
   }
 
+  add(key) {
+    if (!this.has(key)) {
+      this.set(key, [])
+    }
+  }
+
   push(key, value) {
     if (this.has(key)) {
       this.get(key).push(value)
@@ -212,6 +218,17 @@ export class StackedTable extends Map {
     }
 
     return results
+  }
+
+  copy() {
+    const tbl = new StackedTable()
+    for (let [key, stack] of this) {
+      if (stack.length) {
+        tbl.set(key, [...stack])
+      }
+    }
+
+    return tbl
   }
 
   findLast(key, fn) {

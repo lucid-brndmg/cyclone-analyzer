@@ -24,7 +24,9 @@ export const declareMetadata = () => ({
 // metadata for "grouped" semantic contexts with a single type. Example: global variable / const
 export const singleTypedDeclGroupMetadata = () => ({
   fieldType: IdentifierType.Hole,
-  enums: []
+  enums: [],
+  identifiers: [],
+  parent: null
 })
 
 /*
@@ -106,7 +108,7 @@ const machineDeclMetadata = () => ({
   keywordPosition: null, // the position of the keyword
   startNodeIdentifier: null, // the identifier that marked as start node, used for testing if the graph got a start node
   goalDefined: false, // is goal block defined in the graph
-  enumFields: new Set(), // enum fields
+  enumFields: new Map(), // enum fields
   stateSet: new Set(), // all defined states
   transitionSet: new Set(), // all defined edges
   actionTable: new CategorizedStackTable(), // the table of declared functions

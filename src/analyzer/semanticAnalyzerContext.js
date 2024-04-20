@@ -176,6 +176,10 @@ export default class SemanticAnalyzerContext {
     return this.#typeStack
   }
 
+  indexOfTypeStack(idx) {
+    return this.#typeStack[idx]
+  }
+
   getAction(actionKind, action) {
     // TODO: optimize certain action kind
 

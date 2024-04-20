@@ -1,0 +1,39 @@
+expectedErrors: ["InvalidValueMutation"]
+cases:
+  - |
+    graph G {
+      const int a = 1;
+      int b = 2;
+      
+      node A {
+        a = b;
+      }
+    }
+  - |
+    graph G {
+      const int a = 1;    
+      node A {
+        a ++;
+      }
+    }
+  - |
+    graph G {
+      const int a = 1;   
+      function f: int (x: int) {
+        return 1;
+      }
+      node A {
+        f(1)--;
+      }
+    }
+
+casesCounter:
+  - |
+    graph G {
+      const int a = 1;
+      int b = 2;
+    
+      node A {
+        b = a;
+      }
+    }

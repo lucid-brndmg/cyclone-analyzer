@@ -184,13 +184,14 @@ class OperatorReplacer extends CycloneParserListener {
 export const replaceOperators = (
   code,
   parsingEntry,
-  replacementMap
+  replacementMap,
+  replacementFn
 ) => {
   const {tokenStream, tree} = parseCycloneSyntax({
     input: code,
     entry: parsingEntry
   })
-  const replacer = new OperatorReplacer(tokenStream, replacementMap)
+  const replacer = new OperatorReplacer(tokenStream, replacementMap, replacementFn)
 
   listenerWalk(replacer, tree)
 

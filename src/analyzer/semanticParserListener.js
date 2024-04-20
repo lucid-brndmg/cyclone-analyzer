@@ -32,20 +32,20 @@ export default class SemanticParserListener extends CycloneParserListener {
       if (symbol) {
         // console.log(tryGetIdentifierContext(ctx.children[i - 1])?.start.text)
         // console.log(tryGetIdentifierContext(ctx.children[i + 1])?.start.text)
-        let identList = null
-        if (!isPathExpr) {
-          const lhs = tryGetIdentifierContext(ctx.children[i - 1])
-          const rhs = tryGetIdentifierContext(ctx.children[i + 1])
-          const lhsTextPos = lhs ? getIdentTextPos(lhs) : null
-          const rhsTextPos = rhs ? getIdentTextPos(rhs) : null
-          if (lhsTextPos || rhsTextPos) {
-            identList = [lhsTextPos, rhsTextPos]
-          }
-        }
+        // let identList = null
+        // if (!isPathExpr) {
+        //   const lhs = tryGetIdentifierContext(ctx.children[i - 1])
+        //   const rhs = tryGetIdentifierContext(ctx.children[i + 1])
+        //   const lhsTextPos = lhs ? getIdentTextPos(lhs) : null
+        //   const rhsTextPos = rhs ? getIdentTextPos(rhs) : null
+        //   if (lhsTextPos || rhsTextPos) {
+        //     identList = [lhsTextPos, rhsTextPos]
+        //   }
+        // }
 
         const op = symbol.text
         // console.log("exit bin op", op)
-        this.analyzer.deduceActionCall(ActionKind.InfixOperator, op, 2, getSymbolPosition(symbol, op.length), identList)
+        this.analyzer.deduceActionCall(ActionKind.InfixOperator, op, 2, getSymbolPosition(symbol, op.length))
       }
     }
 
@@ -68,8 +68,8 @@ export default class SemanticParserListener extends CycloneParserListener {
 
     const isSuffix = ctx.children[1].hasOwnProperty("symbol")
     const symbol = ctx.children[isSuffix ? 1 : 0]?.symbol
-    const ident = isPathExpr ? null : tryGetIdentifierContext(ctx.children[isSuffix ? 0 : 1])
-    const textPos = ident ? getIdentTextPos(ident) : null
+    // const ident = isPathExpr ? null : tryGetIdentifierContext(ctx.children[isSuffix ? 0 : 1])
+    // const textPos = ident ? getIdentTextPos(ident) : null
     const op = symbol?.text
     if (op) {
       // console.log("exit unary op", op)
@@ -77,7 +77,7 @@ export default class SemanticParserListener extends CycloneParserListener {
         isSuffix ? ActionKind.SuffixOperator : ActionKind.PrefixOperator,
         op, 1,
         getSymbolPosition(symbol, op.length),
-        textPos ? [textPos] : null
+        // textPos ? [textPos] : null
       )
     }
   }
@@ -358,9 +358,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitStateIncExpr(ctx) {
-    // this.#deduceToType(IdentifierType.State, getBlockPositionPair(ctx), IdentifierType.Bool)
-    // this.analyzer.resetTypeStack() // for int literals
-    this.analyzer.pushTypeStack(IdentifierType.Bool)
+    this.analyzer.handleStateIncPathPrimaryExit()
     this.analyzer.popBlock(ctx)
   }
 
@@ -370,7 +368,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   exitPathPrimaryExpr(ctx) {
     this.analyzer.popBlock(ctx)
-    this.analyzer.pushTypeStack(IdentifierType.Bool)
+    this.analyzer.handleStateIncPathPrimaryExit()
   }
 
   enterRecord(ctx) {
@@ -529,8 +527,6 @@ export default class SemanticParserListener extends CycloneParserListener {
     const text = ctx.start.text
     const identText = text.slice(1)
     this.analyzer.referenceEnum(identText, getBlockPositionPair(ctx))
-
-    // this.analyzer.pushTypeStack(IdentifierType.Enum)
   }
 
   enterIdentifier(ctx) {
@@ -556,29 +552,23 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   enterBoolLiteral(ctx) {
-    this.analyzer.pushTypeStack(IdentifierType.Bool)
+    this.analyzer.handleLiteral(IdentifierType.Bool)
   }
 
   enterCharLiteral(ctx) {
-    this.analyzer.pushTypeStack(IdentifierType.Char)
+    this.analyzer.handleLiteral(IdentifierType.Char)
   }
 
   enterIntLiteral(ctx) {
-    // const blockType = this.analyzer.peekBlock().type
-    //
-    // if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
-    //   this.analyzer.pushTypeStack(IdentifierType.Int)
-    // }
-
-    this.analyzer.handleIntLiteral()
+    this.analyzer.handleLiteral(IdentifierType.Int)
   }
 
   enterRealLiteral(ctx) {
-    this.analyzer.pushTypeStack(IdentifierType.Real)
+    this.analyzer.handleLiteral(IdentifierType.Real)
   }
 
   enterStringLiteral(ctx) {
-    this.analyzer.pushTypeStack(IdentifierType.String)
+    this.analyzer.handleLiteral(IdentifierType.String)
   }
 
   exitPathCondAssignExpr(ctx) {
