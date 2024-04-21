@@ -5,7 +5,7 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext, tryGetIdentifierContext, getIdentTextPos
+  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 
@@ -551,24 +551,28 @@ export default class SemanticParserListener extends CycloneParserListener {
     this.analyzer.handleTypeToken(text, getBlockPositionPair(ctx))
   }
 
+  #handleLiteral(type, ctx) {
+    this.analyzer.handleLiteral(type, ctx.start.text, getBlockPositionPair(ctx))
+  }
+
   enterBoolLiteral(ctx) {
-    this.analyzer.handleLiteral(IdentifierType.Bool)
+    this.#handleLiteral(IdentifierType.Bool, ctx)
   }
 
   enterCharLiteral(ctx) {
-    this.analyzer.handleLiteral(IdentifierType.Char)
+    this.#handleLiteral(IdentifierType.Char, ctx)
   }
 
   enterIntLiteral(ctx) {
-    this.analyzer.handleLiteral(IdentifierType.Int)
+    this.#handleLiteral(IdentifierType.Int, ctx)
   }
 
   enterRealLiteral(ctx) {
-    this.analyzer.handleLiteral(IdentifierType.Real)
+    this.#handleLiteral(IdentifierType.Real, ctx)
   }
 
   enterStringLiteral(ctx) {
-    this.analyzer.handleLiteral(IdentifierType.String)
+    this.#handleLiteral(IdentifierType.String, ctx)
   }
 
   exitPathCondAssignExpr(ctx) {

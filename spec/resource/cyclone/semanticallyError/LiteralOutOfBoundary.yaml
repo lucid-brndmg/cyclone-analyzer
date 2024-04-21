@@ -1,0 +1,10 @@
+expectedErrors: ["LiteralOutOfBoundary"]
+cases:
+  - |
+    graph G {
+      int a = -2147483648;
+    }
+  - |
+    graph G {
+      int a = 2147483648;
+    }

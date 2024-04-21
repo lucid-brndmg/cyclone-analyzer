@@ -17,7 +17,7 @@ export const getBlockPositionPair = ctx => {
   )
 }
 
-export const getSymbolPosition = (symbol, length) => {
+export const getSymbolPosition = (symbol, length = 0) => {
   const line = symbol.line
   const col = symbol.column
   return posPair(

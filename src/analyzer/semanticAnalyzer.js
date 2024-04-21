@@ -17,7 +17,7 @@ import {
   declarationContextTypeToIdentifierKind,
   declarationGroupContextTypeToIdentifierKind,
   identifierKindToType,
-  identifierNoPushTypeStackBlocks, invalidNodeModifierCombo,
+  identifierNoPushTypeStackBlocks, invalidNodeModifierCombo, literalBounds,
   optionAcceptableValues,
   scopedContextType,
   singleTypedDeclarationGroupContextType,
@@ -336,7 +336,7 @@ export default class SemanticAnalyzer {
         ...identPos,
 
         type: SemanticErrorType.IdentifierRedeclaration,
-        params: {ident: identText}
+        params: {ident: identText, recordIdent, kind: identKind}
       }])
     }
   }
@@ -361,7 +361,7 @@ export default class SemanticAnalyzer {
       case SemanticContextType.Stop:
       case SemanticContextType.PathPrimary: {
         kindLimitations = [IdentifierKind.State]
-        errParams.desc = "state"
+        errParams.desc = "node"
         break
       }
 
@@ -369,7 +369,7 @@ export default class SemanticAnalyzer {
       case SemanticContextType.LetDecl:
       case SemanticContextType.StateInc: {
         kindLimitations = [IdentifierKind.State, IdentifierKind.Let]
-        errParams.desc = "state or path"
+        errParams.desc = "node / path"
         break
       }
 
@@ -393,6 +393,7 @@ export default class SemanticAnalyzer {
       case SemanticContextType.FnBodyScope:
       case SemanticContextType.VariableInit: {
         kindLimitations = [IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record, IdentifierKind.FnName]
+        errParams.desc = "variable / constant"
         const fnBlockAllowed = [IdentifierKind.LocalVariable, IdentifierKind.FnParam]
         const fnBlock = [
           // These context types are likely exists inside a function body
@@ -434,7 +435,7 @@ export default class SemanticAnalyzer {
 
       case SemanticContextType.WhereExpr: {
         kindLimitations = [IdentifierKind.GlobalConst, IdentifierKind.GlobalVariable, IdentifierKind.RecordField]
-
+        errParams.desc = "variable / constant"
         const variableDeclBlock = this.context.findNearestBlock(SemanticContextType.VariableDecl)
         if (variableDeclBlock) {
           // check for free variable
@@ -746,7 +747,7 @@ export default class SemanticAnalyzer {
             es.push({
               type: SemanticErrorType.InvalidValueMutation,
               ...position,
-              params: {ident: ti.identifier} // TODO: specific
+              params: {ident: ti.identifier, action} // TODO: specific
             })
           }
         }
@@ -1505,11 +1506,20 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleLiteral(type) {
+  handleLiteral(type, text, pos) {
     if (type === IdentifierType.Int) {
       const blockType = this.context.peekBlock().type
       if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
         this.context.pushTypeStack(TypeInfo.literal(IdentifierType.Int))
+      }
+      const [lo, hi] = literalBounds[type]
+      const v = BigInt(text)
+      if (v < lo || v > hi) {
+        this.emit("errors", [{
+          type: SemanticErrorType.LiteralOutOfBoundary,
+          params: {type},
+          ...pos
+        }])
       }
     } else {
       this.context.pushTypeStack(TypeInfo.literal(type))

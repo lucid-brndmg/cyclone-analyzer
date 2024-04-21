@@ -259,6 +259,10 @@ export const invalidNodeModifierCombo = [
   ["abstract", "normal"],
 ]
 
+export const literalBounds = {
+  [IdentifierType.Int]: [BigInt(-2147483647), BigInt(2147483647)]
+}
+
 export default {
   scopedContextType,
   declarationContextType,
@@ -270,5 +274,6 @@ export default {
   typeTokenToType,
   builtinActions,
   optionAcceptableValues,
-  syntaxBlockIdPrefix
+  syntaxBlockIdPrefix,
+  literalBounds
 }

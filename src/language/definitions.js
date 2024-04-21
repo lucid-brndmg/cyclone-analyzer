@@ -30,6 +30,7 @@ export const SemanticErrorType = {
   AssertModifierInExpr: 2018,
   InvalidValueMutation: 2019,
   OperatingDifferentEnumSources: 2020,
+  LiteralOutOfBoundary: 2021,
 
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,
