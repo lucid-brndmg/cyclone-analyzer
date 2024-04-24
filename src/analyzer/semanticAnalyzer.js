@@ -365,7 +365,11 @@ export default class SemanticAnalyzer {
         break
       }
 
-      case SemanticContextType.PathAssignStatement:
+      case SemanticContextType.PathAssignStatement: {
+        kindLimitations = [IdentifierKind.Let]
+        errParams.desc = "path variable"
+        break
+      }
       case SemanticContextType.LetDecl:
       case SemanticContextType.StateInc: {
         kindLimitations = [IdentifierKind.State, IdentifierKind.Let]
@@ -726,7 +730,7 @@ export default class SemanticAnalyzer {
         continue
       }
       if (inputActualLength > 0) {
-        const types = this.context.sliceTypeStack(0 - inputActualLength).map(t => t.type)
+        const types = this.context.sliceTypeStack(0 - inputActualLength).map(t => t?.type)
         const {passed, hole} = checkSignature(signature.input, types)
         if (passed) {
           pass = true
@@ -780,7 +784,7 @@ export default class SemanticAnalyzer {
         ...position,
 
         type: SemanticErrorType.TypeMismatchFunction,
-        params: {ident: action, got: currentTypesOrdered.map(t => t.type), expected: fn.signatures}
+        params: {ident: action, got: currentTypesOrdered.map(t => t?.type), expected: fn.signatures}
       })
       // output = IdentifierType.Hole
     }
@@ -864,7 +868,7 @@ export default class SemanticAnalyzer {
   }
 
   deduceAllToType(type, position, pushType = null, atLeast = 1) {
-    const actualTypes = this.context.getTypeStack().map(ty => ty.type)
+    const actualTypes = this.context.getTypeStack().map(ty => ty?.type)
     const isCorrect = (atLeast === 0 && actualTypes.length === 0)
       || (
         actualTypes.length >= atLeast
