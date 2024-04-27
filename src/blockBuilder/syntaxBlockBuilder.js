@@ -651,7 +651,7 @@ export default class SyntaxBlockBuilder {
         this.markData(SyntaxBlockKind.Machine, {
           identifier: metadata.identifier,
           keyword: metadata.keyword,
-          stateSet: metadata.stateSet,
+          stateSet: [...metadata.stateMap.keys()],
         })
         break
       }

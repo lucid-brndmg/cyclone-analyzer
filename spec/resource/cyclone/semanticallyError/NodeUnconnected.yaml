@@ -1,0 +1,25 @@
+expectedErrors: ["NodeUnconnected"]
+cases:
+  - |
+    graph G {
+      node A {}
+      node B {}
+      node C {}
+    
+      edge {A -> B}
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+      node C {}
+    
+      edge {A -> A}
+    }
+  - |
+    graph G {
+      node A {}
+      node B {}
+    
+      edge {A -> *[B]}
+    }

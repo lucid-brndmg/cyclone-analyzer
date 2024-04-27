@@ -69,7 +69,9 @@ const functionCallMetadata = () => ({
 // metadata for state / node declaration
 const stateDeclMetadata = () => ({
   hasChildren: false, // if the node has statement, used for checking statement in abstract node
-  attributes: null // state attributes, as an array, read from parser directly
+  attributes: null, // state attributes, as an array, read from parser directly
+  edgeSource: 0, edgeTargets: 0, edgeExclusions: 0,
+  position: null
 })
 
 
@@ -85,7 +87,8 @@ const transDeclMetadata = () => ({
   excludedStates: [], // edge exclusion, if closure
 
   involvedStates: null, // calculated target states
-  // exclusionFlag: false
+  involvedRelations: [],
+  isAnonymous: false,
 })
 
 // metadata for goal block
@@ -94,6 +97,7 @@ const goalScopeMetadata = () => ({
   states: [], // states mentioned by check expr
   expr: "", // the check expr, as string
   finalPosition: null, // position of check expr
+  validCheckPathLengths: null
 })
 
 // metadata for path variable declaration
@@ -107,10 +111,14 @@ const machineDeclMetadata = () => ({
   keyword: "machine", // the keyword: machine / graph
   keywordPosition: null, // the position of the keyword
   startNodeIdentifier: null, // the identifier that marked as start node, used for testing if the graph got a start node
+  finalNodeIdentifiers: [],
   goalDefined: false, // is goal block defined in the graph
   enumFields: new Map(), // enum fields
-  stateSet: new Set(), // all defined states
-  transitionSet: new Set(), // all defined edges
+  // stateSet: new Set(), // all defined states
+  stateMap: new Map(),
+  stateList: null, // Non-duplicated list
+  transitionIndexSet: new Set(), // all defined edges
+  transitionDefinitions: [],
   actionTable: new CategorizedStackTable(), // the table of declared functions
   identifierStack: new StackedTable(), // the table of identifier information, use a stack as value to store scope data
   recordFieldStack: new CategorizedStackTable(), // the table of record field information

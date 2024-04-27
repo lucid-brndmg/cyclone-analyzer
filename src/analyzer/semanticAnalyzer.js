@@ -31,7 +31,14 @@ import {
 } from "./metadata.js";
 import SemanticAnalyzerContext from "./semanticAnalyzerContext.js";
 import {findDuplications, firstCombo} from "../lib/list.js";
-import {edgeIndex, edgeTargets, isAnonymousEdge, isClosureEdge} from "../utils/edge.js";
+import {
+  edgeIndex,
+  edgeTargets,
+  edgeTargetsFromExpanded,
+  expandEdge,
+  isAnonymousEdge,
+  isClosureEdge, possibleMaxPathLength
+} from "../utils/edge.js";
 import {checkSignature} from "../utils/type.js";
 import TypeInfo from "./typeInfo.js";
 import {elementEq, firstOfSet} from "../lib/set.js";
@@ -994,17 +1001,18 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleStateDecl(attrs) {
+  handleStateDecl(attrs, identPosition) {
     const block = this.context.peekBlock()
-    const position = block.position
+    // const position = block.position
     const es = []
 
     block.metadata.attributes = attrs
+    block.metadata.position = identPosition
 
     const invalidComboIdx = firstCombo(attrs, invalidNodeModifierCombo)
     if (invalidComboIdx !== -1) {
       es.push({
-        ...position,
+        ...identPosition,
         type: SemanticErrorType.InvalidNodeModifier,
         params: {combination: invalidNodeModifierCombo[invalidComboIdx]}
       })
@@ -1013,7 +1021,7 @@ export default class SemanticAnalyzer {
     const dup = findDuplications(attrs)
     if (dup.size) {
       es.push({
-        ...position,
+        ...identPosition,
         type: SemanticErrorType.InvalidNodeModifier,
         params: {duplication: [...dup]}
       })
@@ -1025,7 +1033,7 @@ export default class SemanticAnalyzer {
       const startIdent = machine.metadata.startNodeIdentifier
       if (startIdent != null) {
         es.push({
-          ...position,
+          ...identPosition,
 
           type: SemanticErrorType.StartNodeDuplicated,
           params: {ident: startIdent}
@@ -1035,13 +1043,16 @@ export default class SemanticAnalyzer {
       }
     }
 
+    if (attrs.includes("final")) {
+      machine.metadata.finalNodeIdentifiers.push(identifier)
+    }
 
     if (
       (attrs.includes("abstract") || attrs.length === 1)
       && block.metadata.hasChildren === true
     ) {
       es.push({
-        ...position,
+        ...identPosition,
 
         type: SemanticErrorType.CodeInsideAbstractNode,
       })
@@ -1050,7 +1061,7 @@ export default class SemanticAnalyzer {
     if (es.length) {
       this.emit("errors", es)
     }
-    machine.metadata.stateSet.add(identifier)
+    machine.metadata.stateMap.set(identifier, block.metadata)
   }
 
   handleStateScope(hasStatement) {
@@ -1072,15 +1083,16 @@ export default class SemanticAnalyzer {
 
   handleMachineDeclExit() {
     const block = this.context.peekBlock()
-    const pos = block.metadata.keywordPosition
-    if (!pos) {
+    const {keywordPosition, stateMap} = block.metadata
+    // const pos = block.metadata.keywordPosition
+    if (!keywordPosition) {
       return
     }
 
     const es = []
     if (!block.metadata.goalDefined) {
       es.push({
-        ...pos,
+        ...keywordPosition,
 
         type: SemanticErrorType.NoGoalDefined,
       })
@@ -1088,10 +1100,19 @@ export default class SemanticAnalyzer {
 
     if (block.metadata.startNodeIdentifier == null) {
       es.push({
-        ...pos,
+        ...keywordPosition,
 
         type: SemanticErrorType.NoStartNodeDefined
       })
+    }
+
+    for (let nodeInfo of stateMap.values()) {
+      if (nodeInfo.edgeSource <= 0 && nodeInfo.edgeTargets <= 0) {
+        es.push({
+          type: SemanticErrorType.NodeUnconnected,
+          ...nodeInfo.position
+        })
+      }
     }
 
     if (es.length) {
@@ -1259,6 +1280,25 @@ export default class SemanticAnalyzer {
     // this.emitLangComponent(ctx, null)
   }
 
+  markStatesForEdge(source, targets, exclusions) {
+    const stateMap = this.context.currentMachineBlock.metadata.stateMap
+    if (stateMap.has(source)) {
+      stateMap.get(source).edgeSource ++
+    }
+
+    for (let t of targets) {
+      if (stateMap.has(t)) {
+        stateMap.get(t).edgeTargets ++
+      }
+    }
+
+    for (let e of exclusions) {
+      if (stateMap.has(e)) {
+        stateMap.get(e).edgeExclusions ++
+      }
+    }
+  }
+
   handleTrans() {
     const block = this.context.peekBlock()
     const position = block.position
@@ -1266,9 +1306,11 @@ export default class SemanticAnalyzer {
     const {fromState, toStates, operators, excludedStates, identifier} = md
     const es = []
     const excludedStatesSet = new Set(excludedStates)
-    const isAnon = isAnonymousEdge(md)
+    const isAnonymous = isAnonymousEdge(md)
+    const machine = this.context.currentMachineBlock
+    const machineData = machine.metadata
 
-    if (isAnon && identifier != null) {
+    if (isAnonymous && identifier != null) {
       es.push({
         ...position,
         type: SemanticErrorType.AnonymousEdgeIdentifier
@@ -1277,22 +1319,24 @@ export default class SemanticAnalyzer {
 
     if (!md.whereExpr) {
       const label = edgeIndex(fromState, operators, new Set(toStates), excludedStatesSet)
-      const machine = this.context.currentMachineBlock
-      if (machine.metadata.transitionSet.has(label)) {
+      if (machineData.transitionIndexSet.has(label)) {
         es.push({
           ...position,
           type: SemanticErrorType.DuplicatedEdge
         })
       } else {
-        machine.metadata.transitionSet.add(label)
+        machineData.transitionIndexSet.add(label)
       }
     }
 
-    const machine = this.context.currentMachineBlock
+    if (machineData.stateList == null) {
+      machineData.stateList = [...machineData.stateMap.keys()]
+    }
 
-    const targetStates = edgeTargets({operators, toStates, fromState, excludedStates}, [...machine.metadata.stateSet])
+    const solvedRelations = expandEdge(md, machineData.stateList)
+    const solvedTargets = edgeTargetsFromExpanded(solvedRelations)
 
-    if (targetStates.size === 0) {
+    if (solvedTargets.size === 0) {
       es.push({
         ...position,
         type: SemanticErrorType.EmptyEdge
@@ -1303,8 +1347,12 @@ export default class SemanticAnalyzer {
       this.emit("errors", es)
     }
 
-    block.metadata.involvedStates = targetStates
+    this.markStatesForEdge(fromState, solvedTargets, excludedStates)
 
+    md.involvedStates = solvedTargets
+    md.involvedRelations = solvedRelations
+    md.isAnonymous = isAnonymous
+    machineData.transitionDefinitions.push(md)
     // this.emit("lang:transition", {metadata: md, targetStates, position, expr})
     // this.emitLangComponent(context, {targetStates})
   }
@@ -1398,7 +1446,7 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleCheckExpr(expr) {
+  handleCheckExprEnter(expr) {
     // this.context.peekScope().metadata.keyword = keyword
     const goal = this.context.peekScope()
     // goal.metadata.expr = expr
@@ -1408,20 +1456,55 @@ export default class SemanticAnalyzer {
     // this.emitLangComponent(context, null)
   }
 
+  handleCheckExprExit() {
+    const goal = this.context.peekScope()
+    const machineData = this.context.currentMachineBlock.metadata
+    const validStates = new Set(machineData.stateList)
+    const edgeRelations = machineData.transitionDefinitions.flatMap(md => md.involvedRelations)
+    const start = machineData.startNodeIdentifier
+    const terminalStates = new Set(goal.metadata.states.concat(machineData.finalNodeIdentifiers))
+    const pathLengthSet = goal.metadata.validCheckPathLengths
+    const es = []
+    if (!terminalStates.size) {
+      es.push({
+        type: SemanticErrorType.NoFinalStateOrReachSpecified,
+        ...machineData.keywordPosition
+      })
+    }
+    const pathTerminalStates = new Set(
+      goal.metadata.states.length
+        ? goal.metadata.states
+        : machineData.finalNodeIdentifiers
+    )
+    if (validStates.size && edgeRelations.length && start != null && pathLengthSet?.size && pathTerminalStates.size) {
+      const block = this.context.peekBlock()
+      const length = possibleMaxPathLength(start, validStates, edgeRelations, pathTerminalStates)
+
+      // console.log("max", length, pathTerminalStates)
+      if (length !== Infinity) {
+        const unreachableLengths = [...pathLengthSet].filter(l => l > length)
+        if (unreachableLengths.length) {
+          // one of the most tricky errors to check
+          // possibly not accurate
+          // do not use this number as a strict result
+          es.push({
+            type: SemanticErrorType.UnreachableCheckForPathLength,
+            ...block.position,
+            params: {length, unreachableLengths}
+          })
+        }
+      }
+    }
+
+    if (es.length) {
+      this.emit("errors", es)
+    }
+  }
+
   handleCheckForExpr(pathLengths) {
     const pathSet = new Set()
     const es = []
     for (let {text, position} of pathLengths) {
-      if (pathSet.has(text)) {
-        es.push({
-          type: SemanticErrorType.DuplicatedCheckForPathLength,
-          params: {text},
-          ...position
-        })
-      } else {
-        pathSet.add(text)
-      }
-
       const num = parseInt(text)
       if (isNaN(num) || num < 1) {
         es.push({
@@ -1429,8 +1512,19 @@ export default class SemanticAnalyzer {
           params: {text},
           ...position
         })
+      } else if (pathSet.has(num)) {
+        es.push({
+          type: SemanticErrorType.DuplicatedCheckForPathLength,
+          params: {text},
+          ...position
+        })
+      } else {
+        pathSet.add(num)
       }
     }
+
+    const goal = this.context.peekScope()
+    goal.metadata.validCheckPathLengths = pathSet
 
     if (es.length) {
       this.emit("errors", es)

@@ -5,7 +5,7 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext
+  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext, firstSymbolObject, getIdentTextPos
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 
@@ -147,7 +147,8 @@ export default class SemanticParserListener extends CycloneParserListener {
       }
     }
 
-    this.analyzer.handleStateDecl(attrs)
+    const idCtx = getPositionedIdentifiersInList(ctx)[0]
+    this.analyzer.handleStateDecl(attrs, idCtx.position)
     this.analyzer.popBlock(ctx)
   }
 
@@ -335,7 +336,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterCheckExpr(ctx) {
     this.#pushBlock(SemanticContextType.GoalFinal, ctx)
-    this.analyzer.handleCheckExpr(getExpression(ctx))
+    this.analyzer.handleCheckExprEnter(getExpression(ctx))
   }
 
   enterForExpr(ctx) {
@@ -350,6 +351,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   // }
 
   exitCheckExpr(ctx) {
+    this.analyzer.handleCheckExprExit()
     this.analyzer.popBlock(ctx)
   }
 

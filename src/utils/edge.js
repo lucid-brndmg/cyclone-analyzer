@@ -3,6 +3,8 @@
 * used by the semantic analyzer
 * */
 
+
+
 // is the edge anonymous
 export const isAnonymousEdge = ({operators, toStates}) =>
   operators.has("<->")
@@ -57,6 +59,15 @@ export const edgeTargets = ({operators, toStates, fromState, excludedStates}, al
   return targets
 }
 
+export const edgeTargetsFromExpanded = relations => {
+  const targets = new Set()
+  for (let {target} of relations) {
+    targets.add(target)
+  }
+
+  return targets
+}
+
 // get the node relations of anonymous edge
 export const expandAnonymousEdge = ({operators, toStates, fromState, excludedStates}, allStates) => {
   if (!isAnonymousEdge({operators, toStates})) {
@@ -93,6 +104,136 @@ export const expandEdge = ({operators, toStates, fromState, excludedStates}, all
   }
 }
 
+// const possibleMaxLengthInRelations = (relationTable, source, terminals, currentPath) => {
+//   console.log("walk", source)
+//   // const noTerm = terminals == null
+//   const isTerminal = terminals.has(source)
+//   const rel = relationTable.get(source)
+//   if (!rel) {
+//     return [0, isTerminal]
+//   }
+//   if (isTerminal) {
+//     currentPath.push(source)
+//   }
+//   const {checked, targets} = rel
+//   if (checked) {
+//     // cyclic
+//     return [Infinity, isTerminal]
+//   }
+//   rel.checked = true
+//   // let l = 0, ls = []
+//   let path = []
+//   for (let target of targets) {
+//     const [length, isTerm] = possibleMaxLengthInRelations(relationTable, target, terminals, currentPath)
+//     if (length === Infinity) {
+//       return [Infinity, isTerm]
+//     }
+//     let n = 1 + length
+//     if (isTerm) {
+//       console.log("term", source, n)
+//       termResults.push(n)
+//       ls.push(n)
+//     }
+//     // l = Math.max(l, n)
+//   }
+//
+//   return [l, isTerminal]
+// }
+
+const visit = (relationTable, source, terminals, p) => {
+  p.count ++
+  const isTerminal = terminals.has(source)
+  if (isTerminal) {
+    p.term = true
+  }
+  const rel = relationTable.get(source)
+  if (!rel) {
+    return
+  }
+  const {checked, targets} = rel
+  if (checked) {
+    // acc.forEach(s => s.isCyclic = true)
+    p.isCyclic = true
+    return
+  }
+  rel.checked = true
+  for (let node of targets) {
+    visit(relationTable, node, terminals, p)
+  }
+}
+
+const visitStart = (relationTable, source, terminals) => {
+  const rel = relationTable.get(source)
+  if (!rel) {
+    return 0
+  }
+  rel.checked = true
+  const {targets} = rel
+  const ls = []
+  for (let child of targets) {
+    const s = {isCyclic: false, count: 0, term: false}
+    visit(relationTable, child, terminals, s)
+    if (s.isCyclic) {
+      return Infinity
+    } else if (s.term) {
+      ls.push(s.count)
+    }
+  }
+  return Math.max(0, ...ls)
+}
+
+export const possibleMaxPathLength = (startNodeId, validNodeIdsSet, edges, terminalNodeIdsSet) => {
+  // filter out the edge relations where contains undefined nodes
+  const validEdges = edges.filter(({source, target}) => validNodeIdsSet.has(source) && validNodeIdsSet.has(target))
+
+  if (!validEdges.length) {
+    return Infinity
+  }
+
+  const relationTable = new Map()
+  for (let {source, target} of validEdges) {
+    // if (source === target) {
+    //   return NaN // the graph is cyclic
+    // }
+
+    if (relationTable.has(source)) {
+      relationTable.get(source).targets.add(target)
+    } else {
+      relationTable.set(source, {
+        checked: false,
+        targets: new Set([target])
+      })
+    }
+  }
+
+  return visitStart(relationTable, startNodeId, terminalNodeIdsSet)
+
+  // const t = terminalNodeIdsSet?.size ? terminalNodeIdsSet : null
+  // const tr = []
+  // const [length] = possibleMaxLengthInRelations(relationTable, startNodeId, t, tr)
+  // console.log(tr)
+  // if (t) {
+  //   return Math.max(...tr)
+  // } else {
+  //   return length
+  // }
+
+  // for (let source of relationTable.keys()) {
+  //   const n = possibleMaxLengthInRelations(relationTable, source)
+  //   if (isNaN(n)) {
+  //     return NaN
+  //   }
+  //
+  //   l = Math.max(l, n)
+  // }
+  //
+  // // for (let [source, {targets}] of relationTable) {
+  // //
+  // // }
+  //
+  // return l
+}
+
 export default {
   withEdgeStates,
   edgeTargets,
@@ -102,5 +243,6 @@ export default {
   edgeIndex,
   expandAnonymousEdge,
   edgeLengths,
-  expandEdge
+  expandEdge,
+  possibleMaxPathLength
 }

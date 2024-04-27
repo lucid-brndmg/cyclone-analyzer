@@ -1,0 +1,26 @@
+expectedErrors: ["NoFinalStateOrReachSpecified"]
+cases:
+  - |
+    graph G {
+      start node A {}
+      node B {}
+      node C {}
+    
+      edge {A -> B}
+    
+      goal {
+        check for 1
+      }
+    }
+casesCounter:
+  - |
+    graph G {
+      start node A {}
+      node B {}
+
+      edge {A -> B}
+    
+      goal {
+        check for 1 reach (B)
+      }
+    }

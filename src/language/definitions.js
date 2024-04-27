@@ -10,6 +10,11 @@
 
 // Semantic error types defined by the analyzer
 export const SemanticErrorType = {
+  // 10-series are for syntax errors,
+  // 50-series are for remove execution errors,
+  // These 2 series had been used by the online editor already
+
+  // General Semantic Errors
   UndefinedIdentifier: 2001,
   IdentifierRedeclaration: 2002,
   RecursiveFunction: 2003,
@@ -32,12 +37,14 @@ export const SemanticErrorType = {
   OperatingDifferentEnumSources: 2020,
   LiteralOutOfBoundary: 2021,
 
+  // Type Errors
   TypeMismatchFunction: 3001,
   TypeMismatchReturn: 3002,
   TypeMismatchCompilerOption: 3003,
   TypeMismatchVarDecl: 3004,
   TypeMismatchExpr: 3005,
 
+  // WARNING LEVEL
   CodeInsideAbstractNode: 4001,
   NoGoalDefined: 4002,
   NoStartNodeDefined: 4003,
@@ -46,7 +53,12 @@ export const SemanticErrorType = {
   DuplicatedEnumField: 4006,
   DuplicatedEdgeTarget: 4007,
   OptionTraceNotFound: 4008,
-  DuplicatedCheckForPathLength: 4009
+  DuplicatedCheckForPathLength: 4009,
+  NoFinalStateOrReachSpecified: 4010,
+  UnreachableCheckForPathLength: 4011,
+
+  // INFO LEVEL
+  NodeUnconnected: 6001
 }
 
 // Semantic Context Type that helps the analyzer positioning
