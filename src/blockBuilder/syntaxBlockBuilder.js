@@ -260,7 +260,7 @@ export default class SyntaxBlockBuilder {
     return this.context.kindBlocks.get(kind) ?? []
   }
 
-  markIdentifier(ident, blockId, scopeId = null) {
+  markIdentifier(ident, kind, blockId, scopeId = null) {
     if (!blockId) {
       console.log("warn: block id not found for ident", ident)
       return;
@@ -273,7 +273,7 @@ export default class SyntaxBlockBuilder {
       return
     }
 
-    gb.data.identifiers.push(ident, {blockId, scopeId})
+    gb.data.identifiers.push(ident, {blockId, scopeId, kind})
   }
 
   clearIdentifier(tgtScopeId) {
@@ -288,11 +288,11 @@ export default class SyntaxBlockBuilder {
     gb.data.identifiers.filtered(({scopeId}) => scopeId !== tgtScopeId)
   }
 
-  markReference(kind, ident, blockRestrictions = []) {
-    const block = this.getLatestBlock(kind)
+  markReference(currentBlockKind, ident, identKindLimitations) {
+    const block = this.getLatestBlock(currentBlockKind)
     const machine = this.getLatestBlock(SyntaxBlockKind.Machine)
     if (!block || !machine) {
-      console.log("block or machine not found when marking reference", kind, ident, blockRestrictions)
+      console.log("block or machine not found when marking reference", currentBlockKind, ident)
       return
     }
     const identRegBlockIds = machine.data.identifiers.get(ident)
@@ -300,19 +300,19 @@ export default class SyntaxBlockBuilder {
       return;
     }
 
-    let markId
+    let markId = identRegBlockIds.findLast(({kind}) => identKindLimitations.includes(kind))?.blockId // = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
 
-    if (!blockRestrictions.length) {
-      markId = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
-    } else {
-      for (let i = identRegBlockIds.length - 1; i <= 0; i--) {
-        const {blockId} = identRegBlockIds[i]
-        if (blockRestrictions.includes(blockId)) {
-          markId = blockId
-          break
-        }
-      }
-    }
+    // if (!blockRestrictions.length) {
+    //   markId = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
+    // } else {
+    //   for (let i = identRegBlockIds.length - 1; i <= 0; i--) {
+    //     const {blockId} = identRegBlockIds[i]
+    //     if (blockRestrictions.includes(blockId)) {
+    //       markId = blockId
+    //       break
+    //     }
+    //   }
+    // }
 
     if (markId) {
       block.addReference(markId)
@@ -662,7 +662,7 @@ export default class SyntaxBlockBuilder {
     const machineId = this.getLatestBlockId(SyntaxBlockKind.Machine)
     switch (kind) {
       case IdentifierKind.EnumField: {
-        this.markIdentifier(`#${text}`, this.context.latestBlock.id, machineId)
+        this.markIdentifier(`#${text}`, kind, this.context.latestBlock.id, machineId)
         break
       }
       case IdentifierKind.RecordField:
@@ -679,10 +679,10 @@ export default class SyntaxBlockBuilder {
         })
 
         if (kind !== IdentifierKind.RecordField) {
-          this.markIdentifier(text, id, kind === IdentifierKind.LocalVariable ? this.getLatestBlockId(SyntaxBlockKind.Func) : machineId)
+          this.markIdentifier(text, kind, id, kind === IdentifierKind.LocalVariable ? this.getLatestBlockId(SyntaxBlockKind.Func) : machineId)
         } else {
           if (recordIdent) {
-            this.markIdentifier(`${recordIdent}.${text}`, id, machineId)
+            this.markIdentifier(`${recordIdent}.${text}`, kind, id, machineId)
           }
         }
         break
@@ -694,43 +694,43 @@ export default class SyntaxBlockBuilder {
           type, // <- type here is always hole
           kind
         })
-        this.markIdentifier(text, id, this.getLatestBlockId(SyntaxBlockKind.Func))
+        this.markIdentifier(text, kind, id, this.getLatestBlockId(SyntaxBlockKind.Func))
         break
       }
 
       case IdentifierKind.Machine: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Machine)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
       case IdentifierKind.State: {
         const id = this.getLatestBlockId(SyntaxBlockKind.State)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
       case IdentifierKind.Trans: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Transition)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
       case IdentifierKind.Let: {
         const id = this.getLatestBlockId(SyntaxBlockKind.PathVariable)
-        this.markIdentifier(text, id, this.getLatestBlockId(SyntaxBlockKind.Goal))
+        this.markIdentifier(text, kind, id, this.getLatestBlockId(SyntaxBlockKind.Goal))
         break
       }
       case IdentifierKind.Record: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Record)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
       case IdentifierKind.FnName: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Func)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
       case IdentifierKind.Invariant: {
         const id = this.getLatestBlockId(SyntaxBlockKind.Invariant)
-        this.markIdentifier(text, id, machineId)
+        this.markIdentifier(text, kind, id, machineId)
         break
       }
     }
@@ -738,21 +738,25 @@ export default class SyntaxBlockBuilder {
 
   #onAnalyzerIdentifierReference(context, {references}) {
     const path = context.currentBlockPath
-    const kind = semanticTypePathToBlockKind(path)
-    if (!kind || !references.length) {
+    const currentBlockKind = semanticTypePathToBlockKind(path)
+    if (!currentBlockKind || !references.length) {
       return
     }
-    let ident
-    if (references.length > 1) {
+    const isEnum = references.length === 1 && references[0].kinds.length === 1 && references[0].kinds[0] === IdentifierKind.EnumField
+    let ident, identKindLimitations
+    if (references.length === 2) {
       // record
       ident = references[0].text + '.' + references[1].text
-    } else if (references[0].isEnum) {
+      identKindLimitations = [IdentifierKind.RecordField]
+    } else if (isEnum) {
       // enum
       ident = '#' + references[0].text
+      identKindLimitations = [IdentifierKind.EnumField]
     } else {
       ident = references[0].text
+      identKindLimitations = references[0].kinds
     }
-    this.markReference(kind, ident)
+    this.markReference(currentBlockKind, ident, identKindLimitations)
   }
 
   #onAnalyzerErrors(context, errors) {

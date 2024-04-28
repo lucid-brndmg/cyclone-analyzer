@@ -149,7 +149,7 @@ export default class SemanticAnalyzer {
     return this.context.popBlock()
   }
   referenceEnum(identText, position) {
-    this.emit("identifier:reference", {references: [{text: identText, position, isEnum: true}]})
+    this.emit("identifier:reference", {references: [{text: identText, position, kinds: [IdentifierKind.EnumField]}]})
     this.context.pushTypeStack(TypeInfo.identifier(IdentifierType.Enum, identText, IdentifierKind.EnumField))
     const machine = this.context.currentMachineBlock
     if (!machine.metadata.enumFields.has(identText)) {
@@ -351,7 +351,6 @@ export default class SemanticAnalyzer {
   // checks identifier usage (reference)
   referenceIdentifier(blockType, identText, identPos) {
     // check existence
-    this.emit("identifier:reference", {references: [{position: identPos, text: identText, isEnum: false}]})
     let errParams = {
       desc: "identifier",
       ident: identText
@@ -489,7 +488,7 @@ export default class SemanticAnalyzer {
         : TypeInfo.hole()
       this.context.pushTypeStack(ty)
     }
-
+    this.emit("identifier:reference", {references: [{position: identPos, text: identText, kinds: kindLimitations ?? []}]})
     if (es.length) {
       this.emit("errors", es)
     }
@@ -502,7 +501,7 @@ export default class SemanticAnalyzer {
     const scope = this.context.peekScope()
     const es = []
     const machineCtx = this.context.currentMachineBlock.metadata
-    this.emit("identifier:reference", {references: [{position: parentPos, text: parentIdentText, isEnum: false}, {position: identPos, text: identText, isEnum: false}]})
+    this.emit("identifier:reference", {references: [{position: parentPos, text: parentIdentText, kinds: [IdentifierKind.Record]}, {position: identPos, text: identText, kinds: [IdentifierKind.RecordField]}]})
 
     if (!scope) {
       console.log("warn: scope not found when reference record field", parentIdentText, identText, identPos)
@@ -1504,9 +1503,12 @@ export default class SemanticAnalyzer {
 
   handleCheckForExpr(pathLengths, kwd, pos) {
     const es = []
-    if (kwd === "upto" && pathLengths.length > 1) {
+    const goal = this.context.peekScope()
+    const goalKeyword = goal.metadata.checkKeyword
+
+    if ((kwd === "upto" || goalKeyword === "enumerate") && pathLengths.length > 1) {
       es.push({
-        type: SemanticErrorType.CheckUptoMultiLengths,
+        type: SemanticErrorType.CheckUnsupportedRangeMode,
         params: {length: pathLengths.length},
         ...pos
       })
@@ -1531,14 +1533,12 @@ export default class SemanticAnalyzer {
         pathSet.add(num)
       }
     }
-
-    const goal = this.context.peekScope()
     goal.metadata.validCheckPathLengths = pathSet
 
-    if (goal.metadata.checkKeyword === "enumerate" && (kwd === "upto" || kwd === "each")) {
+    if (goalKeyword === "enumerate" && (kwd === "upto" || kwd === "each")) {
       es.push({
         type: SemanticErrorType.InvalidCheckForModes,
-        params: {keywords: [goal.metadata.checkKeyword, kwd]},
+        params: {keywords: [goalKeyword, kwd]},
         ...pos
       })
     }
