@@ -1446,12 +1446,13 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleCheckExprEnter(expr) {
+  handleCheckExprEnter(expr, checkKeyword) {
     // this.context.peekScope().metadata.keyword = keyword
     const goal = this.context.peekScope()
     // goal.metadata.expr = expr
     goal.metadata.finalPosition = this.context.peekBlock().position
     goal.metadata.expr = expr
+    goal.metadata.checkKeyword = checkKeyword
 
     // this.emitLangComponent(context, null)
   }
@@ -1501,9 +1502,17 @@ export default class SemanticAnalyzer {
     }
   }
 
-  handleCheckForExpr(pathLengths) {
-    const pathSet = new Set()
+  handleCheckForExpr(pathLengths, kwd, pos) {
     const es = []
+    if (kwd === "upto" && pathLengths.length > 1) {
+      es.push({
+        type: SemanticErrorType.CheckUptoMultiLengths,
+        params: {length: pathLengths.length},
+        ...pos
+      })
+    }
+
+    const pathSet = new Set()
     for (let {text, position} of pathLengths) {
       const num = parseInt(text)
       if (isNaN(num) || num < 1) {
@@ -1525,6 +1534,14 @@ export default class SemanticAnalyzer {
 
     const goal = this.context.peekScope()
     goal.metadata.validCheckPathLengths = pathSet
+
+    if (goal.metadata.checkKeyword === "enumerate" && (kwd === "upto" || kwd === "each")) {
+      es.push({
+        type: SemanticErrorType.InvalidCheckForModes,
+        params: {keywords: [goal.metadata.checkKeyword, kwd]},
+        ...pos
+      })
+    }
 
     if (es.length) {
       this.emit("errors", es)

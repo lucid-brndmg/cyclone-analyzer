@@ -36,6 +36,8 @@ export const SemanticErrorType = {
   InvalidValueMutation: 2019,
   OperatingDifferentEnumSources: 2020,
   LiteralOutOfBoundary: 2021,
+  CheckUptoMultiLengths: 2022,
+  InvalidCheckForModes: 2023,
 
   // Type Errors
   TypeMismatchFunction: 3001,

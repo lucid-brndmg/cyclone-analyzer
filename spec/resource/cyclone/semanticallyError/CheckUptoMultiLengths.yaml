@@ -1,0 +1,22 @@
+expectedErrors: ["CheckUptoMultiLengths"]
+cases:
+  - |
+    machine M {
+      goal {
+        check upto 1, 2, 3
+      }
+    }
+casesCounter:
+  - |
+    machine M {
+      goal {
+        check for 1, 2, 3
+      }
+    }  
+
+  - | 
+    machine M {
+      goal {
+        enumerate for 1, 2, 3
+      }
+    }

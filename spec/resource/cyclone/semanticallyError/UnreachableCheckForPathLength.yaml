@@ -1,0 +1,38 @@
+expectedErrors: ["UnreachableCheckForPathLength"]
+cases:
+  - |
+    machine M {
+      start node A {}
+      node B {}
+      final node C {}
+    
+      node D {}
+      node E {}
+    
+      edge {A -> B}
+      edge {B -> C}
+    
+      edge {D <-> E}
+    
+      goal {
+        check for 3
+      }
+    }  
+  - |
+    machine M {
+      start node A {}
+      node B {}
+      node C {}
+    
+      node D {}
+      node E {}
+    
+      edge {A -> B}
+      edge {B -> C}
+    
+      edge {D <-> E}
+    
+      goal {
+        check for 3 reach (C)
+      }
+    }  

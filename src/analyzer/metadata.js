@@ -97,7 +97,8 @@ const goalScopeMetadata = () => ({
   states: [], // states mentioned by check expr
   expr: "", // the check expr, as string
   finalPosition: null, // position of check expr
-  validCheckPathLengths: null
+  validCheckPathLengths: null,
+  checkKeyword: null
 })
 
 // metadata for path variable declaration

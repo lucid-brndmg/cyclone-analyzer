@@ -1,0 +1,14 @@
+expectedErrors: ["InvalidCheckForModes"]
+cases:
+  - |
+    machine M {
+      goal {
+        enumerate upto 1
+      }
+    }
+  - |
+    machine M {
+      goal {
+        enumerate each 1
+      }
+    }

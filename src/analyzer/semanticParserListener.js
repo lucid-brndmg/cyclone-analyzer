@@ -336,14 +336,17 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterCheckExpr(ctx) {
     this.#pushBlock(SemanticContextType.GoalFinal, ctx)
-    this.analyzer.handleCheckExprEnter(getExpression(ctx))
+    const keyword = firstSymbol(ctx)
+    this.analyzer.handleCheckExprEnter(getExpression(ctx), keyword)
   }
 
   enterForExpr(ctx) {
     const paths = ctx.children
       .filter(c => c instanceof CycloneParser.IntLiteralContext)
       .map(it => ({text: it.start.text, position: getBlockPositionPair(it)}))
-    this.analyzer.handleCheckForExpr(paths)
+    const keyword = firstSymbol(ctx)
+
+    this.analyzer.handleCheckForExpr(paths, keyword, getBlockPositionPair(ctx))
   }
 
   // enterCheckMainExpr(ctx) {

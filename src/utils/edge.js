@@ -104,42 +104,6 @@ export const expandEdge = ({operators, toStates, fromState, excludedStates}, all
   }
 }
 
-// const possibleMaxLengthInRelations = (relationTable, source, terminals, currentPath) => {
-//   console.log("walk", source)
-//   // const noTerm = terminals == null
-//   const isTerminal = terminals.has(source)
-//   const rel = relationTable.get(source)
-//   if (!rel) {
-//     return [0, isTerminal]
-//   }
-//   if (isTerminal) {
-//     currentPath.push(source)
-//   }
-//   const {checked, targets} = rel
-//   if (checked) {
-//     // cyclic
-//     return [Infinity, isTerminal]
-//   }
-//   rel.checked = true
-//   // let l = 0, ls = []
-//   let path = []
-//   for (let target of targets) {
-//     const [length, isTerm] = possibleMaxLengthInRelations(relationTable, target, terminals, currentPath)
-//     if (length === Infinity) {
-//       return [Infinity, isTerm]
-//     }
-//     let n = 1 + length
-//     if (isTerm) {
-//       console.log("term", source, n)
-//       termResults.push(n)
-//       ls.push(n)
-//     }
-//     // l = Math.max(l, n)
-//   }
-//
-//   return [l, isTerminal]
-// }
-
 const visit = (relationTable, source, terminals, p) => {
   p.count ++
   const isTerminal = terminals.has(source)
@@ -207,31 +171,6 @@ export const possibleMaxPathLength = (startNodeId, validNodeIdsSet, edges, termi
   }
 
   return visitStart(relationTable, startNodeId, terminalNodeIdsSet)
-
-  // const t = terminalNodeIdsSet?.size ? terminalNodeIdsSet : null
-  // const tr = []
-  // const [length] = possibleMaxLengthInRelations(relationTable, startNodeId, t, tr)
-  // console.log(tr)
-  // if (t) {
-  //   return Math.max(...tr)
-  // } else {
-  //   return length
-  // }
-
-  // for (let source of relationTable.keys()) {
-  //   const n = possibleMaxLengthInRelations(relationTable, source)
-  //   if (isNaN(n)) {
-  //     return NaN
-  //   }
-  //
-  //   l = Math.max(l, n)
-  // }
-  //
-  // // for (let [source, {targets}] of relationTable) {
-  // //
-  // // }
-  //
-  // return l
 }
 
 export default {
