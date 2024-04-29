@@ -20,9 +20,13 @@ import CycloneParser from "../generated/antlr/CycloneParser.js";
 export default class SemanticParserListener extends CycloneParserListener {
   analyzer
 
-  constructor(semanticAnalyzer) {
+  constructor(semanticAnalyzer = null) {
     super();
     this.analyzer = semanticAnalyzer
+  }
+
+  attach(analyzer) {
+    this.analyzer = analyzer
   }
 
   #handleBinaryOp(ctx, isPathExpr) {
