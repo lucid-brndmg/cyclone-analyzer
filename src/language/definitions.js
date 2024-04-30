@@ -60,7 +60,8 @@ export const SemanticErrorType = {
   UnreachableCheckForPathLength: 4011,
 
   // INFO LEVEL
-  NodeUnconnected: 6001
+  NodeUnconnected: 6001,
+  IdentifierNeverUsed: 6002
 }
 
 // Semantic Context Type that helps the analyzer positioning

@@ -53,7 +53,10 @@ describe('SemanticAnalyzer', () => {
       const analyzer = new SemanticAnalyzer()
       analyzer.on("errors", (ctx, es) => {
         console.error("ERRORS INSIDE CORRECT CODE", es)
-        errors.push(...es)
+        const filtered = es.filter(({type}) => ![SemanticErrorType.IdentifierNeverUsed, SemanticErrorType.NodeUnconnected].includes(type))
+        if (filtered.length) {
+          errors.push(...filtered)
+        }
       })
 
       const listener = new SemanticParserListener(analyzer)

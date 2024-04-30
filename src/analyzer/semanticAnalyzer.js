@@ -15,7 +15,7 @@ import {
 import {
   declarationContextType,
   declarationContextTypeToIdentifierKind,
-  declarationGroupContextTypeToIdentifierKind,
+  declarationGroupContextTypeToIdentifierKind, identifierKindShouldHasReference,
   identifierKindToType,
   identifierNoPushTypeStackBlocks, invalidNodeModifierCombo, literalBounds,
   optionAcceptableValues,
@@ -304,7 +304,7 @@ export default class SemanticAnalyzer {
       recordChild: [],
       fnSignature,
       fnParams: [],
-      enums: type === IdentifierType.Enum ? prev.metadata.enums : undefined
+      enums: type === IdentifierType.Enum ? prev.metadata.enums : undefined,
     }
     // this.context.findNearestBlock(SemanticContextType.EnumDecl, SemanticContextType.RecordScope) === null
     // && this.searchNearestBlock(
@@ -338,6 +338,7 @@ export default class SemanticAnalyzer {
 
     identStack.push(identText, info)
     scope.metadata.identifierCounts.incr(identText)
+    machineCtx.referenceCounts.set(info, 0)
     if (exists) {
       this.emit("errors", [{
         ...identPos,
@@ -471,15 +472,17 @@ export default class SemanticAnalyzer {
     }
 
     if (!foundIdent) {
-      // if (identText === "Can") {
-      //   console.log(this.context.currentMachineBlock.metadata.identifierStack.get(identText))
-      // }
       es.push({
         ...identPos,
 
         type: SemanticErrorType.UndefinedIdentifier,
         params: errParams
       })
+    }
+
+    if (identifierKindShouldHasReference.has(foundIdent?.kind)) {
+      const counts = this.context.currentMachineBlock.metadata.referenceCounts
+      counts.set(foundIdent, (counts.get(foundIdent) ?? 0) + 1)
     }
 
     if (!shouldNotPushTypeStackBlocks) {
@@ -507,10 +510,13 @@ export default class SemanticAnalyzer {
       console.log("warn: scope not found when reference record field", parentIdentText, identText, identPos)
     }
 
-    const hasRecord = machineCtx.identifierStack.exists(parentIdentText, ({kind}) => kind === IdentifierKind.Record)
+    const record = this.context.peekIdentifier(parentIdentText, [IdentifierKind.Record])
+    // const hasRecord = machineCtx.identifierStack.exists(parentIdentText, ({kind}) => kind === IdentifierKind.Record)
 
     // const hasRecord = ident && ident.kind === IdentifierKind.Record
-    if (!hasRecord) {
+    if (record) {
+      machineCtx.referenceCounts.set(record, (machineCtx.referenceCounts.get(record) ?? 0) + 1)
+    } else {
       es.push({
         ...parentPos,
 
@@ -518,8 +524,7 @@ export default class SemanticAnalyzer {
         params: {desc: "record", ident: parentIdentText}
       })
     }
-
-    const hasRecordField = hasRecord && machineCtx.recordFieldStack.getLength(parentIdentText, identText) > 0 // this.context.recordCounts.hasCounts([parentIdentText], identText)
+    const hasRecordField = record && machineCtx.recordFieldStack.getLength(parentIdentText, identText) > 0 // this.context.recordCounts.hasCounts([parentIdentText], identText)
     if (!hasRecordField) {
       es.push({
         ...identPos,
@@ -531,6 +536,7 @@ export default class SemanticAnalyzer {
     } else {
       const recordField = machineCtx.recordFieldStack.peek(parentIdentText, identText)
       this.context.pushTypeStack(TypeInfo.identifier(recordField.type, identText, IdentifierKind.RecordField, {parent: parentIdentText}))
+      machineCtx.referenceCounts.set(recordField, (machineCtx.referenceCounts.get(recordField) ?? 0) + 1)
     }
 
     if (es.length) {
@@ -1082,7 +1088,7 @@ export default class SemanticAnalyzer {
 
   handleMachineDeclExit() {
     const block = this.context.peekBlock()
-    const {keywordPosition, stateMap} = block.metadata
+    const {keywordPosition, stateMap, referenceCounts} = block.metadata
     // const pos = block.metadata.keywordPosition
     if (!keywordPosition) {
       return
@@ -1110,6 +1116,20 @@ export default class SemanticAnalyzer {
         es.push({
           type: SemanticErrorType.NodeUnconnected,
           ...nodeInfo.position
+        })
+      }
+    }
+
+    for (let [info, counts] of referenceCounts) {
+      if (!info) {
+        continue
+      }
+      const {kind, text, position} = info
+      if (counts === 0 && identifierKindShouldHasReference.has(kind)) {
+        es.push({
+          type: SemanticErrorType.IdentifierNeverUsed,
+          ...position,
+          params: {text, kind}
         })
       }
     }

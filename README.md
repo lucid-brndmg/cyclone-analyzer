@@ -10,18 +10,31 @@ The analyzer covers most of Cyclone's language features. This package also conta
 
 ## TODO
 
-- Use Flow to do type checking for some modules. (This project has no intention to rewrite in typescript for now)
 - This document is unfinished and will be updated in the future.
 
 ## Usage
 
-Installation:
+### Installation
+
+Use npm or yarn to install:
 
 ```shell
 npm install cyclone-analyzer
 ```
 
-Analyze a Cyclone specification:
+Import this library using `import` or `require`:
+
+```javascript
+// ESM
+import cycloneAnalyzer from "cyclone-analyzer"
+
+// CJS
+const cycloneAnalyzer = require("cyclone-analyzer")
+```
+
+### Analyze a Cyclone Specification
+
+Find errors in any Cyclone specification by simply using `analyzeCycloneSpec`. 
 
 ```javascript
 import {analyzer} from "cyclone-analyzer"
@@ -56,6 +69,87 @@ if (result.hasSyntaxError()) {
 } else {
   console.log("This spec seems ok")
 }
+```
+
+### Parsing
+
+Use `utils.antlr.parseCycloneSyntax` to parse a Cyclone specification via ANTLR4:
+
+```javascript
+import cycloneAnalyzer from "cyclone-analyzer"
+const {parseCycloneSyntax} = cycloneAnalyzer.utils.antlr
+
+const spec = `
+graph G {
+  int i = 1 // syntax error: a semicolon is required here
+}
+`
+
+const parsed = parseCycloneSyntax({input: spec})
+
+if (parsed.syntaxErrorsCount > 0) {
+  console.log("This spec has syntax error")
+}
+```
+
+### Syntax Block Builder
+
+There is an IR builder `blockBuilder.SyntaxBlockBuilder` for building a tree-structured context for a Cyclone spec after semantic analysis:
+
+```javascript
+import {analyzer, blockBuilder} from "cyclone-analyzer"
+
+const cycloneSpec = `
+graph G {
+  start final node A {}
+  edge {A -> A}
+  goal { check for 1 }
+}
+`
+
+const irBuilder = new blockBuilder.SyntaxBlockBuilder()
+const analysisResult = analyzer.analyzeCycloneSpec(cycloneSpec, {
+  analyzerExtensions: [irBuilder] // the builder is an extension of the analyzer
+})
+
+// the syntax block of the input Cyclone spec, as a tree
+const program = irBuilder.getProgramBlock()
+
+console.log(program)
+```
+
+### Analyzer Extensions
+
+The semantic analyzer defined series of events and can be listened with `analyzer.on` method. In this way, extensions can be written by listening to analyzer events. Extensions can be objects or class instances that has an `attach` method:
+
+```javascript
+import {analyzer} from "cyclone-analyzer"
+
+// defining an extension as class
+class MyExtension {
+  // the required attach method
+  attach(analyzer) {
+    // this.analyzer = analyzer
+    analyzer.on("errors", (ctx, errors) => console.log("semantic errors discovered:", errors))
+    analyzer.on("block:enter", (ctx, payload) => console.log("entering a semantic context block"))
+    analyzer.on("block:exit", (ctx, payload) => console.log("exiting a semantic context block"))
+    analyzer.on("identifier:register", (ctx, {text}) => console.log("registering identifier: ", text))
+    analyzer.on("identifier:reference", (ctx, {references}) => console.log("referencing identifiers: ", references))
+  }
+}
+
+const cycloneSpec = `
+graph G {
+  start final node A {}
+  edge {A -> A}
+  goal { check for 1 }
+}
+`
+
+const ext = new MyExtension()
+const analysisResult = analyzer.analyzeCycloneSpec(cycloneSpec, {
+  analyzerExtensions: [ext] // attach the extension
+})
 ```
 
 ## Modules

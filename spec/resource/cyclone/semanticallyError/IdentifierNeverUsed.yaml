@@ -1,0 +1,28 @@
+expectedErrors: ["IdentifierNeverUsed"]
+cases:
+  - |
+    graph G {
+      function f:int(a:int, b: int) {
+        return a + 1;
+      }
+    }
+  - |
+    graph G {
+      int a = 1;
+      function f:int(a:int, b: int) {
+        return a + 1;
+      }
+    }
+  - |
+    graph G {
+      int a = 1;
+      int b = a + 1;
+    }
+casesCounter:
+  - |
+    graph G {
+      int a = 1;
+      int b = a + 1;
+      node S {b ++;}
+      edge {S -> S}
+    }

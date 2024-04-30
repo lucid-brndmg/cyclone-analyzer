@@ -263,6 +263,18 @@ export const literalBounds = {
   [IdentifierType.Int]: [BigInt(-2147483647), BigInt(2147483647)]
 }
 
+export const identifierKindShouldHasReference = new Set([
+  // IdentifierKind.Let,
+  // IdentifierKind.EnumField,
+  IdentifierKind.FnParam,
+  IdentifierKind.State,
+  IdentifierKind.RecordField,
+  IdentifierKind.Record,
+  IdentifierKind.LocalVariable,
+  IdentifierKind.GlobalVariable,
+  IdentifierKind.GlobalConst,
+])
+
 export default {
   scopedContextType,
   declarationContextType,
@@ -275,5 +287,6 @@ export default {
   builtinActions,
   optionAcceptableValues,
   syntaxBlockIdPrefix,
-  literalBounds
+  literalBounds,
+  identifierKindShouldHasReference
 }

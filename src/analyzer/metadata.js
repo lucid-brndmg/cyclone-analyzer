@@ -123,6 +123,7 @@ const machineDeclMetadata = () => ({
   actionTable: new CategorizedStackTable(), // the table of declared functions
   identifierStack: new StackedTable(), // the table of identifier information, use a stack as value to store scope data
   recordFieldStack: new CategorizedStackTable(), // the table of record field information
+  referenceCounts: new Map()
 })
 
 // metadata for compiler options
