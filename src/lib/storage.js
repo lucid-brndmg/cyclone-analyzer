@@ -28,7 +28,7 @@ export class CategorizedCountTable extends Map {
       ? categories
       : this.keys()
 
-    for (let cate of iterCategories) {
+    for (const cate of iterCategories) {
       if (this.has(cate)) {
         const sub = this.get(cate)
         if (sub.has(key)) {
@@ -59,7 +59,7 @@ export class CategorizedCountTable extends Map {
       ? categories
       : this.keys()
 
-    for (let cate of iterCategories) {
+    for (const cate of iterCategories) {
       if (this.has(cate)) {
         const sub = this.get(cate)
         if (sub.has(key)) {
@@ -75,10 +75,10 @@ export class CategorizedCountTable extends Map {
   }
 
   sub(table) {
-    for (let [cate, counts] of table.entries()) {
+    for (const [cate, counts] of table.entries()) {
       if (this.has(cate)) {
         const sub = this.get(cate)
-        for (let [key, count] of counts.entries()) {
+        for (const [key, count] of counts.entries()) {
           if (sub.has(key)) {
             const c = sub.get(key) - count
             if (c <= 0) {
@@ -104,7 +104,7 @@ export class StackedTable extends Map {
     super();
 
     if (nonRepeatedInit) {
-      for (let [key, v] of nonRepeatedInit) {
+      for (const [key, v] of nonRepeatedInit) {
         this.set(key, [v])
       }
     }
@@ -152,22 +152,21 @@ export class StackedTable extends Map {
       const stack = this.get(key)
       if (filterFn) {
         return stack.filter(filterFn).length
-      } else {
-        return stack.length
       }
+      return stack.length
     }
 
     return 0
   }
 
   subCategorizedCountTable(countTable) {
-    for (let table of countTable.values()) {
+    for (const table of countTable.values()) {
       this.subCountTable(table)
     }
   }
 
   subCountTable(countTable) {
-    for (let [key, counts] of countTable) {
+    for (const [key, counts] of countTable) {
       if (counts > 0) {
         const stack = this.get(key)
         popMulti(stack, counts)
@@ -187,7 +186,7 @@ export class StackedTable extends Map {
     //     this.set(key, filtered)
     //   }
     // }
-    for (let [k, v] of this) {
+    for (const [k, v] of this) {
       const filtered = v.filter(filterFn)
       if (!filtered.length) {
         this.delete(k)
@@ -199,7 +198,7 @@ export class StackedTable extends Map {
 
   extractLatest() {
     const results = []
-    for (let stack of this.values()) {
+    for (const stack of this.values()) {
       if (stack.length) {
         results.push(stack[stack.length - 1])
       }
@@ -210,7 +209,7 @@ export class StackedTable extends Map {
 
   extractLatestToMap(keySelector) {
     const results = new Map()
-    for (let stack of this.values()) {
+    for (const stack of this.values()) {
       if (stack.length) {
         const last = stack[stack.length - 1]
         results.set(keySelector(last), last)
@@ -222,7 +221,7 @@ export class StackedTable extends Map {
 
   copy() {
     const tbl = new StackedTable()
-    for (let [key, stack] of this) {
+    for (const [key, stack] of this) {
       if (stack.length) {
         tbl.set(key, [...stack])
       }
@@ -243,7 +242,7 @@ export class StackedTable extends Map {
   exists(key, fn) {
     const stack = this.get(key)
     if (stack) {
-      for (let v of stack) {
+      for (const v of stack) {
         if (fn(v)) {
           return true
         }
@@ -258,7 +257,7 @@ export class CategorizedStackTable extends Map {
   constructor(init) {
     super();
     if (init) {
-      for (let [cate, subInit] of init) {
+      for (const [cate, subInit] of init) {
         this.set(cate, new StackedTable(subInit))
       }
     }
@@ -277,9 +276,8 @@ export class CategorizedStackTable extends Map {
   pop(category, key) {
     if (this.has(category)) {
       return this.get(category).pop(key)
-    } else {
-      return null
     }
+    return null
   }
 
   peek(category, key) {
@@ -297,16 +295,15 @@ export class CategorizedStackTable extends Map {
   getLength(category, key) {
     if (this.has(category)) {
       return this.get(category).getLength(key)
-    } else {
-      return 0
     }
+    return 0
   }
 
   extract(convertFn = null, allowedCategories = null) {
     const result = []
-    for (let [cate, table] of this) {
+    for (const [cate, table] of this) {
       if (!allowedCategories || allowedCategories.includes(cate)) {
-        for (let stack of table.values()) {
+        for (const stack of table.values()) {
           result.push(...(convertFn ? stack.map(convertFn) : stack))
         }
       }
@@ -316,7 +313,7 @@ export class CategorizedStackTable extends Map {
   }
 
   subCategorizedCountTable(tbl) {
-    for (let [cate, subCountTable] of tbl) {
+    for (const [cate, subCountTable] of tbl) {
       const subStackTable = this.get(cate)
       if (!subStackTable) {
         continue

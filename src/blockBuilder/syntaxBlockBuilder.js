@@ -14,9 +14,9 @@ import CheckExprListener from "./checkExprListener.js";
 // Get the syntax block kind using id prefix
 const idPrefixKind = (() => {
   const result = {}
-  Object.entries(syntaxBlockIdPrefix).forEach(([kind, pref]) => {
+  for (const [kind, pref] of Object.entries(syntaxBlockIdPrefix)) {
     result[pref] = parseInt(kind)
-  })
+  }
   return result
 })()
 
@@ -225,7 +225,7 @@ export default class SyntaxBlockBuilder {
     }
 
     const blocks = this.followBlocks(block.parentId)
-    for (let block of blocks) {
+    for (const block of blocks) {
       block.markChildErrors(...createdErrors)
     }
     return true
@@ -247,9 +247,8 @@ export default class SyntaxBlockBuilder {
   getFirstBlock(kind) {
     if (this.context.kindBlocks.has(kind)) {
       return this.context.kindBlocks.get(kind)[0]
-    } else {
-      return undefined
     }
+    return undefined
   }
 
   getLatestBlockId(kind) {
@@ -300,7 +299,7 @@ export default class SyntaxBlockBuilder {
       return;
     }
 
-    let markId = identRegBlockIds.findLast(({kind}) => identKindLimitations.includes(kind))?.blockId // = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
+    const markId = identRegBlockIds.findLast(({kind}) => identKindLimitations.includes(kind))?.blockId // = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
 
     // if (!blockRestrictions.length) {
     //   markId = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
@@ -826,7 +825,7 @@ export default class SyntaxBlockBuilder {
   #findBlockInsertionIndexByOrder(searchOrder) {
     let searchedBlock
 
-    for (let o of searchOrder) {
+    for (const o of searchOrder) {
       searchedBlock = this.getFirstBlock(o)
       if (searchedBlock) {
         break
@@ -1184,7 +1183,7 @@ export default class SyntaxBlockBuilder {
     }
 
     if (overrideType || overrideKind) {
-      for (let child of block.children) {
+      for (const child of block.children) {
         if (overrideKind) {
           child.data.varKind = identKind
         }
@@ -1562,7 +1561,7 @@ export default class SyntaxBlockBuilder {
 
   searchReferences(blockIds) {
     const s = new Set()
-    for (let block of this.context.blocks) {
+    for (const block of this.context.blocks) {
       if (blockIds.some(id => block.references.has(id))) {
         s.add(block.id)
       }
@@ -1573,12 +1572,12 @@ export default class SyntaxBlockBuilder {
 
   searchReferencesInDepthWithSet(block, set) {
     if (block.references.size) {
-      for (let r of block.references) {
+      for (const r of block.references) {
         set.add(r)
       }
     }
 
-    for (let child of block.children) {
+    for (const child of block.children) {
       this.searchReferencesInDepthWithSet(child, set)
     }
   }

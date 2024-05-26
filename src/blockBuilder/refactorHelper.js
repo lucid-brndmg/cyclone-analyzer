@@ -157,7 +157,7 @@ class OperatorReplacer extends CycloneParserListener {
 
   replaceRecursive(ctx) {
     let symIdx = 0
-    for (let child of ctx.children) {
+    for (const child of ctx.children) {
       if (child.symbol) {
         this.replaceSymbol(child.symbol, ctx, symIdx)
         symIdx ++

@@ -68,7 +68,7 @@ export default class SemanticAnalyzer {
       if (!es.length) {
         return
       }
-      for (let h of this.events.get(event)) {
+      for (const h of this.events.get(event)) {
         h(this.context, payload)
       }
     }
@@ -352,7 +352,7 @@ export default class SemanticAnalyzer {
   // checks identifier usage (reference)
   referenceIdentifier(blockType, identText, identPos) {
     // check existence
-    let errParams = {
+    const errParams = {
       desc: "identifier",
       ident: identText
     }
@@ -736,7 +736,7 @@ export default class SemanticAnalyzer {
     //     }
     //   }
     // }
-    for (let signature of signatures) {
+    for (const signature of signatures) {
       const inputExpectedLength = signature.input.length
       if (inputExpectedLength !== inputActualLength) {
         continue
@@ -757,7 +757,7 @@ export default class SemanticAnalyzer {
     if (pass) {
       // popMulti(this.context.typeStack, inputActualLength)
       if (mutation?.length) {
-        for (let idx of mutation) {
+        for (const idx of mutation) {
           const ti = this.context.indexOfTypeStack(idx)
           if (ti?.isImmutable()) {
             es.push({
@@ -1111,7 +1111,7 @@ export default class SemanticAnalyzer {
       })
     }
 
-    for (let nodeInfo of stateMap.values()) {
+    for (const nodeInfo of stateMap.values()) {
       if (nodeInfo.edgeSource <= 0 && nodeInfo.edgeTargets <= 0) {
         es.push({
           type: SemanticErrorType.NodeUnconnected,
@@ -1120,7 +1120,7 @@ export default class SemanticAnalyzer {
       }
     }
 
-    for (let [info, counts] of referenceCounts) {
+    for (const [info, counts] of referenceCounts) {
       if (!info) {
         continue
       }
@@ -1239,7 +1239,7 @@ export default class SemanticAnalyzer {
 
   handleTransExclusion(idents) {
     const transDecl = this.context.findNearestBlock(SemanticContextType.TransDecl).metadata
-    for (let id of idents) {
+    for (const id of idents) {
       transDecl.excludedStates.push(id)
     }
 
@@ -1253,7 +1253,7 @@ export default class SemanticAnalyzer {
   handleTransToStates(idents) {
     const trans = this.context.findNearestBlock(SemanticContextType.TransDecl).metadata
     const s = new Set()
-    for (let {identifier, position} of idents) {
+    for (const {identifier, position} of idents) {
       trans.toStates.push(identifier)
       if (s.has(identifier)) {
         this.emit("errors", [{
@@ -1305,13 +1305,13 @@ export default class SemanticAnalyzer {
       stateMap.get(source).edgeSource ++
     }
 
-    for (let t of targets) {
+    for (const t of targets) {
       if (stateMap.has(t)) {
         stateMap.get(t).edgeTargets ++
       }
     }
 
-    for (let e of exclusions) {
+    for (const e of exclusions) {
       if (stateMap.has(e)) {
         stateMap.get(e).edgeExclusions ++
       }
@@ -1406,7 +1406,7 @@ export default class SemanticAnalyzer {
       // }
       const identsArr = this.context.peekBlock().metadata.identifiers
       const s = new Set()
-      for (let {identifier, position} of identifiers) {
+      for (const {identifier, position} of identifiers) {
         identsArr.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
@@ -1429,7 +1429,7 @@ export default class SemanticAnalyzer {
     // }
     if (identifiers?.length) {
       const s = new Set()
-      for (let {identifier, position} of identifiers) {
+      for (const {identifier, position} of identifiers) {
         def.metadata.states.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
@@ -1449,7 +1449,7 @@ export default class SemanticAnalyzer {
     const def = this.context.peekScope()
     if (identifiers?.length) {
       const s = new Set()
-      for (let {identifier, position} of identifiers) {
+      for (const {identifier, position} of identifiers) {
         def.metadata.invariants.push(identifier)
         if (s.has(identifier)) {
           this.emit("errors", [{
@@ -1501,7 +1501,7 @@ export default class SemanticAnalyzer {
       const length = possibleMaxPathLength(start, validStates, edgeRelations, pathTerminalStates)
 
       // console.log("max", length, pathTerminalStates)
-      if (length !== Infinity) {
+      if (length !== Number.POSITIVE_INFINITY) {
         const unreachableLengths = [...pathLengthSet].filter(l => l > length)
         if (unreachableLengths.length) {
           // one of the most tricky errors to check
@@ -1535,8 +1535,9 @@ export default class SemanticAnalyzer {
     }
 
     const pathSet = new Set()
-    for (let {text, position} of pathLengths) {
+    for (const {text, position} of pathLengths) {
       const num = parseInt(text)
+
       if (isNaN(num) || num < 1) {
         es.push({
           type: SemanticErrorType.InvalidCheckForPathLength,

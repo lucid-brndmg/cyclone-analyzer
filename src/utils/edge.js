@@ -35,14 +35,14 @@ export const withEdgeStates = ({operators, toStates, fromState, excludedStates},
       exclSet.add(fromState)
     }
     const nonExcl = allStates.filter(state => !exclSet.has(state))
-    for (let s of nonExcl) {
+    for (const s of nonExcl) {
       f(fromState, s)
       if (isBi) {
         f(s, fromState)
       }
     }
   } else {
-    for (let s of toStates) {
+    for (const s of toStates) {
       f(fromState, s)
       if (isBi) {
         f(s, fromState)
@@ -61,7 +61,7 @@ export const edgeTargets = ({operators, toStates, fromState, excludedStates}, al
 
 export const edgeTargetsFromExpanded = relations => {
   const targets = new Set()
-  for (let {target} of relations) {
+  for (const {target} of relations) {
     targets.add(target)
   }
 
@@ -84,7 +84,7 @@ export const expandAnonymousEdge = ({operators, toStates, fromState, excludedSta
 export const edgeLengths = (edgeMetadataList, allStates) => {
   const edges = []
   let total = 0
-  for (let edge of edgeMetadataList) {
+  for (const edge of edgeMetadataList) {
     if (isAnonymousEdge(edge)) {
       edges.push(...expandAnonymousEdge(edge, allStates))
     } else {
@@ -98,10 +98,9 @@ export const edgeLengths = (edgeMetadataList, allStates) => {
 export const expandEdge = ({operators, toStates, fromState, excludedStates}, allStates) => {
   if (isAnonymousEdge({operators, toStates})) {
     return expandAnonymousEdge({operators, toStates, fromState, excludedStates}, allStates)
-  } else {
-    const target = toStates[0]
-    return [{source: fromState, target}]
   }
+  const target = toStates[0]
+  return [{source: fromState, target}]
 }
 
 const visit = (relationTable, source, terminals, p) => {
@@ -121,7 +120,7 @@ const visit = (relationTable, source, terminals, p) => {
     return
   }
   rel.checked = true
-  for (let node of targets) {
+  for (const node of targets) {
     visit(relationTable, node, terminals, p)
   }
 }
@@ -134,12 +133,13 @@ const visitStart = (relationTable, source, terminals) => {
   rel.checked = true
   const {targets} = rel
   const ls = []
-  for (let child of targets) {
+  for (const child of targets) {
     const s = {isCyclic: false, count: 0, term: false}
     visit(relationTable, child, terminals, s)
     if (s.isCyclic) {
       return Infinity
-    } else if (s.term) {
+    }
+    if (s.term) {
       ls.push(s.count)
     }
   }
@@ -155,7 +155,7 @@ export const possibleMaxPathLength = (startNodeId, validNodeIdsSet, edges, termi
   }
 
   const relationTable = new Map()
-  for (let {source, target} of validEdges) {
+  for (const {source, target} of validEdges) {
     // if (source === target) {
     //   return NaN // the graph is cyclic
     // }

@@ -52,7 +52,7 @@ export const firstSymbolObject = ctx => {
     return null
   }
 
-  for (let child of ctx.children) {
+  for (const child of ctx.children) {
     const sym = child.symbol
     if (sym) {
       return sym
@@ -69,7 +69,7 @@ export const existsSymbol = (ctx, symbol) => {
     return false
   }
 
-  for (let child of ctx.children) {
+  for (const child of ctx.children) {
     if (child.symbol?.text === symbol) {
       return true
     }
@@ -117,13 +117,14 @@ export const deepestContext = (ctx, stopInstance = null) => (stopInstance == nul
 export const tryGetIdentifierContext = ctx => {
   if (ctx instanceof CycloneParser.IdentifierContext) {
     return ctx
-  } else if (ctx instanceof CycloneParser.ParExpressionContext || ctx instanceof CycloneParser.ParPathConditionContext) {
-    return tryGetIdentifierContext(ctx.children[1])
-  } else if (ctx.children?.length === 1) {
-    return tryGetIdentifierContext(ctx.children[0])
-  } else {
-    return null
   }
+  if (ctx instanceof CycloneParser.ParExpressionContext || ctx instanceof CycloneParser.ParPathConditionContext) {
+    return tryGetIdentifierContext(ctx.children[1])
+  }
+  if (ctx.children?.length === 1) {
+    return tryGetIdentifierContext(ctx.children[0])
+  }
+  return null
 }
 
 export default {

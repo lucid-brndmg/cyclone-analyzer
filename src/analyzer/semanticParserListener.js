@@ -139,7 +139,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   exitStateExpr(ctx) {
     const attrs = []
-    for (let child of ctx.children) {
+    for (const child of ctx.children) {
       const s = child?.symbol?.text
       if (s === "node" || s === "state") {
         attrs.push(s)

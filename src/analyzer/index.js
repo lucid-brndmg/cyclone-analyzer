@@ -38,7 +38,7 @@ const analyzeCycloneSpec = (specSrc, options = null) => {
 
   const semanticListener = new SemanticParserListener()
   const extensions = [semanticListener, ...(opts.analyzerExtensions ?? [])]
-  for (let ext of extensions) {
+  for (const ext of extensions) {
     ext.attach(analyzer)
   }
 

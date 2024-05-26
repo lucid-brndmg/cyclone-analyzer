@@ -8,7 +8,7 @@ export const popMulti = (xs, length) => {
 
 export const popMultiStore = (xs, length) => {
   let i = 0
-  let ys = []
+  const ys = []
   while (i < length) {
     ys.push(xs.pop())
     i ++
@@ -48,7 +48,7 @@ export const firstCombo = (xs, combos) => {
 export const findDuplications = xs => {
   const dup = new Set()
   const s = new Set()
-  for (let x of xs) {
+  for (const x of xs) {
     if (s.has(x)) {
       dup.add(x)
     } else {

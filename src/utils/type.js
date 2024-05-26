@@ -36,7 +36,7 @@ const typeMsgRepr = {
 
 const msgTypeRepr = (() => {
   const o = {}
-  for (let [key, value] of Object.entries(typeMsgRepr)) {
+  for (const [key, value] of Object.entries(typeMsgRepr)) {
     o[value] = parseInt(key)
   }
   return o

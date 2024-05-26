@@ -31,7 +31,7 @@ describe('SemanticAnalyzer', () => {
     const pathSyntaxError = path.join(dirCycloneSrc, "syntacticallyError")
     const codes = readDirFileContent(pathSyntaxError, [".cyclone"])
     let i = 0
-    for (let src of codes) {
+    for (const src of codes) {
       const {syntaxErrorsCount} = parseCycloneSyntax({input: src, entry: "program"})
       expect(syntaxErrorsCount).toBeGreaterThan(0)
       i++
@@ -44,7 +44,7 @@ describe('SemanticAnalyzer', () => {
     const pathCorrectSrc = path.join(dirCycloneSrc, "semanticallyCorrect")
     const codes = readDirFileContentWithFilename(pathCorrectSrc, [".cyclone"])
     let i = 0
-    for (let {content, filename} of codes) {
+    for (const {content, filename} of codes) {
       console.log("checking ", filename)
       const {syntaxErrorsCount, tree} = parseCycloneSyntax({input: content, entry: "program"})
       expect(syntaxErrorsCount).toEqual(0)
@@ -72,7 +72,7 @@ describe('SemanticAnalyzer', () => {
     const pathIncorrectSrc = path.join(dirCycloneSrc, "semanticallyError")
     const specs = readDirFileContentWithFilename(pathIncorrectSrc, [".yaml", ".yml"])
     let totalCases = 0, totalCounter = 0
-    for (let {content, filename} of specs) {
+    for (const {content, filename} of specs) {
       console.log("entering file", filename)
 
       const {
@@ -83,8 +83,8 @@ describe('SemanticAnalyzer', () => {
       if (
         !cases.length
         || (!expectedErrors?.length && !notExpectedErrors?.length)
-        || (expectedErrors && expectedErrors.some(name => SemanticErrorType[name] == null))
-        || (notExpectedErrors && notExpectedErrors.some(name => SemanticErrorType[name] == null))
+        || (expectedErrors?.some(name => SemanticErrorType[name] == null))
+        || (notExpectedErrors?.some(name => SemanticErrorType[name] == null))
       ) {
         fail("invalid spec file")
       }

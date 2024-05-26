@@ -154,7 +154,7 @@ export default class SyntaxBlock {
       case SyntaxBlockKind.Machine: {
         const body = []
 
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
 
@@ -162,7 +162,7 @@ export default class SyntaxBlock {
       }
       case SyntaxBlockKind.State: {
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
 
@@ -249,7 +249,7 @@ export default class SyntaxBlock {
         } = this.data
         const body = []
         let paramsExpr
-        for (let child of this.children) {
+        for (const child of this.children) {
           switch (child.kind) {
             case SyntaxBlockKind.FnParamGroup:
               paramsExpr = child.codegen(codegenOpts)
@@ -264,14 +264,14 @@ export default class SyntaxBlock {
       }
       case SyntaxBlockKind.Goal: {
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
         return `goal {${body.join("\n")}}`
       }
       case SyntaxBlockKind.Invariant: {
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
         const inExpr = this.data.inIdentifiers?.length
@@ -284,7 +284,7 @@ export default class SyntaxBlock {
       }
       case SyntaxBlockKind.Record: {
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(options.indentChar.repeat(options.indentUnit) + child.codegen(codegenOpts))
         }
         return `record ${this.data.identifier} {${body.join("\n")}};`
@@ -300,7 +300,7 @@ export default class SyntaxBlock {
 
         const typeExpr = `${typeToString(type)}${type === IdentifierType.Enum ? ` {${enums.join(", ")}}` : ""}`
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(child.codegen(codegenOpts))
         }
 
@@ -317,7 +317,7 @@ export default class SyntaxBlock {
 
       case SyntaxBlockKind.FnParamGroup: {
         const body = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           body.push(child.codegen(codegenOpts))
         }
         return '(' + body.join(", ") + ')'
@@ -325,7 +325,7 @@ export default class SyntaxBlock {
 
       case SyntaxBlockKind.Program: {
         const parts = []
-        for (let child of this.children) {
+        for (const child of this.children) {
           parts.push(child.codegen(codegenOpts))
         }
         return parts.join("\n")
