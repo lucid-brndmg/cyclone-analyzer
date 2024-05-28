@@ -31,6 +31,7 @@ const typeMsgRepr = {
   [IdentifierType.Char]: "char",
   [IdentifierType.Real]: "real",
   [IdentifierType.Bool]: "bool",
+  [IdentifierType.BitVector]: "bv",
   [IdentifierType.Hole]: "unknown"
 }
 
@@ -42,7 +43,22 @@ const msgTypeRepr = (() => {
   return o
 })()
 
-export const typeToString = ty => typeMsgRepr[ty] ?? "undefined"
+export const typeToString = (ty, tyParams = null) => {
+  let params = ""
+  switch (ty) {
+    case IdentifierType.BitVector: {
+      if (tyParams) {
+        const size = tyParams[0]
+        if (size && !isNaN(size)) {
+          params = `[${size}]`
+        }
+      }
+      break
+    }
+  }
+  const lit = typeMsgRepr[ty] ?? "undefined"
+  return lit + params
+}
 
 export const typeFromString = ty => msgTypeRepr[ty] ?? IdentifierType.Hole
 

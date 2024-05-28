@@ -24,6 +24,7 @@ export const declareMetadata = () => ({
 // metadata for "grouped" semantic contexts with a single type. Example: global variable / const
 export const singleTypedDeclGroupMetadata = () => ({
   fieldType: IdentifierType.Hole,
+  fieldTypeParams: [],
   enums: [],
   identifiers: [],
   parent: null
@@ -55,7 +56,9 @@ const functionDeclarationMetadata = () => ({
   // function signatures
   signatures: [{
     input: [], // parameter types
-    output: IdentifierType.Hole // return type
+    output: IdentifierType.Hole, // return type
+    inputParams: [], // [[x]]
+    outputParams: [] // [x]
   }]
 })
 

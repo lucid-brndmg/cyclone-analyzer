@@ -589,6 +589,7 @@ export default class SemanticAnalyzer {
     switch (blockType) {
       case SemanticContextType.FnDecl: {
         block.metadata.signatures[0].output = type
+        block.metadata.signatures[0].outputParams = params
         break
       }
 
@@ -596,6 +597,7 @@ export default class SemanticAnalyzer {
         const fnBlock = this.context.findNearestBlock(SemanticContextType.FnDecl)
         if (fnBlock) {
           fnBlock.metadata.signatures[0].input.push(type)
+          fnBlock.metadata.signatures[0].inputParams.push(params)
           const currentIdentText = block.metadata.identifier
           const machineCtx = this.context.currentMachineBlock.metadata
           const currentIdent = machineCtx.identifierStack.findLast(currentIdentText, ({kind}) => kind === IdentifierKind.FnParam)
@@ -622,6 +624,7 @@ export default class SemanticAnalyzer {
           // case SemanticContextType.GlobalVariableGroup:
           // case SemanticContextType.LocalVariableGroup:
           block.metadata.fieldType = type
+          block.metadata.fieldTypeParams = params
 
           if ((blockType === SemanticContextType.GlobalConstantGroup || blockType === SemanticContextType.LocalVariableGroup) && typeText === "enum") {
             this.emit("errors", [{

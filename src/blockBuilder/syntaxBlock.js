@@ -255,9 +255,9 @@ export default class SyntaxBlock {
       }
 
       case SyntaxBlockKind.Variable: {
-        const {kind, type, identifier, codeWhere, codeInit} = this.data
+        const {kind, type, identifier, codeWhere, codeInit, typeParams} = this.data
         switch (kind) {
-          case IdentifierKind.FnParam: return `${identifier}:${typeToString(type)}`
+          case IdentifierKind.FnParam: return `${identifier}:${typeToString(type, typeParams)}`
           case IdentifierKind.RecordField:
           case IdentifierKind.GlobalConst:
           case IdentifierKind.GlobalVariable:
@@ -268,6 +268,7 @@ export default class SyntaxBlock {
       case SyntaxBlockKind.Func: {
         const {
           returnType,
+          returnTypeParams,
           identifier,
         } = this.data
         const body = []
@@ -283,7 +284,7 @@ export default class SyntaxBlock {
               break
           }
         }
-        return codeBlock(`function ${identifier}: ${typeToString(returnType)} ${paramsExpr}`, body, currentIndent, options) // `function ${identifier}: ${typeToString(returnType)} ${paramsExpr} {${body.join(options.breakChar)}}`
+        return codeBlock(`function ${identifier}: ${typeToString(returnType, returnTypeParams)} ${paramsExpr}`, body, currentIndent, options) // `function ${identifier}: ${typeToString(returnType)} ${paramsExpr} {${body.join(options.breakChar)}}`
       }
       case SyntaxBlockKind.Goal: {
         const body = []
@@ -320,10 +321,11 @@ export default class SyntaxBlock {
           varKind
         } = this.data
         const {
-          type
+          type,
+          typeParams,
         } = this.children[0].data
 
-        const typeExpr = `${typeToString(type)}${type === IdentifierType.Enum ? ` {${enums.join(", ")}}` : ""}`
+        const typeExpr = `${typeToString(type, typeParams)}${type === IdentifierType.Enum ? ` {${enums.join(", ")}}` : ""}`
         const body = []
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))

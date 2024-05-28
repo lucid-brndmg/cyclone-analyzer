@@ -3,7 +3,6 @@ import {getExpression, getOnlyExpression, listenerWalk, parseCycloneSyntax} from
 import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
-import {typeToString} from "../utils/type.js";
 import SyntaxBlock from "./syntaxBlock.js";
 import {elementReplacer, findLast} from "../lib/list.js";
 import {replaceIdentifiers} from "./refactorHelper.js";
@@ -472,7 +471,7 @@ export default class SyntaxBlockBuilder {
   }
 
   #onAnalyzerBlockExit(context, {block}) {
-    const {type, position, metadata} = block
+    const {type, metadata} = block
     switch (type) {
       case SemanticContextType.CompilerOption: {
         const {name, value} = metadata
@@ -506,10 +505,13 @@ export default class SyntaxBlockBuilder {
         if (metadata.fieldType === IdentifierType.Enum) {
           this.getLatestBlock(SyntaxBlockKind.SingleTypedVariableGroup).data.enums = metadata.enums
         }
+        this.markData(SyntaxBlockKind.SingleTypedVariableGroup, {
+          typeParams: metadata.fieldTypeParams
+        })
         break
       }
       case SemanticContextType.FnDecl: {
-        const [{input, output}] = metadata.signatures
+        const [{input, output, inputParams, outputParams}] = metadata.signatures
         // align & write data
         const paramBlocks = this.context.kindBlocks
           .get(SyntaxBlockKind.Variable)
@@ -519,10 +521,12 @@ export default class SyntaxBlockBuilder {
           const type = input[i]
           const block = paramBlocks[i]
           block.data.type = type
+          block.data.typeParams = inputParams[i]
         }
 
         this.markData(SyntaxBlockKind.Func, {
           returnType: output,
+          returnTypeParams: outputParams,
           identifier: metadata.identifier
         })
         this.clearIdentifier(this.getLatestBlockId(SyntaxBlockKind.Func))
