@@ -183,6 +183,8 @@ export const IdentifierType = {
   Real: 11,
   Bool: 12,
 
+  BitVector: 13,
+
   Hole: -1, // The Epsilon type, used to prevent triggering duplicated type error msg
 }
 

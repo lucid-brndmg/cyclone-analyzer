@@ -554,7 +554,10 @@ export default class SyntaxBlockBuilder {
           involvedStates,
           keyword,
           identifier,
-          labelKeyword
+          labelKeyword,
+
+          involvedRelations,
+          isAnonymous
         } = metadata
 
         this.markData(SyntaxBlockKind.Transition, {
@@ -567,7 +570,9 @@ export default class SyntaxBlockBuilder {
           involvedStates,
           keyword,
           identifier,
-          labelKeyword
+          labelKeyword,
+          involvedRelations,
+          isAnonymous
         })
 
         break

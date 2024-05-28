@@ -107,8 +107,17 @@ export const typeTokenToType = {
   "bool": IdentifierType.Bool,
   "real": IdentifierType.Real,
   "string": IdentifierType.String,
-  "enum": IdentifierType.Enum
+  "enum": IdentifierType.Enum,
+  "bv": IdentifierType.BitVector,
 }
+
+const numberBitBinOpSignature = [
+  {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Int},
+  {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Real},
+  {input: [IdentifierType.Real, IdentifierType.Real], output: IdentifierType.Real},
+  {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Real},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.BitVector}
+]
 
 const numberBinOpSignature = [
   {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Int},
@@ -122,11 +131,12 @@ const boolBinOpSignature = [
   // {input: [IdentifierType.State, IdentifierType.State], output: IdentifierType.Bool}
 ]
 
-const compareNumberBinOpSignature = [
+const compareNumberBitBinOpSignature = [
   {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Bool},
   {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Bool},
   {input: [IdentifierType.Real, IdentifierType.Real], output: IdentifierType.Bool},
   {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Bool},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Bool}
 ]
 
 const compareValueBinOpSignature = [
@@ -138,6 +148,7 @@ const compareValueBinOpSignature = [
   {input: [IdentifierType.Enum, IdentifierType.Enum], output: IdentifierType.Bool},
   {input: [IdentifierType.String, IdentifierType.String], output: IdentifierType.Bool},
   {input: [IdentifierType.Char, IdentifierType.Char], output: IdentifierType.Bool},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Bool}
 ]
 
 const assignValueBinOpSignature = [
@@ -149,6 +160,15 @@ const assignValueBinOpSignature = [
   {input: [IdentifierType.Enum, IdentifierType.Enum], output: IdentifierType.Hole},
   {input: [IdentifierType.String, IdentifierType.String], output: IdentifierType.Hole},
   {input: [IdentifierType.Char, IdentifierType.Char], output: IdentifierType.Hole},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Hole}
+]
+
+const assignNumberBitBinOpSignature = [
+  {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Hole},
+  {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Hole},
+  {input: [IdentifierType.Real, IdentifierType.Real], output: IdentifierType.Hole},
+  {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Hole},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Hole}
 ]
 
 const assignNumberBinOpSignature = [
@@ -167,25 +187,39 @@ const numberUnaryOpSignature = [
   {input: [IdentifierType.Real], output: IdentifierType.Real},
 ]
 
+const numberBitUnaryOpSignature = [
+  {input: [IdentifierType.Int], output: IdentifierType.Int},
+  {input: [IdentifierType.Real], output: IdentifierType.Real},
+  {input: [IdentifierType.BitVector], output: IdentifierType.BitVector}
+]
+
 const numberUnaryHoleOpSignature = [
   {input: [IdentifierType.Int], output: IdentifierType.Hole},
   {input: [IdentifierType.Real], output: IdentifierType.Hole},
 ]
 
+const bitUnaryOpSignature = [
+  {input: [IdentifierType.BitVector], output: IdentifierType.BitVector}
+]
+
+const bitBinOpSignature = [
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.BitVector}
+]
+
 const infixOperators = [
   // numbers
-  {action: '+', signatures: numberBinOpSignature},
-  {action: '-', signatures: numberBinOpSignature},
-  {action: '*', signatures: numberBinOpSignature},
+  {action: '+', signatures: numberBitBinOpSignature},
+  {action: '-', signatures: numberBitBinOpSignature},
+  {action: '*', signatures: numberBitBinOpSignature},
+  {action: '%', signatures: numberBitBinOpSignature},
   {action: '/', signatures: numberBinOpSignature},
   {action: '**', signatures: numberBinOpSignature},
-  {action: '%', signatures: numberBinOpSignature},
 
   // num compare
-  {action: '<', signatures: compareNumberBinOpSignature},
-  {action: '>', signatures: compareNumberBinOpSignature},
-  {action: '<=', signatures: compareNumberBinOpSignature},
-  {action: '>=', signatures: compareNumberBinOpSignature},
+  {action: '<', signatures: compareNumberBitBinOpSignature},
+  {action: '>', signatures: compareNumberBitBinOpSignature},
+  {action: '<=', signatures: compareNumberBitBinOpSignature},
+  {action: '>=', signatures: compareNumberBitBinOpSignature},
 
   // val compare
   {action: '==', signatures: compareValueBinOpSignature},
@@ -197,18 +231,25 @@ const infixOperators = [
   {action: '||', signatures: boolBinOpSignature},
   {action: '=>', signatures: boolBinOpSignature},
 
+  // bitwise
+  {action: "&", signatures: bitBinOpSignature},
+  {action: "|", signatures: bitBinOpSignature},
+  {action: "<<", signatures: bitBinOpSignature},
+  {action: ">>", signatures: bitBinOpSignature},
+
   // assign
   {action: '=', signatures: assignValueBinOpSignature, mutation: [0]},
-  {action: '+=', signatures: assignNumberBinOpSignature, mutation: [0]},
-  {action: '-=', signatures: assignNumberBinOpSignature, mutation: [0]},
-  {action: '*=', signatures: assignNumberBinOpSignature, mutation: [0]},
+  {action: '+=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
+  {action: '-=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
+  {action: '*=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
   {action: '/=', signatures: assignNumberBinOpSignature, mutation: [0]},
 ]
 
 const prefixOperators = [
   {action: '!', signatures: boolUnaryOpSignature},
-  {action: '+', signatures: numberUnaryOpSignature},
-  {action: '-', signatures: numberUnaryOpSignature}
+  {action: '+', signatures: numberBitUnaryOpSignature},
+  {action: '-', signatures: numberUnaryOpSignature},
+  {action: '~', signatures: bitUnaryOpSignature}
 ]
 
 const suffixOperators = [
@@ -232,7 +273,8 @@ export const optionAcceptableValues = new Map([
   ["detect", {values: optBoolValues}],
   ["output", {values: [`"trace"`, `"dot"`, `"html"`]}],
   ["timeout", {regex: /^\d*$/, description: "integer values"}],
-  ["precision", {regex: /^\d*$/, description: "integer values"}]
+  ["precision", {regex: /^\d*$/, description: "integer values"}],
+  ["bvdisplay", {regex: /^'[0-9a-zA-Z]'$/, description: "character literal"}]
 ])
 
 export const syntaxBlockIdPrefix = {

@@ -12,7 +12,7 @@ lexer grammar CycloneLexer;
 ARROW 		 : '->';
 BI_ARROW     : '<->';
 AT_SIGN    	 :  '@';
-BAR 		 : '|';
+BAR 		 : '|'; // BITWISE_OR
 COLON 		 : ':';
 COLON_COLON	 : '::';
 COLON_EQUAL	 : ':=';
@@ -42,6 +42,9 @@ IMPLIES      : '=>';
 NOT          : '!';
 HAT          : '^';
 P_OP_ONE     : '_';
+BIT_AND      : '&';
+BIT_NEGATION : '~';
+
 //P_OP_ONE_OR_TWO: '?';
 //P_OP_ONE_OR_MORE: '*';
 //P_OP_TWO_OR_MORE: '+';
@@ -71,6 +74,7 @@ TRACE: 'trace';
 PRECISION: 'precision';
 TIMEOUT: 'timeout';
 DETECT: 'detect';
+BVDISPLAY: 'bvdisplay';
 
 //keywords
 STATE		 : 'state';
@@ -122,16 +126,20 @@ FUNCTION     : 'function';
 RETURN       : 'return';
 IF           : 'if';
 ELSE         : 'else';
+BV           : 'bv';
 
 INTLITERAL:
     ('0'..'9')+ 
     ;
 
+BVLITERAL:
+    ('0x' [0-9a-fA-F]+ )
+    | ([01]+[bB])
+    ;
+
 REALLITERAL:
    DIGIT+ '.' DIGIT+ 
 ;
-
-//SIGN_INT (DOT INTLITERAL) ? 
 
 CHARLITERAL
     :   '\'' 

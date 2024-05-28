@@ -574,8 +574,8 @@ export default class SemanticAnalyzer {
     }
   }
 
-  // 'int', 'real', 'bool', etc
-  handleTypeToken(typeText, position) {
+  // 'int', 'real', 'bool', 'bv', 'char', 'enum', etc
+  handleTypeToken(typeText, position, params = []) {
     const block = this.context.peekBlock()
     if (!block) {
       console.log("warn: block type not found")
@@ -922,11 +922,6 @@ export default class SemanticAnalyzer {
     block.metadata.value = lit
     // this.emitLangComponent(context, {name: optName, value: lit})
 
-    const opt = optionAcceptableValues.get(optName)
-    if (!opt) {
-      return
-    }
-
     if (this.context.isOptionDefined(optName)) {
       this.emit("errors", [{
         ...position,
@@ -938,24 +933,27 @@ export default class SemanticAnalyzer {
     }
 
     const es = []
+    const opt = optionAcceptableValues.get(optName)
+    if (opt) {
+      const {values, regex, description} = opt
+      if (values && !values.includes(lit)) {
+        es.push({
+          ...position,
 
-    const {values, regex, description} = opt
-    if (values && !values.includes(lit)) {
-      es.push({
-        ...position,
+          type: SemanticErrorType.TypeMismatchCompilerOption,
+          params: {ident: optName, expected: values}
+        })
+      }
 
-        type: SemanticErrorType.TypeMismatchCompilerOption,
-        params: {ident: optName, expected: values}
-      })
-    }
+      if (regex && !regex.test(lit)) {
+        es.push({
+          ...position,
 
-    if (regex && !regex.test(lit)) {
-      es.push({
-        ...position,
+          type: SemanticErrorType.TypeMismatchCompilerOption,
+          params: {ident: optName, desc: description}
+        })
+      }
 
-        type: SemanticErrorType.TypeMismatchCompilerOption,
-        params: {ident: optName, desc: description}
-      })
     }
 
     this.context.addDefinedOption(optName, lit, position)

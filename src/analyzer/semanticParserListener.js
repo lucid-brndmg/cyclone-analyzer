@@ -560,8 +560,20 @@ export default class SemanticParserListener extends CycloneParserListener {
     this.analyzer.handleTypeToken(text, getBlockPositionPair(ctx))
   }
 
+  enterBvType(ctx) {
+    this.analyzer.handleTypeToken("bv", getBlockPositionPair(ctx), [
+      ctx.children
+        .filter(c => c instanceof CycloneParser.IntLiteralContext)
+        .map(it => it.start.text)
+    ])
+  }
+
   #handleLiteral(type, ctx) {
     this.analyzer.handleLiteral(type, ctx.start.text, getBlockPositionPair(ctx))
+  }
+
+  enterBvLiteral(ctx) {
+    this.#handleLiteral(IdentifierType.BitVector, ctx)
   }
 
   enterBoolLiteral(ctx) {

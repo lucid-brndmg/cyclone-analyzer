@@ -24,6 +24,7 @@ optionName:
   | PRECISION
   | TIMEOUT
   | DETECT
+  | BVDISPLAY
   ;
 
 program:
@@ -235,6 +236,7 @@ literal:
   | stringLiteral
   | charLiteral
   | enumLiteral
+  | bvLiteral
   ;
 
 intLiteral: INTLITERAL;
@@ -242,6 +244,7 @@ realLiteral: REALLITERAL;
 boolLiteral: BOOLLITERAL;
 stringLiteral: STRINGLITERAL;
 charLiteral: CHARLITERAL;
+bvLiteral: BVLITERAL;
 
 // consider drop(1) (the #) when register?
 enumLiteral:
@@ -302,6 +305,14 @@ modifier:
 type:
   primitiveType
   | enumType
+  | bvType
+  ;
+
+primitiveBvType:
+  primitiveType | bvType;
+
+bvType:
+  BV LBRACK INTLITERAL RBRACK
   ;
 
 primitiveType:
@@ -370,7 +381,15 @@ conditionalAndExpression:
   ;
 
 conditionalXorExpression:
-  equalityExpression (HAT equalityExpression)*
+  bitwiseOrExpression (HAT bitwiseOrExpression)*
+  ;
+
+bitwiseOrExpression:
+  bitwiseAndExpression (BAR bitwiseAndExpression)*
+  ;
+
+bitwiseAndExpression:
+  equalityExpression (BIT_AND equalityExpression)*
   ;
 
 equalityExpression:
@@ -378,7 +397,11 @@ equalityExpression:
   ;
 
 relationalExpression:
-  additiveExpression (( LESS_EQUAL | GREATER_EQUAL | LESS | GREATER) additiveExpression)*
+  bitShiftExpression (( LESS_EQUAL | GREATER_EQUAL | LESS | GREATER) bitShiftExpression)*
+  ;
+
+bitShiftExpression:
+  additiveExpression ((SHIFT_LEFT | SHIFT_RIGHT) additiveExpression)*
   ;
 
 additiveExpression:
@@ -398,8 +421,10 @@ unaryExpression:
   | MINUS unaryExpression
   | unaryExpressionNotPlusMinus
   ;
+
 unaryExpressionNotPlusMinus:
   NOT unaryExpression
+  | BIT_NEGATION unaryExpression
   | primary (MINUS_MINUS | PLUS_PLUS)?
   ;
 
@@ -419,7 +444,7 @@ initialExpr:
 //  PREV LPAREN identifier RPAREN;
 
 functionDeclaration:
-  FUNCTION (identifier) COLON primitiveType
+  FUNCTION (identifier) COLON primitiveBvType
   functionBodyScope
   ;
 
@@ -439,7 +464,7 @@ functionParamsDecl:
   ;
 
 functionParam:
-  identifier COLON primitiveType
+  identifier COLON primitiveBvType
   ;
 
 returnExpr:

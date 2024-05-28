@@ -401,6 +401,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#bvLiteral.
+	enterBvLiteral(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#bvLiteral.
+	exitBvLiteral(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#enumLiteral.
 	enterEnumLiteral(ctx) {
 	}
@@ -497,6 +506,24 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 
 	// Exit a parse tree produced by CycloneParser#type.
 	exitType(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#primitiveBvType.
+	enterPrimitiveBvType(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#primitiveBvType.
+	exitPrimitiveBvType(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#bvType.
+	enterBvType(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#bvType.
+	exitBvType(ctx) {
 	}
 
 
@@ -626,6 +653,24 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#bitwiseOrExpression.
+	enterBitwiseOrExpression(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#bitwiseOrExpression.
+	exitBitwiseOrExpression(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#bitwiseAndExpression.
+	enterBitwiseAndExpression(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#bitwiseAndExpression.
+	exitBitwiseAndExpression(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#equalityExpression.
 	enterEqualityExpression(ctx) {
 	}
@@ -641,6 +686,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 
 	// Exit a parse tree produced by CycloneParser#relationalExpression.
 	exitRelationalExpression(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#bitShiftExpression.
+	enterBitShiftExpression(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#bitShiftExpression.
+	exitBitShiftExpression(ctx) {
 	}
 
 
