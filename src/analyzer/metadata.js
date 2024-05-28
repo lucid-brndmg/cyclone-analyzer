@@ -54,12 +54,19 @@ const functionDeclarationMetadata = () => ({
   // }
 
   // function signatures
-  signatures: [{
+  // signatures: [{
+  //   input: [], // parameter types
+  //   output: IdentifierType.Hole, // return type
+  //   inputParams: [], // [[x]]
+  //   outputParams: [] // [x]
+  // }],
+
+  signature: {
     input: [], // parameter types
     output: IdentifierType.Hole, // return type
     inputParams: [], // [[x]]
     outputParams: [] // [x]
-  }]
+  }
 })
 
 // metadata for function application

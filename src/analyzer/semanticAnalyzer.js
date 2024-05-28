@@ -192,9 +192,9 @@ export default class SemanticAnalyzer {
         machineCtx.actionTable.push(ActionKind.Function, identText, {
           action: identText,
           kind: ActionKind.Function,
-          signatures: block.metadata.signatures
+          signature: block.metadata.signature
         })
-        fnSignature = block.metadata.signatures[0]
+        fnSignature = block.metadata.signature
         // block.metadata.identifier = identText
         break
       }
@@ -588,16 +588,16 @@ export default class SemanticAnalyzer {
 
     switch (blockType) {
       case SemanticContextType.FnDecl: {
-        block.metadata.signatures[0].output = type
-        block.metadata.signatures[0].outputParams = params
+        block.metadata.signature.output = type
+        block.metadata.signature.outputParams = params
         break
       }
 
       case SemanticContextType.FnParamsDecl: {
         const fnBlock = this.context.findNearestBlock(SemanticContextType.FnDecl)
         if (fnBlock) {
-          fnBlock.metadata.signatures[0].input.push(type)
-          fnBlock.metadata.signatures[0].inputParams.push(params)
+          fnBlock.metadata.signature.input.push(type)
+          fnBlock.metadata.signature.inputParams.push(params)
           const currentIdentText = block.metadata.identifier
           const machineCtx = this.context.currentMachineBlock.metadata
           const currentIdent = machineCtx.identifierStack.findLast(currentIdentText, ({kind}) => kind === IdentifierKind.FnParam)
@@ -721,24 +721,6 @@ export default class SemanticAnalyzer {
     let pass = false
     const es = []
     const {signatures, mutation} = fn
-
-    // if (mutation?.length && identList?.length) {
-    //   // const iterLength = Math.min(mutation.length, identList.length)
-    //   for (let i = 0; i < identList.length; i++) {
-    //     const ident = identList[i]
-    //     if (ident && mutation.includes(i)) {
-    //       const {identifier, position} = ident
-    //       const info = this.context.peekIdentifier(identifier, [IdentifierKind.LocalVariable, IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record, IdentifierKind.FnParam, IdentifierKind.RecordField])
-    //       if (info?.kind === IdentifierKind.GlobalConst) {
-    //         es.push({
-    //           type: SemanticErrorType.ConstantMutation,
-    //           ...position,
-    //           params: {ident: identifier}
-    //         })
-    //       }
-    //     }
-    //   }
-    // }
     for (const signature of signatures) {
       const inputExpectedLength = signature.input.length
       if (inputExpectedLength !== inputActualLength) {
@@ -1198,7 +1180,7 @@ export default class SemanticAnalyzer {
     }
 
     const type = this.context.popTypeStack()?.type ?? IdentifierType.Hole
-    const expectedType = decl.metadata.signatures[0].output
+    const expectedType = decl.metadata.signature.output
     if (type !== expectedType) {
       this.emit("errors", [{
         ...position,

@@ -511,7 +511,7 @@ export default class SyntaxBlockBuilder {
         break
       }
       case SemanticContextType.FnDecl: {
-        const [{input, output, inputParams, outputParams}] = metadata.signatures
+        const {input, output, inputParams, outputParams} = metadata.signature
         // align & write data
         const paramBlocks = this.context.kindBlocks
           .get(SyntaxBlockKind.Variable)

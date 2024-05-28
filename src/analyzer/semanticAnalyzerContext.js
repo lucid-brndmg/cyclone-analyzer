@@ -182,15 +182,16 @@ export default class SemanticAnalyzerContext {
 
   getAction(actionKind, action) {
     // TODO: optimize certain action kind
-
     const machine = this.currentMachineBlock
-    let fn = machine.metadata.actionTable.peek(actionKind, action)
-    if (!fn) {
-      // public actions
-      fn = this.#actionTable.peek(actionKind, action)
+    const fn = machine.metadata.actionTable.peek(actionKind, action)
+    if (fn) {
+      return {
+        signatures: [fn.signature],
+      }
     }
 
-    return fn
+    // public actions
+    return this.#actionTable.peek(actionKind, action)
   }
 
   addDefinedOption(option, literal, position) {
