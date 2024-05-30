@@ -8,6 +8,7 @@ import {
   getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext, firstSymbolObject, getIdentTextPos
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
+import {variableTypes} from "../language/specifications.js";
 
 
 /*
@@ -562,7 +563,7 @@ export default class SemanticParserListener extends CycloneParserListener {
 
   enterBvType(ctx) {
     const sizeLit = ctx.children[2]?.symbol.text ?? ""
-    this.analyzer.handleTypeToken("bv", getBlockPositionPair(ctx), [parseInt(sizeLit)])
+    this.analyzer.handleTypeToken("bv", getBlockPositionPair(ctx), sizeLit !== "" ? [parseInt(sizeLit)] : null)
   }
 
   #handleLiteral(type, ctx) {
@@ -687,14 +688,7 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitFreshExpr(ctx) {
-    this.analyzer.deduceToMultiTypes([
-      IdentifierType.Bool,
-      IdentifierType.Real,
-      IdentifierType.Int,
-      IdentifierType.Enum,
-      IdentifierType.String,
-      IdentifierType.Char
-    ], getBlockPositionPair(ctx), IdentifierType.Hole)
+    this.analyzer.deduceToMultiTypes(variableTypes, getBlockPositionPair(ctx), IdentifierType.Hole, "fresh", true)
   }
 
   enterCompOptions(ctx) {

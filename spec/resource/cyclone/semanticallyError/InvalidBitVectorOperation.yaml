@@ -1,0 +1,79 @@
+expectedErrors: ["InvalidBitVectorOperation"]
+cases:
+  - |
+    graph bv_tc2{
+    	bv[10] a;
+    	bv[8] b;
+    	normal final start node S{
+    		a+b;
+    	}
+    }
+  - |
+    graph G {
+      function f:int (a: bv[8]) {
+        return 100;
+      }
+      
+      bv[10] x;
+      int y = f(x);
+    }
+  - |
+    graph G {
+      function f:bv[8] (a: int) {
+        return 0x01;
+      }
+    
+      bv[10] x = f(0);
+    }
+  - |
+    graph G {
+      bv[8] x = 0x00;
+      bv[10] y = x;
+    }
+casesCounter:
+  - |
+    option-trace=true;
+
+    graph bv_tc3{
+    	bv[4] a,b,c;
+
+    	function sub:bv[4](x:bv[4],y:bv[4]){
+    		return x+y;
+    	}
+
+    	normal start final node S{
+    		a=sub(b,c);
+    	}
+
+    	edge{ S -> S }
+
+    	goal{
+
+    		assert (initial(a)>=0001b);
+    		check for 3
+    	}
+
+    }
+  - |
+    option-trace=true;
+
+    graph bv_tc1{
+    	int a;
+    	bv[2] c;
+    	bv[2] d;
+    	int b;
+
+    	normal final start node S{
+    		c+=01b;
+    	}
+
+    	edge { S -> S }
+
+    	invariant inv {c>=00b && c<=11b;}
+
+    	goal{
+    		//assert (initial(c)==00b);
+    		check for 3
+    	}
+
+    }

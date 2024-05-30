@@ -1,6 +1,6 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "description": "A static analyzer library for the Cyclone specification language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",

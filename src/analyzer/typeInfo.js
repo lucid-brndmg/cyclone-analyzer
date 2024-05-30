@@ -2,6 +2,7 @@ import {IdentifierKind, IdentifierType, SemanticContextType} from "../language/d
 
 export default class TypeInfo {
   type
+  typeParams
   isActionCall
   identifier
   isLiteral
@@ -10,6 +11,7 @@ export default class TypeInfo {
 
   constructor(
     type,
+    typeParams = null,
     isActionCall = false,
     identifier = null,
     identifierKind = null,
@@ -22,19 +24,24 @@ export default class TypeInfo {
     this.isLiteral = isLiteral
     this.identifierKind = identifierKind
     this.metadata = metadata
+    this.typeParams = typeParams
   }
 
   static hole(metadata = null) {
     // TODO: global public instance?
-    return new TypeInfo(IdentifierType.Hole, false, null, null, false, metadata)
+    return new TypeInfo(IdentifierType.Hole, null, false, null, null, false, metadata)
   }
 
   static literal(type, metadata = null) {
-    return new TypeInfo(type, false, null, null, true, metadata)
+    return new TypeInfo(type, null, false, null, null, true, metadata)
   }
 
-  static identifier(type, identifier, kind, metadata = null) {
-    return new TypeInfo(type, false, identifier, kind, false, metadata)
+  static identifier(type, typeParams, identifier, kind, metadata = null) {
+    return new TypeInfo(type, typeParams, false, identifier, kind, false, metadata)
+  }
+
+  static action(type, typeParams = null) {
+    return new TypeInfo(type, typeParams, true)
   }
 
   isImmutable() {

@@ -27,6 +27,12 @@ cases:
       }
     }
 
+  - |
+    graph G {
+      const int x = 1;
+      int a = fresh(x);
+    }
+
 casesCounter:
   - |
     graph G {
@@ -36,4 +42,9 @@ casesCounter:
       node A {
         b = a;
       }
+    }
+  - |
+    graph G {
+      int x = 1;
+      int a = fresh(x);
     }

@@ -6,7 +6,7 @@ import {
   ActionKind,
   IdentifierKind,
   IdentifierType,
-  SemanticContextType,
+  SemanticContextType, SemanticErrorType,
   SyntaxBlockKind
 } from "./definitions.js";
 
@@ -317,6 +317,20 @@ export const identifierKindShouldHasReference = new Set([
   IdentifierKind.GlobalConst,
 ])
 
+export const variableTypes = [
+  IdentifierType.Bool,
+  IdentifierType.Real,
+  IdentifierType.Int,
+  IdentifierType.Enum,
+  IdentifierType.String,
+  IdentifierType.Char,
+  IdentifierType.BitVector
+]
+
+export const parametrizationTypes = new Set([
+  IdentifierType.BitVector
+])
+
 export default {
   scopedContextType,
   declarationContextType,
@@ -330,5 +344,7 @@ export default {
   optionAcceptableValues,
   syntaxBlockIdPrefix,
   literalBounds,
-  identifierKindShouldHasReference
+  identifierKindShouldHasReference,
+  variableTypes,
+  parametrizationTypes
 }

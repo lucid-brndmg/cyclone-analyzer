@@ -18,7 +18,7 @@ import {
   declarationGroupContextTypeToIdentifierKind, identifierKindShouldHasReference,
   identifierKindToType,
   identifierNoPushTypeStackBlocks, invalidNodeModifierCombo, literalBounds,
-  optionAcceptableValues,
+  optionAcceptableValues, parametrizationTypes,
   scopedContextType,
   singleTypedDeclarationGroupContextType,
   typeTokenToType
@@ -150,7 +150,7 @@ export default class SemanticAnalyzer {
   }
   referenceEnum(identText, position) {
     this.emit("identifier:reference", {references: [{text: identText, position, kinds: [IdentifierKind.EnumField]}]})
-    this.context.pushTypeStack(TypeInfo.identifier(IdentifierType.Enum, identText, IdentifierKind.EnumField))
+    this.context.pushTypeStack(TypeInfo.identifier(IdentifierType.Enum, null, identText, IdentifierKind.EnumField))
     const machine = this.context.currentMachineBlock
     if (!machine.metadata.enumFields.has(identText)) {
       this.emit("errors", [{
@@ -283,22 +283,20 @@ export default class SemanticAnalyzer {
         break
       }
     }
-
+    let typeParams = null
     if (singleTypedDeclarationGroupContextType.has(prev?.type)) {
       prev.metadata.identifiers.push(identText)
       if (recordIdent) {
         prev.metadata.parent = recordIdent
       }
+      typeParams = prev.metadata.fieldTypeParams
     }
-
-    // this.context.editorCtx.pushScopeLayerIdent(identText, type, identPos, identKind, blockType, this.context.scopedBlocks.length)
-
-    // this.emitLangComponent(context, payload)
 
     const info = {
       position: identPos,
       kind: identKind,
       type,
+      typeParams,
       text: identText,
       // recordIdent: null,
       recordChild: [],
@@ -306,12 +304,6 @@ export default class SemanticAnalyzer {
       fnParams: [],
       enums: type === IdentifierType.Enum ? prev.metadata.enums : undefined,
     }
-    // this.context.findNearestBlock(SemanticContextType.EnumDecl, SemanticContextType.RecordScope) === null
-    // && this.searchNearestBlock(
-    //   block => block.metadata?.blockCurrentRecord === true,
-    //   SemanticContextType.RecordScope,
-    //   // this.context.blockContextStack.length - scope.index
-    // ) === null
     if (recordIdent) {
       // info.recordIdent = recordIdent
 
@@ -487,7 +479,7 @@ export default class SemanticAnalyzer {
 
     if (!shouldNotPushTypeStackBlocks) {
       const ty = foundIdent?.type
-        ? TypeInfo.identifier(foundIdent.type, identText, foundIdent.kind)
+        ? TypeInfo.identifier(foundIdent.type, foundIdent.typeParams, identText, foundIdent.kind)
         : TypeInfo.hole()
       this.context.pushTypeStack(ty)
     }
@@ -535,7 +527,7 @@ export default class SemanticAnalyzer {
       this.context.pushTypeStack(TypeInfo.hole())
     } else {
       const recordField = machineCtx.recordFieldStack.peek(parentIdentText, identText)
-      this.context.pushTypeStack(TypeInfo.identifier(recordField.type, identText, IdentifierKind.RecordField, {parent: parentIdentText}))
+      this.context.pushTypeStack(TypeInfo.identifier(recordField.type, recordField.typeParams, identText, IdentifierKind.RecordField, {parent: parentIdentText}))
       machineCtx.referenceCounts.set(recordField, (machineCtx.referenceCounts.get(recordField) ?? 0) + 1)
     }
 
@@ -575,7 +567,7 @@ export default class SemanticAnalyzer {
   }
 
   // 'int', 'real', 'bool', 'bv', 'char', 'enum', etc
-  handleTypeToken(typeText, position, params = []) {
+  handleTypeToken(typeText, position, params = null) {
     const block = this.context.peekBlock()
     if (!block) {
       console.log("warn: block type not found")
@@ -603,6 +595,7 @@ export default class SemanticAnalyzer {
           const currentIdent = machineCtx.identifierStack.findLast(currentIdentText, ({kind}) => kind === IdentifierKind.FnParam)
           if (currentIdent) {
             currentIdent.type = type
+            currentIdent.typeParams = params
             // block.metadata.currentIdentifier = null
             const currentFn = machineCtx.identifierStack.findLast(fnBlock.metadata.identifier, ({kind}) => kind === IdentifierKind.FnName)
             if (currentFn) {
@@ -697,13 +690,63 @@ export default class SemanticAnalyzer {
     }
 
     return srcSet
+  }
 
-    // if (typeInfo.identifierKind === IdentifierKind.EnumField) {
-    // } else {
-    //   if (typeInfo.identifierKind === IdentifierKind.RecordField) {
-    //
-    //   }
-    // }
+  #actionTypeParamInheritance(inTypeInfos, signature) {
+    const outType = signature.output
+    if (parametrizationTypes.has(outType)) {
+      const fst = signature.outputParams
+        ?? inTypeInfos.find(info => info?.typeParams != null)?.typeParams
+      return TypeInfo.action(outType, fst)
+    }
+
+    return TypeInfo.action(outType)
+  }
+
+  #checkTypeParams(type, lParams, rParams) {
+    switch (type) {
+      case IdentifierType.BitVector: {
+        if (lParams && rParams && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
+          return {
+            type: SemanticErrorType.InvalidBitVectorOperation,
+            params: {lhs: lParams[0], rhs: rParams[0]}
+          }
+        }
+      }
+    }
+
+    return null
+  }
+
+  #checkSignatureParams(signature, stackSlice) {
+    const es = []
+
+    for (let i = 0; i < signature.inputParams.length; i++) {
+      const signParams = signature.inputParams[i]
+      const stackInfo = stackSlice[i]
+      if (!stackInfo || !signParams) {
+        continue
+      }
+      const stackParams = stackInfo.typeParams
+      const e = this.#checkTypeParams(stackInfo.type, signParams, stackParams)
+      if (e) {
+        es.push(e)
+      }
+
+      // switch (stackInfo.type) {
+      //   case IdentifierType.BitVector: {
+      //     if (stackParams != null && !isNaN(signParams[0]) && !isNaN(stackParams[0]) && signParams[0] !== stackParams[0]) {
+      //       es.push({
+      //         type: SemanticErrorType.InvalidBitVectorOperation,
+      //         params: {lhs: signParams[0], rhs: stackParams[0]}
+      //       })
+      //     }
+      //     break
+      //   }
+      // }
+    }
+
+    return es
   }
 
   deduceActionCall(actionKind, action, inputActualLength, position) {
@@ -727,12 +770,19 @@ export default class SemanticAnalyzer {
         continue
       }
       if (inputActualLength > 0) {
-        const types = this.context.sliceTypeStack(0 - inputActualLength).map(t => t?.type)
-        const {passed, hole} = checkSignature(signature.input, types)
+        const typeInfos = this.context.sliceTypeStack(0 - inputActualLength)
+        const {passed, hole} = checkSignature(signature.input, typeInfos.map(t => t?.type))
+
         if (passed) {
+          if (signature.inputParams) {
+            const paramErrors = this.#checkSignatureParams(signature, typeInfos)
+            if (paramErrors) {
+              es.push(...paramErrors.map(e => ({...e, ...position})))
+            }
+          }
           pass = true
           if (!hole) {
-            output = new TypeInfo(signature.output, true)
+            output = this.#actionTypeParamInheritance(typeInfos, signature) // TypeInfo.action(signature.output)
           }
           break
         }
@@ -756,21 +806,36 @@ export default class SemanticAnalyzer {
 
       if (actionKind === ActionKind.InfixOperator) {
         const [lhs, rhs] = this.context.sliceTypeStack(-2)
-        if (lhs && rhs && lhs.type === IdentifierType.Enum) {
-          const lSources = this.findEnumSourceDefinitions(lhs), rSources = this.findEnumSourceDefinitions(rhs)
+        if (lhs && rhs) {
+          switch (lhs.type) {
+            case IdentifierType.Enum: {
+              const lSources = this.findEnumSourceDefinitions(lhs), rSources = this.findEnumSourceDefinitions(rhs)
 
-          if (lSources && rSources && !elementEq(lSources, rSources)) {
-            es.push({
-              type: SemanticErrorType.OperatingDifferentEnumSources,
-              ...position,
-              params: {lhs: lSources, rhs: rSources}
-            })
+              if (lSources && rSources && !elementEq(lSources, rSources)) {
+                es.push({
+                  type: SemanticErrorType.OperatingDifferentEnumSources,
+                  ...position,
+                  params: {lhs: lSources, rhs: rSources}
+                })
+              }
+              break
+            }
+            default: {
+              const lParams = lhs?.typeParams, rParams = rhs?.typeParams
+              const e = this.#checkTypeParams(lhs.type, lParams, rParams)
+              if (e) {
+                es.push({...e, ...position})
+              }
+              // if (lParams?.length && rParams?.length && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
+              //   es.push({
+              //     type: SemanticErrorType.InvalidBitVectorOperation,
+              //     ...position,
+              //     params: {lhs: lParams[0], rhs: rParams[0]}
+              //   })
+              // }
+              break
+            }
           }
-
-          // const lSources = machineCtx.enumFields.peek(lLiteral)
-          // const rSources = machineCtx.enumFields.peek(rLiteral)
-
-          // console.log(lSources, rSources, lhs.identifierKind)
         }
       }
 
@@ -807,33 +872,42 @@ export default class SemanticAnalyzer {
       console.log("warn: invalid identifier when exit variableDecl", block)
       return
     }
-
-    const type = this.context.popTypeStack()?.type // int a = 1;
+    const tsInfo = this.context.popTypeStack()
+    const type = tsInfo?.type // int a = 1;
       ?? block.metadata?.fieldType // int a;
-    const isException = type === IdentifierType.Int && identInfo.type === IdentifierType.Real // that's dangerous ...
-    if (type !== identInfo.type && type !== IdentifierType.Hole && !isException) {
+    const expectedType = identInfo.type
+    const isException = type === IdentifierType.Int && expectedType === IdentifierType.Real // that's dangerous ...
+    if (type !== expectedType && type !== IdentifierType.Hole && !isException) {
       this.emit("errors", [{
         ...pos,
 
         type: SemanticErrorType.TypeMismatchVarDecl,
-        params: {ident, expected: identInfo.type, got: type}
+        params: {ident, expected: expectedType, got: type}
       }])
 
       // NO PUSH TO TYPE STACK AGAIN
+    } else if (tsInfo && type === expectedType) {
+      const e = this.#checkTypeParams(type, identInfo.typeParams, tsInfo.typeParams)
+      if (e) {
+        this.emit("errors", [{
+          ...pos,
+          ...e
+        }])
+      }
     }
-
 
     // this.resetTypeStack()
   }
 
   deduceToType(type, position = null, pushType = null, allowNull = false) {
-    const actualType = this.context.popTypeStack()?.type
+    const actualTypeInfo = this.context.popTypeStack()
+    const actualType = actualTypeInfo?.type
     const isCorrect = actualType === type
       || actualType === IdentifierType.Hole
       || (allowNull && actualType == null)
 
     if (pushType != null) {
-      this.context.pushTypeStack(new TypeInfo(pushType, true))
+      this.context.pushTypeStack(TypeInfo.action(pushType, actualType === pushType ? actualTypeInfo.typeParams : null))
     }
 
     if (!isCorrect) {
@@ -846,26 +920,43 @@ export default class SemanticAnalyzer {
     }
   }
 
-  deduceToMultiTypes(types, position, pushType = null, pushSelf = false) {
-    const actualType = this.context.popTypeStack()?.type
+  deduceToMultiTypes(types, position, pushType, action, isMutableOnly = false) {
+    const actualTypeInfo = this.context.popTypeStack()
+    const actualType = actualTypeInfo?.type
     const isCorrect = types.includes(actualType) || actualType === IdentifierType.Hole
 
-    if (pushType != null || pushSelf) {
-      this.context.pushTypeStack(new TypeInfo(pushType == null ? actualType : pushType, true))
+    if (pushType != null) {
+      const typeParams = parametrizationTypes.has(actualType) ? actualTypeInfo.typeParams : null
+      this.context.pushTypeStack(TypeInfo.action(pushType, typeParams))
     }
 
+    const es = []
+
     if (!isCorrect) {
-      this.emit("errors", [{
+      es.push({
         ...position,
 
         type: SemanticErrorType.TypeMismatchExpr,
         params: {expected: types, got: [actualType]}
-      }])
+      })
+    }
+
+    if (isMutableOnly && actualTypeInfo?.isImmutable()) {
+      es.push({
+        ...position,
+        type: SemanticErrorType.InvalidValueMutation,
+        params: {ident: actualTypeInfo.identifier, action}
+      })
+    }
+
+    if (es.length) {
+      this.emit("errors", es)
     }
   }
 
   deduceAllToType(type, position, pushType = null, atLeast = 1) {
-    const actualTypes = this.context.getTypeStack().map(ty => ty?.type)
+    const typeStack = this.context.getTypeStack()
+    const actualTypes = typeStack.map(ty => ty?.type)
     const isCorrect = (atLeast === 0 && actualTypes.length === 0)
       || (
         actualTypes.length >= atLeast
@@ -876,7 +967,8 @@ export default class SemanticAnalyzer {
       )
 
     if (pushType != null) {
-      this.context.resetTypeStack([new TypeInfo(pushType, true)])
+      const fstInfo = typeStack.find(info => info?.typeParams != null)
+      this.context.resetTypeStack([TypeInfo.action(pushType, fstInfo?.type === pushType ? fstInfo.typeParams : null)])
     }
 
     if (!isCorrect) {
@@ -1646,7 +1738,7 @@ export default class SemanticAnalyzer {
   }
 
   handleStateIncPathPrimaryExit() {
-    this.context.pushTypeStack(new TypeInfo(IdentifierType.Bool, true))
+    this.context.pushTypeStack(TypeInfo.action(IdentifierType.Bool))
   }
 
   handleAnalyzeOptions() {

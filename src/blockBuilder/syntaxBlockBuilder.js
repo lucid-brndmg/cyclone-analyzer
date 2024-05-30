@@ -1154,13 +1154,14 @@ export default class SyntaxBlockBuilder {
     })
   }
 
-  insertVariableGroup(parentId, varKind, enums = null, type = null) {
+  insertVariableGroup(parentId, varKind, enums = null, type = null, typeParams = null) {
     // const {type, identifier, codeWhere, codeInit} = firstVariable
 
     return this.insertBlock(SyntaxBlockKind.SingleTypedVariableGroup, parentId, {
       enums,
       varKind,
-      type
+      type,
+      typeParams
     })
 
     // this.createBlock(SyntaxBlockKind.Variable, null, group.id, {
@@ -1203,13 +1204,16 @@ export default class SyntaxBlockBuilder {
     }
   }
 
-  insertVariable(groupId, identifier, codeInit, codeWhere, type, kind) {
+  insertVariable(groupId, identifier, codeInit, codeWhere, type, typeParams, kind) {
     const parent = this.getBlockById(groupId)
     if (!parent) {
       return null
     }
     if (parent.data.type == null && type != null) {
       parent.data.type = type
+      if (typeParams != null) {
+        parent.data.typeParams = typeParams
+      }
     }
     return this.insertBlock(SyntaxBlockKind.Variable, groupId, {
       identifier,
@@ -1220,7 +1224,7 @@ export default class SyntaxBlockBuilder {
     })
   }
 
-  updateVariable(block, identifier, codeInit, codeWhere, type, isRefactorMode) {
+  updateVariable(block, identifier, codeInit, codeWhere, type, typeParams, isRefactorMode) {
     if (codeInit != null) {
       block.data.codeInit = codeInit
     }
@@ -1231,6 +1235,10 @@ export default class SyntaxBlockBuilder {
 
     if (type != null) {
       block.data.type = type
+    }
+
+    if (typeParams != null) {
+      block.data.typeParams = typeParams
     }
 
     if (identifier) {
@@ -1361,9 +1369,9 @@ export default class SyntaxBlockBuilder {
     this.markDirty()
   }
 
-  insertFunction(identifier, returnType) {
+  insertFunction(identifier, returnType, returnTypeParams) {
     // manually insert local variables + parameter variables after
-    const fnBlock = this.insertBlock(SyntaxBlockKind.Func, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier, returnType})
+    const fnBlock = this.insertBlock(SyntaxBlockKind.Func, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier, returnType, returnTypeParams})
 
     this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id)
 
@@ -1380,9 +1388,13 @@ export default class SyntaxBlockBuilder {
     return s
   }
 
-  updateFunction(block, identifier, returnType, codeVariables, codeBody, isRefactorMode = true) {
+  updateFunction(block, identifier, returnType, returnTypeParams, codeVariables, codeBody, isRefactorMode = true) {
     if (returnType != null) {
       block.data.returnType = returnType
+    }
+
+    if (returnTypeParams != null) {
+      block.data.returnTypeParams = returnTypeParams
     }
 
     if (codeVariables != null) {
