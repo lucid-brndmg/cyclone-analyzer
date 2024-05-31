@@ -1,4 +1,5 @@
 import {IdentifierType} from "../language/definitions.js";
+import {hexLiteralBinaryLength} from "../lib/string.js";
 
 export const checkSignature = (expected, actual) => {
   if (expected.length !== actual.length) {
@@ -62,8 +63,20 @@ export const typeToString = (ty, tyParams = null) => {
 
 export const typeFromString = ty => msgTypeRepr[ty] ?? IdentifierType.Hole
 
+export const bitVectorLiteralSize = bvLiteralString => {
+  if (bvLiteralString.endsWith("b") || bvLiteralString.endsWith("B")) {
+    return bvLiteralString.slice(0, -1).length
+  }
+  if (bvLiteralString.startsWith("0x") || bvLiteralString.startsWith("0X")) {
+    return hexLiteralBinaryLength(bvLiteralString)
+  }
+
+  return NaN
+}
+
 export default {
   checkSignature,
   typeToString,
-  typeFromString
+  typeFromString,
+  bitVectorLiteralSize
 }

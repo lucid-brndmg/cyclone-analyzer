@@ -39,6 +39,7 @@ export const SemanticErrorType = {
   CheckUnsupportedRangeMode: 2022,
   InvalidCheckForModes: 2023,
   InvalidBitVectorOperation: 2024,
+  InvalidBitVectorSize: 2025,
 
   // Type Errors
   TypeMismatchFunction: 3001,

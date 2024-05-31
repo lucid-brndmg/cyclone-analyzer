@@ -1,0 +1,26 @@
+expectedErrors: ["InvalidBitVectorSize"]
+cases:
+  - |
+    graph G {
+      bv[2147483648] d;
+
+      start final state S {}
+
+      edge {S -> S}
+
+      goal {
+        check for 1
+      }
+    }
+  - |
+    graph G {
+      bv[0] d;
+
+      start final state S {}
+
+      edge {S -> S}
+
+      goal {
+        check for 1
+      }
+    }

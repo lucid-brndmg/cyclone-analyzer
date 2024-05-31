@@ -39,7 +39,7 @@ import {
   isAnonymousEdge,
   isClosureEdge, possibleMaxPathLength
 } from "../utils/edge.js";
-import {checkSignature} from "../utils/type.js";
+import {bitVectorLiteralSize, checkSignature} from "../utils/type.js";
 import TypeInfo from "./typeInfo.js";
 import {elementEq, firstOfSet} from "../lib/set.js";
 
@@ -128,18 +128,6 @@ export default class SemanticAnalyzer {
     this.emitBlock(true, payload, blockContent)
   }
 
-  // handlePopSingleDeclGroup(block) {
-  //   const {enums, identifiers, parent} = block.metadata
-  //   if (enums.length) {
-  //     const machineMeta = this.context.currentMachineBlock.metadata
-  //     const enumSet = new Set(enums)
-  //     const identifierSet = new Set(identifiers.map(id => parent ? [parent, id].join(".") : id))
-  //     for (let enumDef of enumSet) {
-  //       machineMeta.enumFields.push(enumDef, identifierSet)
-  //     }
-  //   }
-  // }
-
   popBlock(payload) {
     const block = this.context.peekBlock()
     // if (singleTypedDeclarationGroupContextType.has(block.type)) {
@@ -223,19 +211,17 @@ export default class SemanticAnalyzer {
       // && this.context.peekBlock().type !== SemanticContextType.EnumDecl
     const recordDecl = isRecordMemberDef ? this.context.findNearestBlock(SemanticContextType.RecordDecl) : null
     const recordIdent = recordDecl?.metadata.identifier // this.context
-    const payload = {
-      text: identText,
-      type,
-      position: identPos,
-      kind: identKind,
-      blockType,
-      recordIdent
-      // isEnum
-    }
-
-    this.emit("identifier:register", payload)
-
     if (isEnum) {
+      const payload = {
+        text: identText,
+        type,
+        position: identPos,
+        kind: identKind,
+        blockType,
+        recordIdent,
+        isEnum // true
+      }
+      this.emit("identifier:register", payload)
       return
     }
 
@@ -295,15 +281,18 @@ export default class SemanticAnalyzer {
     const info = {
       position: identPos,
       kind: identKind,
+      text: identText,
       type,
       typeParams,
-      text: identText,
-      // recordIdent: null,
+      recordIdent,
+      blockType,
       recordChild: [],
       fnSignature,
       fnParams: [],
       enums: type === IdentifierType.Enum ? prev.metadata.enums : undefined,
+      isEnum // false
     }
+    this.emit("identifier:register", info)
     if (recordIdent) {
       // info.recordIdent = recordIdent
 
@@ -566,6 +555,25 @@ export default class SemanticAnalyzer {
     }
   }
 
+  #checkTypeParams(type, params) {
+    if (!params) {
+      return
+    }
+
+    switch (type) {
+      case IdentifierType.BitVector: {
+        const [size] = params
+        if (size < 1 || size > 2147483647) {
+          return {
+            type: SemanticErrorType.InvalidBitVectorSize,
+          }
+        }
+
+        break
+      }
+    }
+  }
+
   // 'int', 'real', 'bool', 'bv', 'char', 'enum', etc
   handleTypeToken(typeText, position, params = null) {
     const block = this.context.peekBlock()
@@ -577,6 +585,7 @@ export default class SemanticAnalyzer {
     const type = typeTokenToType[typeText]
       ?? IdentifierType.Hole
     const blockType = block.type
+    const es = []
 
     switch (blockType) {
       case SemanticContextType.FnDecl: {
@@ -620,17 +629,27 @@ export default class SemanticAnalyzer {
           block.metadata.fieldTypeParams = params
 
           if ((blockType === SemanticContextType.GlobalConstantGroup || blockType === SemanticContextType.LocalVariableGroup) && typeText === "enum") {
-            this.emit("errors", [{
+            es.push({
               ...position,
 
               type: SemanticErrorType.EnumNotAllowedInVariable,
-            }])
+            })
           }
         }
 
         break
 
       }
+    }
+    if (params) {
+      const e = this.#checkTypeParams(type, params)
+      if (e) {
+        es.push({...e, ...position})
+      }
+    }
+
+    if (es.length) {
+      this.emit("errors", es)
     }
   }
 
@@ -703,10 +722,12 @@ export default class SemanticAnalyzer {
     return TypeInfo.action(outType)
   }
 
-  #checkTypeParams(type, lParams, rParams) {
+  #checkOperateTypeParams(type, lParams, rParams) {
     switch (type) {
       case IdentifierType.BitVector: {
-        if (lParams && rParams && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
+        if ( lParams && rParams && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
+
+
           return {
             type: SemanticErrorType.InvalidBitVectorOperation,
             params: {lhs: lParams[0], rhs: rParams[0]}
@@ -718,7 +739,7 @@ export default class SemanticAnalyzer {
     return null
   }
 
-  #checkSignatureParams(signature, stackSlice) {
+  #checkSignatureParams(signature, stackSlice, isMutOpOrFnCall) {
     const es = []
 
     for (let i = 0; i < signature.inputParams.length; i++) {
@@ -728,7 +749,9 @@ export default class SemanticAnalyzer {
         continue
       }
       const stackParams = stackInfo.typeParams
-      const e = this.#checkTypeParams(stackInfo.type, signParams, stackParams)
+      const e = this.#checkOperateTypeParams(stackInfo.type, signParams, stackParams,
+        // TypeInfo.signature(signature.input[i], signParams), stackInfo, isMutOpOrFnCall
+      )
       if (e) {
         es.push(e)
       }
@@ -763,7 +786,8 @@ export default class SemanticAnalyzer {
     let output = TypeInfo.hole()
     let pass = false
     const es = []
-    const {signatures, mutation} = fn
+    const {signatures, mutation, isFromMachine} = fn
+    const isMutation = mutation?.length
     for (const signature of signatures) {
       const inputExpectedLength = signature.input.length
       if (inputExpectedLength !== inputActualLength) {
@@ -775,7 +799,7 @@ export default class SemanticAnalyzer {
 
         if (passed) {
           if (signature.inputParams) {
-            const paramErrors = this.#checkSignatureParams(signature, typeInfos)
+            const paramErrors = this.#checkSignatureParams(signature, typeInfos, isMutation || isFromMachine)
             if (paramErrors) {
               es.push(...paramErrors.map(e => ({...e, ...position})))
             }
@@ -791,7 +815,7 @@ export default class SemanticAnalyzer {
 
     if (pass) {
       // popMulti(this.context.typeStack, inputActualLength)
-      if (mutation?.length) {
+      if (isMutation) {
         for (const idx of mutation) {
           const ti = this.context.indexOfTypeStack(idx)
           if (ti?.isImmutable()) {
@@ -822,7 +846,7 @@ export default class SemanticAnalyzer {
             }
             default: {
               const lParams = lhs?.typeParams, rParams = rhs?.typeParams
-              const e = this.#checkTypeParams(lhs.type, lParams, rParams)
+              const e = this.#checkOperateTypeParams(lhs.type, lParams, rParams)
               if (e) {
                 es.push({...e, ...position})
               }
@@ -887,7 +911,7 @@ export default class SemanticAnalyzer {
 
       // NO PUSH TO TYPE STACK AGAIN
     } else if (tsInfo && type === expectedType) {
-      const e = this.#checkTypeParams(type, identInfo.typeParams, tsInfo.typeParams)
+      const e = this.#checkOperateTypeParams(type, identInfo.typeParams, tsInfo.typeParams)
       if (e) {
         this.emit("errors", [{
           ...pos,
@@ -1718,23 +1742,57 @@ export default class SemanticAnalyzer {
   }
 
   handleLiteral(type, text, pos) {
-    if (type === IdentifierType.Int) {
-      const blockType = this.context.peekBlock().type
-      if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
-        this.context.pushTypeStack(TypeInfo.literal(IdentifierType.Int))
+    switch (type) {
+      case IdentifierType.Int: {
+        const blockType = this.context.peekBlock().type
+        if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
+          this.context.pushTypeStack(TypeInfo.literal(IdentifierType.Int))
+        }
+        const [lo, hi] = literalBounds[type]
+        const v = BigInt(text)
+        if (v < lo || v > hi) {
+          this.emit("errors", [{
+            type: SemanticErrorType.LiteralOutOfBoundary,
+            params: {type},
+            ...pos
+          }])
+        }
+        break
       }
-      const [lo, hi] = literalBounds[type]
-      const v = BigInt(text)
-      if (v < lo || v > hi) {
-        this.emit("errors", [{
-          type: SemanticErrorType.LiteralOutOfBoundary,
-          params: {type},
-          ...pos
-        }])
+
+      case IdentifierType.BitVector: {
+        // const size = bitVectorLiteralSize(text.trim())
+        // const block = this.context.peekBlock()
+        // switch (block.type) {
+        //   case SemanticContextType.VariableInit
+        // }
+        // const params = isNaN(size) ? null : [size]
+        this.context.pushTypeStack(TypeInfo.literal(type))
+        break
       }
-    } else {
-      this.context.pushTypeStack(TypeInfo.literal(type))
+
+      default: {
+        this.context.pushTypeStack(TypeInfo.literal(type))
+        break
+      }
     }
+    // if (type === IdentifierType.Int) {
+    //   const blockType = this.context.peekBlock().type
+    //   if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
+    //     this.context.pushTypeStack(TypeInfo.literal(IdentifierType.Int))
+    //   }
+    //   const [lo, hi] = literalBounds[type]
+    //   const v = BigInt(text)
+    //   if (v < lo || v > hi) {
+    //     this.emit("errors", [{
+    //       type: SemanticErrorType.LiteralOutOfBoundary,
+    //       params: {type},
+    //       ...pos
+    //     }])
+    //   }
+    // } else {
+    //   this.context.pushTypeStack(TypeInfo.literal(type))
+    // }
   }
 
   handleStateIncPathPrimaryExit() {

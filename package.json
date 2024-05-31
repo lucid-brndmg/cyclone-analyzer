@@ -1,7 +1,7 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.27",
-  "description": "A static analyzer library for the Cyclone specification language",
+  "version": "0.0.28",
+  "description": "A static analyzer library for Cyclone specification language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",
   "main": "dist/cyclone-analyzer.node.mjs",

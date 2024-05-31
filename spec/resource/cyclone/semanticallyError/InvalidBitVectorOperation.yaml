@@ -20,14 +20,14 @@ cases:
   - |
     graph G {
       function f:bv[8] (a: int) {
-        return 0x01;
+        return 0xFF;
       }
     
       bv[10] x = f(0);
     }
   - |
     graph G {
-      bv[8] x = 0x00;
+      bv[8] x = 0xFF;
       bv[10] y = x;
     }
 casesCounter:

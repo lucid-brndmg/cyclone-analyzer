@@ -187,6 +187,7 @@ export default class SemanticAnalyzerContext {
     if (fn) {
       return {
         signatures: [fn.signature],
+        isFromMachine: true
       }
     }
 

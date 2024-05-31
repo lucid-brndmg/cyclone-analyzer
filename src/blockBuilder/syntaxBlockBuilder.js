@@ -505,9 +505,6 @@ export default class SyntaxBlockBuilder {
         if (metadata.fieldType === IdentifierType.Enum) {
           this.getLatestBlock(SyntaxBlockKind.SingleTypedVariableGroup).data.enums = metadata.enums
         }
-        this.markData(SyntaxBlockKind.SingleTypedVariableGroup, {
-          typeParams: metadata.fieldTypeParams
-        })
         break
       }
       case SemanticContextType.FnDecl: {
@@ -666,7 +663,7 @@ export default class SyntaxBlockBuilder {
     }
   }
 
-  #onAnalyzerIdentifierRegister(context, {text, type, position, kind, blockType, recordIdent}) {
+  #onAnalyzerIdentifierRegister(context, {text, type, position, kind, typeParams, recordIdent}) {
     const machineId = this.getLatestBlockId(SyntaxBlockKind.Machine)
     switch (kind) {
       case IdentifierKind.EnumField: {
@@ -678,11 +675,13 @@ export default class SyntaxBlockBuilder {
       case IdentifierKind.GlobalVariable:
       case IdentifierKind.GlobalConst: {
         this.markData(SyntaxBlockKind.SingleTypedVariableGroup, {
-          type
+          type,
+          typeParams
         })
         const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), {
           identifier: text,
           type,
+          typeParams,
           kind
         })
 

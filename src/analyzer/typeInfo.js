@@ -8,6 +8,7 @@ export default class TypeInfo {
   isLiteral
   identifierKind
   metadata
+  isSignature
 
   constructor(
     type,
@@ -16,6 +17,7 @@ export default class TypeInfo {
     identifier = null,
     identifierKind = null,
     isLiteral = false,
+    isSignature = false,
     metadata = null
   ) {
     this.type = type
@@ -25,23 +27,28 @@ export default class TypeInfo {
     this.identifierKind = identifierKind
     this.metadata = metadata
     this.typeParams = typeParams
+    this.isSignature = isSignature
   }
 
   static hole(metadata = null) {
     // TODO: global public instance?
-    return new TypeInfo(IdentifierType.Hole, null, false, null, null, false, metadata)
+    return new TypeInfo(IdentifierType.Hole, null, false, null, null, false, false, metadata)
   }
 
-  static literal(type, metadata = null) {
-    return new TypeInfo(type, null, false, null, null, true, metadata)
+  static literal(type, typeParams = null, metadata = null) {
+    return new TypeInfo(type, typeParams, false, null, null, true, false, metadata)
   }
 
   static identifier(type, typeParams, identifier, kind, metadata = null) {
-    return new TypeInfo(type, typeParams, false, identifier, kind, false, metadata)
+    return new TypeInfo(type, typeParams, false, identifier, kind, false, false, metadata)
   }
 
   static action(type, typeParams = null) {
     return new TypeInfo(type, typeParams, true)
+  }
+
+  static signature(type, typeParams = null) {
+    return new TypeInfo(type, typeParams, false, null, null, false, true)
   }
 
   isImmutable() {
