@@ -114,15 +114,15 @@ export const deepestContext = (ctx, stopInstance = null) => (stopInstance == nul
   ? deepestContext(ctx.children[0], stopInstance)
   : ctx
 
-export const tryGetIdentifierContext = ctx => {
-  if (ctx instanceof CycloneParser.IdentifierContext) {
+export const tryGetSpecifiedContext = (ctx, targetClass = null) => {
+  if (ctx instanceof CycloneParser.ParExpressionContext || ctx instanceof CycloneParser.ParPathConditionContext) {
+    return tryGetSpecifiedContext(ctx.children[1])
+  }
+  if (targetClass == null || ctx instanceof targetClass) {
     return ctx
   }
-  if (ctx instanceof CycloneParser.ParExpressionContext || ctx instanceof CycloneParser.ParPathConditionContext) {
-    return tryGetIdentifierContext(ctx.children[1])
-  }
   if (ctx.children?.length === 1) {
-    return tryGetIdentifierContext(ctx.children[0])
+    return tryGetSpecifiedContext(ctx.children[0])
   }
   return null
 }
@@ -139,6 +139,6 @@ export default {
   parseCycloneSyntax,
   firstSymbolObject,
   deepestContext,
-  tryGetIdentifierContext,
+  tryGetSpecifiedContext,
   getIdentTextPos
 }

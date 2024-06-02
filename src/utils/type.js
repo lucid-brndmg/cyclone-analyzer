@@ -1,4 +1,4 @@
-import {IdentifierType} from "../language/definitions.js";
+import {IdentifierType, SemanticErrorType} from "../language/definitions.js";
 import {hexLiteralBinaryLength} from "../lib/string.js";
 
 export const checkSignature = (expected, actual) => {
@@ -17,6 +17,40 @@ export const checkSignature = (expected, actual) => {
   }
 
   return {passed: true, hole: false}
+}
+
+export const checkTypeParameters = (type, params) => {
+  if (!params) {
+    return
+  }
+
+  switch (type) {
+    case IdentifierType.BitVector: {
+      const [size] = params
+      if (size < 1 || size > 2147483647) {
+        return {
+          type: SemanticErrorType.InvalidBitVectorSize,
+        }
+      }
+
+      break
+    }
+  }
+}
+
+export const checkOperateTypeParams = (type, lParams, rParams) => {
+  switch (type) {
+    case IdentifierType.BitVector: {
+      if ( lParams && rParams && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
+        return {
+          type: SemanticErrorType.InvalidBitVectorOperation,
+          params: {lhs: lParams[0], rhs: rParams[0]}
+        }
+      }
+    }
+  }
+
+  return null
 }
 
 const typeMsgRepr = {
@@ -78,5 +112,7 @@ export default {
   checkSignature,
   typeToString,
   typeFromString,
-  bitVectorLiteralSize
+  bitVectorLiteralSize,
+  checkTypeParameters,
+  checkOperateTypeParams
 }

@@ -5,7 +5,10 @@ import {
   getBlockPositionPair,
   getIdentifiersInList,
   firstSymbol,
-  getExpression, existsSymbol, getPositionedIdentifiersInList, deepestContext, firstSymbolObject, getIdentTextPos
+  getExpression,
+  existsSymbol,
+  getPositionedIdentifiersInList,
+  deepestContext,
 } from "../utils/antlr.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
 import {variableTypes} from "../language/specifications.js";

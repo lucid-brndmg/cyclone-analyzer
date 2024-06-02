@@ -39,7 +39,7 @@ import {
   isAnonymousEdge,
   isClosureEdge, possibleMaxPathLength
 } from "../utils/edge.js";
-import {bitVectorLiteralSize, checkSignature} from "../utils/type.js";
+import {bitVectorLiteralSize, checkOperateTypeParams, checkSignature, checkTypeParameters} from "../utils/type.js";
 import TypeInfo from "./typeInfo.js";
 import {elementEq, firstOfSet} from "../lib/set.js";
 
@@ -555,25 +555,6 @@ export default class SemanticAnalyzer {
     }
   }
 
-  #checkTypeParams(type, params) {
-    if (!params) {
-      return
-    }
-
-    switch (type) {
-      case IdentifierType.BitVector: {
-        const [size] = params
-        if (size < 1 || size > 2147483647) {
-          return {
-            type: SemanticErrorType.InvalidBitVectorSize,
-          }
-        }
-
-        break
-      }
-    }
-  }
-
   // 'int', 'real', 'bool', 'bv', 'char', 'enum', etc
   handleTypeToken(typeText, position, params = null) {
     const block = this.context.peekBlock()
@@ -642,7 +623,7 @@ export default class SemanticAnalyzer {
       }
     }
     if (params) {
-      const e = this.#checkTypeParams(type, params)
+      const e = checkTypeParameters(type, params) // this.#checkTypeParams(type, params)
       if (e) {
         es.push({...e, ...position})
       }
@@ -722,23 +703,6 @@ export default class SemanticAnalyzer {
     return TypeInfo.action(outType)
   }
 
-  #checkOperateTypeParams(type, lParams, rParams) {
-    switch (type) {
-      case IdentifierType.BitVector: {
-        if ( lParams && rParams && !isNaN(lParams[0]) && !isNaN(rParams[0]) && lParams[0] !== rParams[0]) {
-
-
-          return {
-            type: SemanticErrorType.InvalidBitVectorOperation,
-            params: {lhs: lParams[0], rhs: rParams[0]}
-          }
-        }
-      }
-    }
-
-    return null
-  }
-
   #checkSignatureParams(signature, stackSlice, isMutOpOrFnCall) {
     const es = []
 
@@ -749,7 +713,7 @@ export default class SemanticAnalyzer {
         continue
       }
       const stackParams = stackInfo.typeParams
-      const e = this.#checkOperateTypeParams(stackInfo.type, signParams, stackParams,
+      const e = checkOperateTypeParams(stackInfo.type, signParams, stackParams,
         // TypeInfo.signature(signature.input[i], signParams), stackInfo, isMutOpOrFnCall
       )
       if (e) {
@@ -846,7 +810,7 @@ export default class SemanticAnalyzer {
             }
             default: {
               const lParams = lhs?.typeParams, rParams = rhs?.typeParams
-              const e = this.#checkOperateTypeParams(lhs.type, lParams, rParams)
+              const e = checkOperateTypeParams(lhs.type, lParams, rParams)
               if (e) {
                 es.push({...e, ...position})
               }
@@ -911,7 +875,7 @@ export default class SemanticAnalyzer {
 
       // NO PUSH TO TYPE STACK AGAIN
     } else if (tsInfo && type === expectedType) {
-      const e = this.#checkOperateTypeParams(type, identInfo.typeParams, tsInfo.typeParams)
+      const e = checkOperateTypeParams(type, identInfo.typeParams, tsInfo.typeParams)
       if (e) {
         this.emit("errors", [{
           ...pos,
@@ -1762,10 +1726,6 @@ export default class SemanticAnalyzer {
 
       case IdentifierType.BitVector: {
         // const size = bitVectorLiteralSize(text.trim())
-        // const block = this.context.peekBlock()
-        // switch (block.type) {
-        //   case SemanticContextType.VariableInit
-        // }
         // const params = isNaN(size) ? null : [size]
         this.context.pushTypeStack(TypeInfo.literal(type))
         break
@@ -1776,23 +1736,6 @@ export default class SemanticAnalyzer {
         break
       }
     }
-    // if (type === IdentifierType.Int) {
-    //   const blockType = this.context.peekBlock().type
-    //   if (blockType !== SemanticContextType.StateInc && blockType !== SemanticContextType.PathPrimary) {
-    //     this.context.pushTypeStack(TypeInfo.literal(IdentifierType.Int))
-    //   }
-    //   const [lo, hi] = literalBounds[type]
-    //   const v = BigInt(text)
-    //   if (v < lo || v > hi) {
-    //     this.emit("errors", [{
-    //       type: SemanticErrorType.LiteralOutOfBoundary,
-    //       params: {type},
-    //       ...pos
-    //     }])
-    //   }
-    // } else {
-    //   this.context.pushTypeStack(TypeInfo.literal(type))
-    // }
   }
 
   handleStateIncPathPrimaryExit() {
