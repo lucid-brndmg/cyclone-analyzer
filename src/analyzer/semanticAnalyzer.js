@@ -942,12 +942,13 @@ export default class SemanticAnalyzer {
     }
   }
 
-  deduceAllToType(type, position, pushType = null, atLeast = 1) {
-    const typeStack = this.context.getTypeStack()
+  deduceMultiToType(type, position, length, pushType = null) {
+    // consume {length} of types
+    const typeStack = this.context.popMultiTypeStack(length)
     const actualTypes = typeStack.map(ty => ty?.type)
-    const isCorrect = (atLeast === 0 && actualTypes.length === 0)
+    const isCorrect = (length === 0 && actualTypes.length === 0)
       || (
-        actualTypes.length >= atLeast
+        actualTypes.length === length
         && actualTypes.every(actualType =>
           actualType === type
           || actualType === IdentifierType.Hole
@@ -956,7 +957,8 @@ export default class SemanticAnalyzer {
 
     if (pushType != null) {
       const fstInfo = typeStack.find(info => info?.typeParams != null)
-      this.context.resetTypeStack([TypeInfo.action(pushType, fstInfo?.type === pushType ? fstInfo.typeParams : null)])
+      // produce a return type
+      this.context.pushTypeStack(TypeInfo.action(pushType, fstInfo?.type === pushType ? fstInfo.typeParams : null))
     }
 
     if (!isCorrect) {
@@ -964,7 +966,7 @@ export default class SemanticAnalyzer {
         ...position,
 
         type: SemanticErrorType.TypeMismatchExpr,
-        params: {expected: [type], got: actualTypes, minLength: atLeast}
+        params: {expected: [type], got: actualTypes, length}
       }])
     }
   }

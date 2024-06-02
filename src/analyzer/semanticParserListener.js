@@ -672,7 +672,8 @@ export default class SemanticParserListener extends CycloneParserListener {
   }
 
   exitOneExpr(ctx) {
-    this.analyzer.deduceAllToType(IdentifierType.Bool, getBlockPositionPair(ctx), IdentifierType.Bool, 2)
+    const parameterCounts = ctx.children.filter(ctx => ctx instanceof CycloneParser.ExpressionContext).length
+    this.analyzer.deduceMultiToType(IdentifierType.Bool, getBlockPositionPair(ctx), parameterCounts, IdentifierType.Bool)
   }
 
   enterInitialExpr(ctx) {

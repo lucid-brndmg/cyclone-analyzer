@@ -15,3 +15,24 @@ cases:
         check for 1 reach (PI)
       }
     }
+  - |
+    graph G{
+      int a, b, t, s, x, y, z;
+      
+      goal{
+        assert one(a+b>t,t+a>s,one(1,a>=y,a>=z));
+        check for 1
+      }
+    }
+
+casesCounter:
+  - |
+    graph G{
+    	int a, b, t, s, x, y, z;
+
+    	goal{
+    		assert one(a+b>t,t+a>s,one(a>=x,a>=y,a>=z));
+    		check for 1
+    	}
+
+    }
