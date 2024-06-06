@@ -365,7 +365,7 @@ statement:
   ;
 
 expression:
-  conditionalImpliesExpression ((EQUAL | ASSIGN_PLUS_EQ | ASSIGN_MINUS_EQ | ASSIGN_TIMES_EQ | ASSIGN_DIV_EQ) expression)?
+  conditionalImpliesExpression ((EQUAL | ASSIGN_PLUS_EQ | ASSIGN_MINUS_EQ | ASSIGN_TIMES_EQ | ASSIGN_DIV_EQ | ASSIGN_SHIFT_LEFT | ASSIGN_SHIFT_RIGHT) expression)?
   ;
 
 conditionalImpliesExpression:

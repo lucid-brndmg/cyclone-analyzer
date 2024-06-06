@@ -14,3 +14,40 @@ cases:
     graph G {
       int a = 1 + false;
     }
+    
+  - |
+    graph G {
+      bv[8] a;
+      bv[8] b;
+
+      start final state S {
+        a >>= 3;
+      }
+
+      edge {
+        S -> S
+      }
+
+      goal {
+        check for 1
+      }
+    }
+casesCounter:
+  - |
+    graph G {
+      bv[8] a;
+      bv[8] b;
+
+      start final state S {
+        a >>= b;
+        a <<= b;
+      }
+
+      edge {
+        S -> S
+      }
+
+      goal {
+        check for 1
+      }
+    }

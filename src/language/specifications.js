@@ -178,6 +178,10 @@ const assignNumberBinOpSignature = [
   {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Hole},
 ]
 
+const assignBitBinOpSignature = [
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Hole}
+]
+
 const boolUnaryOpSignature = [
   {input: [IdentifierType.Bool], output: IdentifierType.Bool},
 ]
@@ -243,6 +247,9 @@ const infixOperators = [
   {action: '-=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
   {action: '*=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
   {action: '/=', signatures: assignNumberBinOpSignature, mutation: [0]},
+
+  {action: '<<=', signatures: assignBitBinOpSignature, mutation: [0]},
+  {action: '>>=', signatures: assignBitBinOpSignature, mutation: [0]},
 ]
 
 const prefixOperators = [

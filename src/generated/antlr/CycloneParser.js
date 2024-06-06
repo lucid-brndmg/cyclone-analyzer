@@ -2,7 +2,7 @@
 // jshint ignore: start
 import antlr4 from 'antlr4';
 import CycloneParserListener from './CycloneParserListener.js';
-const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,121,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
 2,13,7,13,2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,
 20,7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,
@@ -83,10 +83,10 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,
 112,114,116,118,120,122,124,126,128,130,132,134,136,138,140,142,144,146,
 148,150,152,154,156,158,160,162,164,166,168,170,172,174,176,178,180,182,
-184,186,188,190,0,21,1,0,51,58,1,0,61,62,1,0,59,60,1,0,63,65,1,0,68,69,1,
-0,1,2,2,0,84,84,92,92,3,0,85,85,94,94,103,103,2,0,86,86,90,90,1,0,88,89,
-1,0,78,81,1,0,49,50,2,0,71,73,75,75,1,0,100,101,2,0,11,11,42,45,2,0,21,21,
-48,48,2,0,12,13,17,18,1,0,46,47,2,0,20,20,28,28,2,0,26,27,39,39,1,0,36,37,
+184,186,188,190,0,21,1,0,53,60,1,0,63,64,1,0,61,62,1,0,65,67,1,0,70,71,1,
+0,1,2,2,0,86,86,94,94,3,0,87,87,96,96,105,105,2,0,88,88,92,92,1,0,90,91,
+1,0,80,83,1,0,51,52,2,0,73,75,77,77,1,0,102,103,2,0,11,11,42,47,2,0,21,21,
+50,50,2,0,12,13,17,18,1,0,48,49,2,0,20,20,28,28,2,0,26,27,39,39,1,0,36,37,
 1022,0,192,1,0,0,0,2,194,1,0,0,0,4,200,1,0,0,0,6,205,1,0,0,0,8,211,1,0,0,
 0,10,215,1,0,0,0,12,251,1,0,0,0,14,258,1,0,0,0,16,267,1,0,0,0,18,273,1,0,
 0,0,20,289,1,0,0,0,22,307,1,0,0,0,24,309,1,0,0,0,26,320,1,0,0,0,28,326,1,
@@ -107,8 +107,8 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 162,885,1,0,0,0,164,887,1,0,0,0,166,898,1,0,0,0,168,903,1,0,0,0,170,908,
 1,0,0,0,172,914,1,0,0,0,174,929,1,0,0,0,176,942,1,0,0,0,178,946,1,0,0,0,
 180,957,1,0,0,0,182,959,1,0,0,0,184,964,1,0,0,0,186,968,1,0,0,0,188,980,
-1,0,0,0,190,987,1,0,0,0,192,193,5,116,0,0,193,1,1,0,0,0,194,195,5,99,0,0,
-195,196,3,4,2,0,196,197,5,11,0,0,197,198,3,76,38,0,198,199,5,25,0,0,199,
+1,0,0,0,190,987,1,0,0,0,192,193,5,118,0,0,193,1,1,0,0,0,194,195,5,101,0,
+0,195,196,3,4,2,0,196,197,5,11,0,0,197,198,3,76,38,0,198,199,5,25,0,0,199,
 3,1,0,0,0,200,201,7,0,0,0,201,5,1,0,0,0,202,204,3,2,1,0,203,202,1,0,0,0,
 204,207,1,0,0,0,205,203,1,0,0,0,205,206,1,0,0,0,206,208,1,0,0,0,207,205,
 1,0,0,0,208,209,3,8,4,0,209,210,5,0,0,1,210,7,1,0,0,0,211,212,7,1,0,0,212,
@@ -140,13 +140,13 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 291,1,0,0,0,307,299,1,0,0,0,307,303,1,0,0,0,308,23,1,0,0,0,309,310,5,16,
 0,0,310,315,3,0,0,0,311,312,5,8,0,0,312,314,3,0,0,0,313,311,1,0,0,0,314,
 317,1,0,0,0,315,313,1,0,0,0,315,316,1,0,0,0,316,318,1,0,0,0,317,315,1,0,
-0,0,318,319,5,23,0,0,319,25,1,0,0,0,320,321,5,70,0,0,321,322,3,0,0,0,322,
+0,0,318,319,5,23,0,0,319,25,1,0,0,0,320,321,5,72,0,0,321,322,3,0,0,0,322,
 324,3,30,15,0,323,325,3,28,14,0,324,323,1,0,0,0,324,325,1,0,0,0,325,27,1,
-0,0,0,326,327,5,97,0,0,327,328,5,19,0,0,328,333,3,0,0,0,329,330,5,8,0,0,
+0,0,0,326,327,5,99,0,0,327,328,5,19,0,0,328,333,3,0,0,0,329,330,5,8,0,0,
 330,332,3,0,0,0,331,329,1,0,0,0,332,335,1,0,0,0,333,331,1,0,0,0,333,334,
 1,0,0,0,334,336,1,0,0,0,335,333,1,0,0,0,336,337,5,24,0,0,337,29,1,0,0,0,
 338,339,5,15,0,0,339,340,3,132,66,0,340,341,5,22,0,0,341,31,1,0,0,0,342,
-343,5,83,0,0,343,349,5,15,0,0,344,348,3,44,22,0,345,348,3,46,23,0,346,348,
+343,5,85,0,0,343,349,5,15,0,0,344,348,3,44,22,0,345,348,3,46,23,0,346,348,
 3,128,64,0,347,344,1,0,0,0,347,345,1,0,0,0,347,346,1,0,0,0,348,351,1,0,0,
 0,349,347,1,0,0,0,349,350,1,0,0,0,350,352,1,0,0,0,351,349,1,0,0,0,352,353,
 3,34,17,0,353,354,5,22,0,0,354,33,1,0,0,0,355,356,7,6,0,0,356,358,3,36,18,
@@ -160,10 +160,10 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 385,1,0,0,0,384,382,1,0,0,0,385,386,5,24,0,0,386,39,1,0,0,0,387,388,7,9,
 0,0,388,389,5,19,0,0,389,394,3,50,25,0,390,391,5,8,0,0,391,393,3,50,25,0,
 392,390,1,0,0,0,393,396,1,0,0,0,394,392,1,0,0,0,394,395,1,0,0,0,395,397,
-1,0,0,0,396,394,1,0,0,0,397,398,5,24,0,0,398,41,1,0,0,0,399,400,5,91,0,0,
+1,0,0,0,396,394,1,0,0,0,397,398,5,24,0,0,398,41,1,0,0,0,399,400,5,93,0,0,
 400,401,5,19,0,0,401,406,3,0,0,0,402,403,5,8,0,0,403,405,3,0,0,0,404,402,
 1,0,0,0,405,408,1,0,0,0,406,404,1,0,0,0,406,407,1,0,0,0,407,409,1,0,0,0,
-408,406,1,0,0,0,409,410,5,24,0,0,410,43,1,0,0,0,411,412,5,93,0,0,412,414,
+408,406,1,0,0,0,409,410,5,24,0,0,410,43,1,0,0,0,411,412,5,95,0,0,412,414,
 3,0,0,0,413,415,3,48,24,0,414,413,1,0,0,0,414,415,1,0,0,0,415,416,1,0,0,
 0,416,417,5,25,0,0,417,45,1,0,0,0,418,419,3,0,0,0,419,420,3,48,24,0,420,
 421,5,25,0,0,421,47,1,0,0,0,422,423,5,11,0,0,423,424,3,52,26,0,424,49,1,
@@ -178,15 +178,15 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 457,453,1,0,0,0,457,455,1,0,0,0,457,456,1,0,0,0,458,61,1,0,0,0,459,463,3,
 66,33,0,460,463,3,68,34,0,461,463,3,82,41,0,462,459,1,0,0,0,462,460,1,0,
 0,0,462,461,1,0,0,0,463,63,1,0,0,0,464,465,5,19,0,0,465,466,3,52,26,0,466,
-467,5,24,0,0,467,65,1,0,0,0,468,470,5,46,0,0,469,471,3,78,39,0,470,469,1,
-0,0,0,470,471,1,0,0,0,471,477,1,0,0,0,472,474,5,47,0,0,473,475,3,78,39,0,
+467,5,24,0,0,467,65,1,0,0,0,468,470,5,48,0,0,469,471,3,78,39,0,470,469,1,
+0,0,0,470,471,1,0,0,0,471,477,1,0,0,0,472,474,5,49,0,0,473,475,3,78,39,0,
 474,473,1,0,0,0,474,475,1,0,0,0,475,477,1,0,0,0,476,468,1,0,0,0,476,472,
 1,0,0,0,476,477,1,0,0,0,477,478,1,0,0,0,478,488,3,0,0,0,479,480,5,32,0,0,
 480,481,5,15,0,0,481,484,3,78,39,0,482,483,5,5,0,0,483,485,3,78,39,0,484,
 482,1,0,0,0,484,485,1,0,0,0,485,486,1,0,0,0,486,487,5,22,0,0,487,489,1,0,
-0,0,488,479,1,0,0,0,488,489,1,0,0,0,489,516,1,0,0,0,490,492,5,46,0,0,491,
+0,0,488,479,1,0,0,0,488,489,1,0,0,0,489,516,1,0,0,0,490,492,5,48,0,0,491,
 493,3,78,39,0,492,491,1,0,0,0,492,493,1,0,0,0,493,499,1,0,0,0,494,496,5,
-47,0,0,495,497,3,78,39,0,496,495,1,0,0,0,496,497,1,0,0,0,497,499,1,0,0,0,
+49,0,0,495,497,3,78,39,0,496,495,1,0,0,0,496,497,1,0,0,0,497,499,1,0,0,0,
 498,490,1,0,0,0,498,494,1,0,0,0,498,499,1,0,0,0,499,500,1,0,0,0,500,501,
 5,19,0,0,501,511,3,0,0,0,502,503,5,32,0,0,503,504,5,15,0,0,504,507,3,78,
 39,0,505,506,5,5,0,0,506,508,3,78,39,0,507,505,1,0,0,0,507,508,1,0,0,0,508,
@@ -202,8 +202,8 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 0,0,543,544,1,0,0,0,544,546,1,0,0,0,545,543,1,0,0,0,546,547,5,23,0,0,547,
 549,1,0,0,0,548,537,1,0,0,0,548,549,1,0,0,0,549,551,1,0,0,0,550,535,1,0,
 0,0,550,536,1,0,0,0,551,553,1,0,0,0,552,534,1,0,0,0,553,554,1,0,0,0,554,
-552,1,0,0,0,554,555,1,0,0,0,555,620,1,0,0,0,556,558,5,46,0,0,557,559,3,78,
-39,0,558,557,1,0,0,0,558,559,1,0,0,0,559,565,1,0,0,0,560,562,5,47,0,0,561,
+552,1,0,0,0,554,555,1,0,0,0,555,620,1,0,0,0,556,558,5,48,0,0,557,559,3,78,
+39,0,558,557,1,0,0,0,558,559,1,0,0,0,559,565,1,0,0,0,560,562,5,49,0,0,561,
 563,3,78,39,0,562,561,1,0,0,0,562,563,1,0,0,0,563,565,1,0,0,0,564,556,1,
 0,0,0,564,560,1,0,0,0,564,565,1,0,0,0,565,566,1,0,0,0,566,582,5,19,0,0,567,
 583,3,0,0,0,568,580,3,70,35,0,569,570,5,16,0,0,570,575,3,0,0,0,571,572,5,
@@ -220,19 +220,19 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 78,39,0,610,613,1,0,0,0,611,612,5,5,0,0,612,614,3,78,39,0,613,611,1,0,0,
 0,613,614,1,0,0,0,614,615,1,0,0,0,615,616,5,22,0,0,616,618,1,0,0,0,617,607,
 1,0,0,0,617,618,1,0,0,0,618,620,1,0,0,0,619,532,1,0,0,0,619,564,1,0,0,0,
-620,69,1,0,0,0,621,622,5,33,0,0,622,71,1,0,0,0,623,624,5,113,0,0,624,73,
+620,69,1,0,0,0,621,622,5,33,0,0,622,71,1,0,0,0,623,624,5,115,0,0,624,73,
 1,0,0,0,625,626,7,10,0,0,626,75,1,0,0,0,627,635,3,78,39,0,628,635,3,80,40,
 0,629,635,3,82,41,0,630,635,3,84,42,0,631,635,3,86,43,0,632,635,3,90,45,
 0,633,635,3,88,44,0,634,627,1,0,0,0,634,628,1,0,0,0,634,629,1,0,0,0,634,
 630,1,0,0,0,634,631,1,0,0,0,634,632,1,0,0,0,634,633,1,0,0,0,635,77,1,0,0,
-0,636,637,5,109,0,0,637,79,1,0,0,0,638,639,5,111,0,0,639,81,1,0,0,0,640,
-641,5,114,0,0,641,83,1,0,0,0,642,643,5,113,0,0,643,85,1,0,0,0,644,645,5,
-112,0,0,645,87,1,0,0,0,646,647,5,110,0,0,647,89,1,0,0,0,648,649,5,115,0,
-0,649,91,1,0,0,0,650,651,5,66,0,0,651,652,3,0,0,0,652,653,3,94,47,0,653,
+0,636,637,5,111,0,0,637,79,1,0,0,0,638,639,5,113,0,0,639,81,1,0,0,0,640,
+641,5,116,0,0,641,83,1,0,0,0,642,643,5,115,0,0,643,85,1,0,0,0,644,645,5,
+114,0,0,645,87,1,0,0,0,646,647,5,112,0,0,647,89,1,0,0,0,648,649,5,117,0,
+0,649,91,1,0,0,0,650,651,5,68,0,0,651,652,3,0,0,0,652,653,3,94,47,0,653,
 654,5,25,0,0,654,93,1,0,0,0,655,656,5,15,0,0,656,657,3,96,48,0,657,658,5,
 22,0,0,658,95,1,0,0,0,659,661,3,98,49,0,660,659,1,0,0,0,661,662,1,0,0,0,
 662,660,1,0,0,0,662,663,1,0,0,0,663,97,1,0,0,0,664,665,3,110,55,0,665,666,
-3,122,61,0,666,667,5,25,0,0,667,99,1,0,0,0,668,669,5,67,0,0,669,670,3,110,
+3,122,61,0,666,667,5,25,0,0,667,99,1,0,0,0,668,669,5,69,0,0,669,670,3,110,
 55,0,670,675,3,102,51,0,671,672,5,8,0,0,672,674,3,102,51,0,673,671,1,0,0,
 0,674,677,1,0,0,0,675,673,1,0,0,0,675,676,1,0,0,0,676,678,1,0,0,0,677,675,
 1,0,0,0,678,679,5,25,0,0,679,101,1,0,0,0,680,681,3,0,0,0,681,682,5,11,0,
@@ -245,16 +245,16 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 0,0,706,707,7,11,0,0,707,109,1,0,0,0,708,712,3,116,58,0,709,712,3,118,59,
 0,710,712,3,114,57,0,711,708,1,0,0,0,711,709,1,0,0,0,711,710,1,0,0,0,712,
 111,1,0,0,0,713,716,3,116,58,0,714,716,3,114,57,0,715,713,1,0,0,0,715,714,
-1,0,0,0,716,113,1,0,0,0,717,718,5,108,0,0,718,719,5,16,0,0,719,720,5,109,
+1,0,0,0,716,113,1,0,0,0,717,718,5,110,0,0,718,719,5,16,0,0,719,720,5,111,
 0,0,720,721,5,23,0,0,721,115,1,0,0,0,722,723,7,12,0,0,723,117,1,0,0,0,724,
-725,5,76,0,0,725,726,5,15,0,0,726,731,3,120,60,0,727,728,5,8,0,0,728,730,
+725,5,78,0,0,725,726,5,15,0,0,726,731,3,120,60,0,727,728,5,8,0,0,728,730,
 3,120,60,0,729,727,1,0,0,0,730,733,1,0,0,0,731,729,1,0,0,0,731,732,1,0,0,
 0,732,734,1,0,0,0,733,731,1,0,0,0,734,735,5,22,0,0,735,119,1,0,0,0,736,737,
 3,0,0,0,737,121,1,0,0,0,738,741,3,0,0,0,739,740,5,11,0,0,740,742,3,126,63,
 0,741,739,1,0,0,0,741,742,1,0,0,0,742,744,1,0,0,0,743,745,3,124,62,0,744,
-743,1,0,0,0,744,745,1,0,0,0,745,123,1,0,0,0,746,747,5,77,0,0,747,748,3,134,
+743,1,0,0,0,744,745,1,0,0,0,745,123,1,0,0,0,746,747,5,79,0,0,747,748,3,134,
 67,0,748,125,1,0,0,0,749,750,3,134,67,0,750,127,1,0,0,0,751,753,3,190,95,
-0,752,751,1,0,0,0,752,753,1,0,0,0,753,754,1,0,0,0,754,755,5,95,0,0,755,757,
+0,752,751,1,0,0,0,752,753,1,0,0,0,753,754,1,0,0,0,754,755,5,97,0,0,755,757,
 3,130,65,0,756,758,3,28,14,0,757,756,1,0,0,0,757,758,1,0,0,0,758,759,1,0,
 0,0,759,760,5,25,0,0,760,129,1,0,0,0,761,763,7,13,0,0,762,761,1,0,0,0,762,
 763,1,0,0,0,763,764,1,0,0,0,764,765,3,134,67,0,765,131,1,0,0,0,766,767,3,
@@ -289,13 +289,13 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 1,0,0,0,875,872,1,0,0,0,875,874,1,0,0,0,876,161,1,0,0,0,877,878,5,31,0,0,
 878,886,3,160,80,0,879,880,5,35,0,0,880,886,3,160,80,0,881,883,3,180,90,
 0,882,884,7,20,0,0,883,882,1,0,0,0,883,884,1,0,0,0,884,886,1,0,0,0,885,877,
-1,0,0,0,885,879,1,0,0,0,885,881,1,0,0,0,886,163,1,0,0,0,887,888,5,102,0,
+1,0,0,0,885,879,1,0,0,0,885,881,1,0,0,0,886,163,1,0,0,0,887,888,5,104,0,
 0,888,889,5,19,0,0,889,892,3,134,67,0,890,891,5,8,0,0,891,893,3,134,67,0,
 892,890,1,0,0,0,893,894,1,0,0,0,894,892,1,0,0,0,894,895,1,0,0,0,895,896,
-1,0,0,0,896,897,5,24,0,0,897,165,1,0,0,0,898,899,5,98,0,0,899,900,5,19,0,
-0,900,901,3,0,0,0,901,902,5,24,0,0,902,167,1,0,0,0,903,904,5,96,0,0,904,
+1,0,0,0,896,897,5,24,0,0,897,165,1,0,0,0,898,899,5,100,0,0,899,900,5,19,
+0,0,900,901,3,0,0,0,901,902,5,24,0,0,902,167,1,0,0,0,903,904,5,98,0,0,904,
 905,5,19,0,0,905,906,3,182,91,0,906,907,5,24,0,0,907,169,1,0,0,0,908,909,
-5,104,0,0,909,910,3,0,0,0,910,911,5,5,0,0,911,912,3,112,56,0,912,913,3,172,
+5,106,0,0,909,910,3,0,0,0,910,911,5,5,0,0,911,912,3,112,56,0,912,913,3,172,
 86,0,913,171,1,0,0,0,914,915,3,174,87,0,915,919,5,15,0,0,916,918,3,106,53,
 0,917,916,1,0,0,0,918,921,1,0,0,0,919,917,1,0,0,0,919,920,1,0,0,0,920,923,
 1,0,0,0,921,919,1,0,0,0,922,924,3,132,66,0,923,922,1,0,0,0,924,925,1,0,0,
@@ -304,7 +304,7 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 0,0,932,937,1,0,0,0,933,934,5,8,0,0,934,936,3,176,88,0,935,933,1,0,0,0,936,
 939,1,0,0,0,937,935,1,0,0,0,937,938,1,0,0,0,938,940,1,0,0,0,939,937,1,0,
 0,0,940,941,5,24,0,0,941,175,1,0,0,0,942,943,3,0,0,0,943,944,5,5,0,0,944,
-945,3,112,56,0,945,177,1,0,0,0,946,947,5,105,0,0,947,948,3,134,67,0,948,
+945,3,112,56,0,945,177,1,0,0,0,946,947,5,107,0,0,947,948,3,134,67,0,948,
 179,1,0,0,0,949,958,3,184,92,0,950,958,3,182,91,0,951,958,3,76,38,0,952,
 958,3,168,84,0,953,958,3,166,83,0,954,958,3,164,82,0,955,958,3,178,89,0,
 956,958,3,186,93,0,957,949,1,0,0,0,957,950,1,0,0,0,957,951,1,0,0,0,957,952,
@@ -314,9 +314,9 @@ const serializedATN = [4,1,119,993,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 0,966,967,5,24,0,0,967,185,1,0,0,0,968,969,3,0,0,0,969,970,5,19,0,0,970,
 975,3,134,67,0,971,972,5,8,0,0,972,974,3,134,67,0,973,971,1,0,0,0,974,977,
 1,0,0,0,975,973,1,0,0,0,975,976,1,0,0,0,976,978,1,0,0,0,977,975,1,0,0,0,
-978,979,5,24,0,0,979,187,1,0,0,0,980,981,5,106,0,0,981,982,3,184,92,0,982,
-985,3,132,66,0,983,984,5,107,0,0,984,986,3,132,66,0,985,983,1,0,0,0,985,
-986,1,0,0,0,986,189,1,0,0,0,987,988,5,3,0,0,988,989,5,69,0,0,989,990,5,5,
+978,979,5,24,0,0,979,187,1,0,0,0,980,981,5,108,0,0,981,982,3,184,92,0,982,
+985,3,132,66,0,983,984,5,109,0,0,984,986,3,132,66,0,985,983,1,0,0,0,985,
+986,1,0,0,0,986,189,1,0,0,0,987,988,5,3,0,0,988,989,5,71,0,0,989,990,5,5,
 0,0,990,991,3,0,0,0,991,191,1,0,0,0,103,205,220,222,228,234,240,244,251,
 262,269,280,285,296,301,305,307,315,324,333,347,349,358,361,364,372,382,
 394,406,414,434,442,450,457,462,470,474,476,484,488,492,496,498,507,511,
@@ -342,21 +342,21 @@ export default class CycloneParser extends antlr4.Parser {
                             "'/'", "'*'", "'+'", "'xor'", "'=>'", "'!'", 
                             "'^'", "'_'", "'&'", "'~'", "'++'", "'--'", 
                             "'**'", "'%'", "'||'", "'&&'", "'+='", "'-='", 
-                            "'*='", "'/='", "'<<'", "'>>'", "'=='", "'global'", 
-                            "'native'", "'debug'", "'log'", "'output'", 
-                            "'trace'", "'precision'", "'timeout'", "'detect'", 
-                            "'bvdisplay'", "'state'", "'node'", "'machine'", 
-                            "'graph'", "'transition'", "'trans'", "'edge'", 
-                            "'record'", "'const'", "'on'", "'label'", "'invariant'", 
-                            "'int'", "'bool'", "'real'", "'char'", "'string'", 
-                            "'enum'", "'where'", "'start'", "'final'", "'abstract'", 
-                            "'normal'", "'prev'", "'goal'", "'check'", "'for'", 
-                            "'stop'", "'at'", "'via'", "'condition'", "'reach'", 
-                            "'with'", "'enumerate'", "'let'", "'each'", 
-                            "'assert'", "'initial'", "'in'", "'fresh'", 
-                            "'option-'", "'always'", "'some'", "'one'", 
-                            "'upto'", "'function'", "'return'", "'if'", 
-                            "'else'", "'bv'" ];
+                            "'*='", "'/='", "'<<='", "'>>='", "'<<'", "'>>'", 
+                            "'=='", "'global'", "'native'", "'debug'", "'log'", 
+                            "'output'", "'trace'", "'precision'", "'timeout'", 
+                            "'detect'", "'bvdisplay'", "'state'", "'node'", 
+                            "'machine'", "'graph'", "'transition'", "'trans'", 
+                            "'edge'", "'record'", "'const'", "'on'", "'label'", 
+                            "'invariant'", "'int'", "'bool'", "'real'", 
+                            "'char'", "'string'", "'enum'", "'where'", "'start'", 
+                            "'final'", "'abstract'", "'normal'", "'prev'", 
+                            "'goal'", "'check'", "'for'", "'stop'", "'at'", 
+                            "'via'", "'condition'", "'reach'", "'with'", 
+                            "'enumerate'", "'let'", "'each'", "'assert'", 
+                            "'initial'", "'in'", "'fresh'", "'option-'", 
+                            "'always'", "'some'", "'one'", "'upto'", "'function'", 
+                            "'return'", "'if'", "'else'", "'bv'" ];
     static symbolicNames = [ null, "ARROW", "BI_ARROW", "AT_SIGN", "BAR", 
                              "COLON", "COLON_COLON", "COLON_EQUAL", "COMMA", 
                              "DOT", "DOTDOT", "EQUAL", "GREATER", "GREATER_EQUAL", 
@@ -367,6 +367,7 @@ export default class CycloneParser extends antlr4.Parser {
                              "BIT_AND", "BIT_NEGATION", "PLUS_PLUS", "MINUS_MINUS", 
                              "TIMES_TIMES", "MOD", "OR", "AND", "ASSIGN_PLUS_EQ", 
                              "ASSIGN_MINUS_EQ", "ASSIGN_TIMES_EQ", "ASSIGN_DIV_EQ", 
+                             "ASSIGN_SHIFT_LEFT", "ASSIGN_SHIFT_RIGHT", 
                              "SHIFT_LEFT", "SHIFT_RIGHT", "DOUBLE_EQUAL", 
                              "GLOBAL", "NATIVE", "DEBUG", "LOG", "OUTPUT", 
                              "TRACE", "PRECISION", "TIMEOUT", "DETECT", 
@@ -484,7 +485,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 200;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 51)) & ~0x1f) === 0 && ((1 << (_la - 51)) & 255) !== 0))) {
+	        if(!(((((_la - 53)) & ~0x1f) === 0 && ((1 << (_la - 53)) & 255) !== 0))) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -516,7 +517,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 205;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(_la===99) {
+	        while(_la===101) {
 	            this.state = 202;
 	            this.compOptions();
 	            this.state = 207;
@@ -551,7 +552,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 211;
 	        _la = this._input.LA(1);
-	        if(!(_la===61 || _la===62)) {
+	        if(!(_la===63 || _la===64)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -589,28 +590,28 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 222;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 66)) & ~0x1f) === 0 && ((1 << (_la - 66)) & 1763) !== 0) || _la===104 || _la===108) {
+	        while(((((_la - 68)) & ~0x1f) === 0 && ((1 << (_la - 68)) & 1763) !== 0) || _la===106 || _la===110) {
 	            this.state = 220;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
-	            case 71:
-	            case 72:
 	            case 73:
+	            case 74:
 	            case 75:
-	            case 76:
-	            case 108:
+	            case 77:
+	            case 78:
+	            case 110:
 	                this.state = 216;
 	                this.globalVariableGroup();
 	                break;
-	            case 67:
+	            case 69:
 	                this.state = 217;
 	                this.globalConstantGroup();
 	                break;
-	            case 66:
+	            case 68:
 	                this.state = 218;
 	                this.record();
 	                break;
-	            case 104:
+	            case 106:
 	                this.state = 219;
 	                this.functionDeclaration();
 	                break;
@@ -624,7 +625,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 228;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 59)) & ~0x1f) === 0 && ((1 << (_la - 59)) & 7864323) !== 0)) {
+	        while(((((_la - 61)) & ~0x1f) === 0 && ((1 << (_la - 61)) & 7864323) !== 0)) {
 	            this.state = 225;
 	            this.stateExpr();
 	            this.state = 230;
@@ -634,7 +635,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 234;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 63)) & ~0x1f) === 0 && ((1 << (_la - 63)) & 7) !== 0)) {
+	        while(((((_la - 65)) & ~0x1f) === 0 && ((1 << (_la - 65)) & 7) !== 0)) {
 	            this.state = 231;
 	            this.trans();
 	            this.state = 236;
@@ -644,7 +645,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 240;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(_la===70) {
+	        while(_la===72) {
 	            this.state = 237;
 	            this.invariantExpression();
 	            this.state = 242;
@@ -654,7 +655,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 244;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===83) {
+	        if(_la===85) {
 	            this.state = 243;
 	            this.goal();
 	        }
@@ -686,7 +687,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 251;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 78)) & ~0x1f) === 0 && ((1 << (_la - 78)) & 15) !== 0)) {
+	        while(((((_la - 80)) & ~0x1f) === 0 && ((1 << (_la - 80)) & 15) !== 0)) {
 	            this.state = 248;
 	            this.stateModifier();
 	            this.state = 253;
@@ -695,7 +696,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        }
 	        this.state = 254;
 	        _la = this._input.LA(1);
-	        if(!(_la===59 || _la===60)) {
+	        if(!(_la===61 || _la===62)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -733,7 +734,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 262;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 19)) & ~0x1f) === 0 && ((1 << (_la - 19)) & 70147) !== 0) || ((((_la - 96)) & ~0x1f) === 0 && ((1 << (_la - 96)) & 2089541) !== 0)) {
+	        while(((((_la - 19)) & ~0x1f) === 0 && ((1 << (_la - 19)) & 70147) !== 0) || ((((_la - 98)) & ~0x1f) === 0 && ((1 << (_la - 98)) & 2089541) !== 0)) {
 	            this.state = 259;
 	            this.statement();
 	            this.state = 264;
@@ -766,7 +767,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 267;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 63)) & ~0x1f) === 0 && ((1 << (_la - 63)) & 7) !== 0))) {
+	        if(!(((((_la - 65)) & ~0x1f) === 0 && ((1 << (_la - 65)) & 7) !== 0))) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -776,7 +777,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 269;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===116) {
+	        if(_la===118) {
 	            this.state = 268;
 	            this.identifier();
 	        }
@@ -817,10 +818,10 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 280;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===68 || _la===69) {
+	        if(_la===70 || _la===71) {
 	            this.state = 278;
 	            _la = this._input.LA(1);
-	            if(!(_la===68 || _la===69)) {
+	            if(!(_la===70 || _la===71)) {
 	            this._errHandler.recoverInline(this);
 	            }
 	            else {
@@ -834,7 +835,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 285;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===77) {
+	        if(_la===79) {
 	            this.state = 282;
 	            this.whereExpr();
 	            this.state = 283;
@@ -898,7 +899,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 307;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 116:
+	        case 118:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 291;
 	            this.identifier();
@@ -1015,7 +1016,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 324;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===97) {
+	        if(_la===99) {
 	            this.state = 323;
 	            this.inExpr();
 	        }
@@ -1119,20 +1120,20 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 349;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(_la===3 || ((((_la - 93)) & ~0x1f) === 0 && ((1 << (_la - 93)) & 8388613) !== 0)) {
+	        while(_la===3 || ((((_la - 95)) & ~0x1f) === 0 && ((1 << (_la - 95)) & 8388613) !== 0)) {
 	            this.state = 347;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
-	            case 93:
+	            case 95:
 	                this.state = 344;
 	                this.letExpr();
 	                break;
-	            case 116:
+	            case 118:
 	                this.state = 345;
 	                this.pathAssignStatement();
 	                break;
 	            case 3:
-	            case 95:
+	            case 97:
 	                this.state = 346;
 	                this.assertExpr();
 	                break;
@@ -1171,7 +1172,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 355;
 	        _la = this._input.LA(1);
-	        if(!(_la===84 || _la===92)) {
+	        if(!(_la===86 || _la===94)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -1183,7 +1184,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 358;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===88 || _la===89) {
+	        if(_la===90 || _la===91) {
 	            this.state = 357;
 	            this.viaExpr();
 	        }
@@ -1191,7 +1192,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 361;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===91) {
+	        if(_la===93) {
 	            this.state = 360;
 	            this.withExpr();
 	        }
@@ -1199,7 +1200,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 364;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===86 || _la===90) {
+	        if(_la===88 || _la===92) {
 	            this.state = 363;
 	            this.stopExpr();
 	        }
@@ -1228,7 +1229,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 366;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 85)) & ~0x1f) === 0 && ((1 << (_la - 85)) & 262657) !== 0))) {
+	        if(!(((((_la - 87)) & ~0x1f) === 0 && ((1 << (_la - 87)) & 262657) !== 0))) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -1273,7 +1274,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 375;
 	        _la = this._input.LA(1);
-	        if(!(_la===86 || _la===90)) {
+	        if(!(_la===88 || _la===92)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -1322,7 +1323,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 387;
 	        _la = this._input.LA(1);
-	        if(!(_la===88 || _la===89)) {
+	        if(!(_la===90 || _la===91)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -1778,31 +1779,31 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.state = 476;
 	            this._errHandler.sync(this);
 	            switch (this._input.LA(1)) {
-	            case 46:
+	            case 48:
 	            	this.state = 468;
 	            	this.match(CycloneParser.SHIFT_LEFT);
 	            	this.state = 470;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 469;
 	            	    this.intLiteral();
 	            	}
 
 	            	break;
-	            case 47:
+	            case 49:
 	            	this.state = 472;
 	            	this.match(CycloneParser.SHIFT_RIGHT);
 	            	this.state = 474;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 473;
 	            	    this.intLiteral();
 	            	}
 
 	            	break;
-	            case 116:
+	            case 118:
 	            	break;
 	            default:
 	            	break;
@@ -1840,25 +1841,25 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.state = 498;
 	            this._errHandler.sync(this);
 	            switch (this._input.LA(1)) {
-	            case 46:
+	            case 48:
 	            	this.state = 490;
 	            	this.match(CycloneParser.SHIFT_LEFT);
 	            	this.state = 492;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 491;
 	            	    this.intLiteral();
 	            	}
 
 	            	break;
-	            case 47:
+	            case 49:
 	            	this.state = 494;
 	            	this.match(CycloneParser.SHIFT_RIGHT);
 	            	this.state = 496;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 495;
 	            	    this.intLiteral();
 	            	}
@@ -1927,12 +1928,12 @@ export default class CycloneParser extends antlr4.Parser {
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case 33:
-	        case 116:
+	        case 118:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 532;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
-	            case 116:
+	            case 118:
 	                this.state = 517;
 	                this.identifier();
 	                break;
@@ -1976,7 +1977,7 @@ export default class CycloneParser extends antlr4.Parser {
 	                this.state = 550;
 	                this._errHandler.sync(this);
 	                switch(this._input.LA(1)) {
-	                case 116:
+	                case 118:
 	                    this.state = 535;
 	                    this.identifier();
 	                    break;
@@ -2017,31 +2018,31 @@ export default class CycloneParser extends antlr4.Parser {
 	            } while(_la===1);
 	            break;
 	        case 19:
-	        case 46:
-	        case 47:
+	        case 48:
+	        case 49:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 564;
 	            this._errHandler.sync(this);
 	            switch (this._input.LA(1)) {
-	            case 46:
+	            case 48:
 	            	this.state = 556;
 	            	this.match(CycloneParser.SHIFT_LEFT);
 	            	this.state = 558;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 557;
 	            	    this.intLiteral();
 	            	}
 
 	            	break;
-	            case 47:
+	            case 49:
 	            	this.state = 560;
 	            	this.match(CycloneParser.SHIFT_RIGHT);
 	            	this.state = 562;
 	            	this._errHandler.sync(this);
 	            	_la = this._input.LA(1);
-	            	if(_la===109) {
+	            	if(_la===111) {
 	            	    this.state = 561;
 	            	    this.intLiteral();
 	            	}
@@ -2057,7 +2058,7 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.state = 582;
 	            this._errHandler.sync(this);
 	            switch(this._input.LA(1)) {
-	            case 116:
+	            case 118:
 	                this.state = 567;
 	                this.identifier();
 	                break;
@@ -2101,7 +2102,7 @@ export default class CycloneParser extends antlr4.Parser {
 	                this.state = 600;
 	                this._errHandler.sync(this);
 	                switch(this._input.LA(1)) {
-	                case 116:
+	                case 118:
 	                    this.state = 585;
 	                    this.identifier();
 	                    break;
@@ -2240,7 +2241,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 625;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 78)) & ~0x1f) === 0 && ((1 << (_la - 78)) & 15) !== 0))) {
+	        if(!(((((_la - 80)) & ~0x1f) === 0 && ((1 << (_la - 80)) & 15) !== 0))) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -2270,37 +2271,37 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 634;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 109:
+	        case 111:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 627;
 	            this.intLiteral();
 	            break;
-	        case 111:
+	        case 113:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 628;
 	            this.realLiteral();
 	            break;
-	        case 114:
+	        case 116:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 629;
 	            this.boolLiteral();
 	            break;
-	        case 113:
+	        case 115:
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 630;
 	            this.stringLiteral();
 	            break;
-	        case 112:
+	        case 114:
 	            this.enterOuterAlt(localctx, 5);
 	            this.state = 631;
 	            this.charLiteral();
 	            break;
-	        case 115:
+	        case 117:
 	            this.enterOuterAlt(localctx, 6);
 	            this.state = 632;
 	            this.enumLiteral();
 	            break;
-	        case 110:
+	        case 112:
 	            this.enterOuterAlt(localctx, 7);
 	            this.state = 633;
 	            this.bvLiteral();
@@ -2556,7 +2557,7 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.state = 662; 
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	        } while(((((_la - 71)) & ~0x1f) === 0 && ((1 << (_la - 71)) & 55) !== 0) || _la===108);
+	        } while(((((_la - 73)) & ~0x1f) === 0 && ((1 << (_la - 73)) & 55) !== 0) || _la===110);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
 		        localctx.exception = re;
@@ -2757,7 +2758,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 706;
 	        _la = this._input.LA(1);
-	        if(!(_la===49 || _la===50)) {
+	        if(!(_la===51 || _la===52)) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -2787,20 +2788,20 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 711;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 71:
-	        case 72:
 	        case 73:
+	        case 74:
 	        case 75:
+	        case 77:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 708;
 	            this.primitiveType();
 	            break;
-	        case 76:
+	        case 78:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 709;
 	            this.enumType();
 	            break;
-	        case 108:
+	        case 110:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 710;
 	            this.bvType();
@@ -2831,15 +2832,15 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 715;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 71:
-	        case 72:
 	        case 73:
+	        case 74:
 	        case 75:
+	        case 77:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 713;
 	            this.primitiveType();
 	            break;
-	        case 108:
+	        case 110:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 714;
 	            this.bvType();
@@ -2900,7 +2901,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 722;
 	        _la = this._input.LA(1);
-	        if(!(((((_la - 71)) & ~0x1f) === 0 && ((1 << (_la - 71)) & 23) !== 0))) {
+	        if(!(((((_la - 73)) & ~0x1f) === 0 && ((1 << (_la - 73)) & 23) !== 0))) {
 	        this._errHandler.recoverInline(this);
 	        }
 	        else {
@@ -3009,7 +3010,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 744;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===77) {
+	        if(_la===79) {
 	            this.state = 743;
 	            this.whereExpr();
 	        }
@@ -3099,7 +3100,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 757;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===97) {
+	        if(_la===99) {
 	            this.state = 756;
 	            this.inExpr();
 	        }
@@ -3131,10 +3132,10 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 762;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===100 || _la===101) {
+	        if(_la===102 || _la===103) {
 	            this.state = 761;
 	            _la = this._input.LA(1);
-	            if(!(_la===100 || _la===101)) {
+	            if(!(_la===102 || _la===103)) {
 	            this._errHandler.recoverInline(this);
 	            }
 	            else {
@@ -3200,7 +3201,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        if(la_===1) {
 	            this.state = 770;
 	            _la = this._input.LA(1);
-	            if(!(_la===11 || ((((_la - 42)) & ~0x1f) === 0 && ((1 << (_la - 42)) & 15) !== 0))) {
+	            if(!(_la===11 || ((((_la - 42)) & ~0x1f) === 0 && ((1 << (_la - 42)) & 63) !== 0))) {
 	            this._errHandler.recoverInline(this);
 	            }
 	            else {
@@ -3470,7 +3471,7 @@ export default class CycloneParser extends antlr4.Parser {
 	            if(_alt===1) {
 	                this.state = 823;
 	                _la = this._input.LA(1);
-	                if(!(_la===21 || _la===48)) {
+	                if(!(_la===21 || _la===50)) {
 	                this._errHandler.recoverInline(this);
 	                }
 	                else {
@@ -3562,7 +3563,7 @@ export default class CycloneParser extends antlr4.Parser {
 	            if(_alt===1) {
 	                this.state = 839;
 	                _la = this._input.LA(1);
-	                if(!(_la===46 || _la===47)) {
+	                if(!(_la===48 || _la===49)) {
 	                this._errHandler.recoverInline(this);
 	                }
 	                else {
@@ -3747,18 +3748,18 @@ export default class CycloneParser extends antlr4.Parser {
 	        case 19:
 	        case 31:
 	        case 35:
-	        case 96:
 	        case 98:
-	        case 102:
-	        case 105:
-	        case 109:
-	        case 110:
+	        case 100:
+	        case 104:
+	        case 107:
 	        case 111:
 	        case 112:
 	        case 113:
 	        case 114:
 	        case 115:
 	        case 116:
+	        case 117:
+	        case 118:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 874;
 	            this.unaryExpressionNotPlusMinus();
@@ -3805,18 +3806,18 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.unaryExpression();
 	            break;
 	        case 19:
-	        case 96:
 	        case 98:
-	        case 102:
-	        case 105:
-	        case 109:
-	        case 110:
+	        case 100:
+	        case 104:
+	        case 107:
 	        case 111:
 	        case 112:
 	        case 113:
 	        case 114:
 	        case 115:
 	        case 116:
+	        case 117:
+	        case 118:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 881;
 	            this.primary();
@@ -4000,7 +4001,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 919;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(((((_la - 71)) & ~0x1f) === 0 && ((1 << (_la - 71)) & 55) !== 0) || _la===108) {
+	        while(((((_la - 73)) & ~0x1f) === 0 && ((1 << (_la - 73)) & 55) !== 0) || _la===110) {
 	            this.state = 916;
 	            this.localVariableGroup();
 	            this.state = 921;
@@ -4016,7 +4017,7 @@ export default class CycloneParser extends antlr4.Parser {
 	            this.state = 925; 
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	        } while(((((_la - 19)) & ~0x1f) === 0 && ((1 << (_la - 19)) & 70147) !== 0) || ((((_la - 96)) & ~0x1f) === 0 && ((1 << (_la - 96)) & 2089541) !== 0));
+	        } while(((((_la - 19)) & ~0x1f) === 0 && ((1 << (_la - 19)) & 70147) !== 0) || ((((_la - 98)) & ~0x1f) === 0 && ((1 << (_la - 98)) & 2089541) !== 0));
 	        this.state = 927;
 	        this.match(CycloneParser.RBRACE);
 	    } catch (re) {
@@ -4046,7 +4047,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 931;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===116) {
+	        if(_la===118) {
 	            this.state = 930;
 	            this.functionParam();
 	        }
@@ -4324,7 +4325,7 @@ export default class CycloneParser extends antlr4.Parser {
 	        this.state = 985;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===107) {
+	        if(_la===109) {
 	            this.state = 983;
 	            this.match(CycloneParser.ELSE);
 	            this.state = 984;
@@ -4423,80 +4424,82 @@ CycloneParser.ASSIGN_PLUS_EQ = 42;
 CycloneParser.ASSIGN_MINUS_EQ = 43;
 CycloneParser.ASSIGN_TIMES_EQ = 44;
 CycloneParser.ASSIGN_DIV_EQ = 45;
-CycloneParser.SHIFT_LEFT = 46;
-CycloneParser.SHIFT_RIGHT = 47;
-CycloneParser.DOUBLE_EQUAL = 48;
-CycloneParser.GLOBAL = 49;
-CycloneParser.NATIVE = 50;
-CycloneParser.DEBUG = 51;
-CycloneParser.LOG = 52;
-CycloneParser.OUTPUT = 53;
-CycloneParser.TRACE = 54;
-CycloneParser.PRECISION = 55;
-CycloneParser.TIMEOUT = 56;
-CycloneParser.DETECT = 57;
-CycloneParser.BVDISPLAY = 58;
-CycloneParser.STATE = 59;
-CycloneParser.NODE = 60;
-CycloneParser.MACHINE = 61;
-CycloneParser.GRAPH = 62;
-CycloneParser.TRANS1 = 63;
-CycloneParser.TRANS2 = 64;
-CycloneParser.EDGE = 65;
-CycloneParser.RECORD = 66;
-CycloneParser.CONST = 67;
-CycloneParser.ON = 68;
-CycloneParser.LABEL = 69;
-CycloneParser.INVARIANT = 70;
-CycloneParser.INT = 71;
-CycloneParser.BOOL = 72;
-CycloneParser.REAL = 73;
-CycloneParser.CHAR = 74;
-CycloneParser.STRING = 75;
-CycloneParser.ENUM = 76;
-CycloneParser.WHERE = 77;
-CycloneParser.START = 78;
-CycloneParser.FINAL = 79;
-CycloneParser.ABSTRACT = 80;
-CycloneParser.NORMAL = 81;
-CycloneParser.PREV = 82;
-CycloneParser.GOAL = 83;
-CycloneParser.CHECK = 84;
-CycloneParser.FOR = 85;
-CycloneParser.STOP = 86;
-CycloneParser.AT = 87;
-CycloneParser.VIA = 88;
-CycloneParser.CONDITION = 89;
-CycloneParser.REACH = 90;
-CycloneParser.WITH = 91;
-CycloneParser.ENUMERATE = 92;
-CycloneParser.LET = 93;
-CycloneParser.EACH = 94;
-CycloneParser.ASSERT = 95;
-CycloneParser.INITIAL = 96;
-CycloneParser.IN = 97;
-CycloneParser.FRESH = 98;
-CycloneParser.OPTION = 99;
-CycloneParser.ALWAYS = 100;
-CycloneParser.SOME = 101;
-CycloneParser.ONE = 102;
-CycloneParser.UPTO = 103;
-CycloneParser.FUNCTION = 104;
-CycloneParser.RETURN = 105;
-CycloneParser.IF = 106;
-CycloneParser.ELSE = 107;
-CycloneParser.BV = 108;
-CycloneParser.INTLITERAL = 109;
-CycloneParser.BVLITERAL = 110;
-CycloneParser.REALLITERAL = 111;
-CycloneParser.CHARLITERAL = 112;
-CycloneParser.STRINGLITERAL = 113;
-CycloneParser.BOOLLITERAL = 114;
-CycloneParser.ENUMLITERAL = 115;
-CycloneParser.IDENT = 116;
-CycloneParser.ML_COMMENT = 117;
-CycloneParser.SL_COMMENT = 118;
-CycloneParser.WS = 119;
+CycloneParser.ASSIGN_SHIFT_LEFT = 46;
+CycloneParser.ASSIGN_SHIFT_RIGHT = 47;
+CycloneParser.SHIFT_LEFT = 48;
+CycloneParser.SHIFT_RIGHT = 49;
+CycloneParser.DOUBLE_EQUAL = 50;
+CycloneParser.GLOBAL = 51;
+CycloneParser.NATIVE = 52;
+CycloneParser.DEBUG = 53;
+CycloneParser.LOG = 54;
+CycloneParser.OUTPUT = 55;
+CycloneParser.TRACE = 56;
+CycloneParser.PRECISION = 57;
+CycloneParser.TIMEOUT = 58;
+CycloneParser.DETECT = 59;
+CycloneParser.BVDISPLAY = 60;
+CycloneParser.STATE = 61;
+CycloneParser.NODE = 62;
+CycloneParser.MACHINE = 63;
+CycloneParser.GRAPH = 64;
+CycloneParser.TRANS1 = 65;
+CycloneParser.TRANS2 = 66;
+CycloneParser.EDGE = 67;
+CycloneParser.RECORD = 68;
+CycloneParser.CONST = 69;
+CycloneParser.ON = 70;
+CycloneParser.LABEL = 71;
+CycloneParser.INVARIANT = 72;
+CycloneParser.INT = 73;
+CycloneParser.BOOL = 74;
+CycloneParser.REAL = 75;
+CycloneParser.CHAR = 76;
+CycloneParser.STRING = 77;
+CycloneParser.ENUM = 78;
+CycloneParser.WHERE = 79;
+CycloneParser.START = 80;
+CycloneParser.FINAL = 81;
+CycloneParser.ABSTRACT = 82;
+CycloneParser.NORMAL = 83;
+CycloneParser.PREV = 84;
+CycloneParser.GOAL = 85;
+CycloneParser.CHECK = 86;
+CycloneParser.FOR = 87;
+CycloneParser.STOP = 88;
+CycloneParser.AT = 89;
+CycloneParser.VIA = 90;
+CycloneParser.CONDITION = 91;
+CycloneParser.REACH = 92;
+CycloneParser.WITH = 93;
+CycloneParser.ENUMERATE = 94;
+CycloneParser.LET = 95;
+CycloneParser.EACH = 96;
+CycloneParser.ASSERT = 97;
+CycloneParser.INITIAL = 98;
+CycloneParser.IN = 99;
+CycloneParser.FRESH = 100;
+CycloneParser.OPTION = 101;
+CycloneParser.ALWAYS = 102;
+CycloneParser.SOME = 103;
+CycloneParser.ONE = 104;
+CycloneParser.UPTO = 105;
+CycloneParser.FUNCTION = 106;
+CycloneParser.RETURN = 107;
+CycloneParser.IF = 108;
+CycloneParser.ELSE = 109;
+CycloneParser.BV = 110;
+CycloneParser.INTLITERAL = 111;
+CycloneParser.BVLITERAL = 112;
+CycloneParser.REALLITERAL = 113;
+CycloneParser.CHARLITERAL = 114;
+CycloneParser.STRINGLITERAL = 115;
+CycloneParser.BOOLLITERAL = 116;
+CycloneParser.ENUMLITERAL = 117;
+CycloneParser.IDENT = 118;
+CycloneParser.ML_COMMENT = 119;
+CycloneParser.SL_COMMENT = 120;
+CycloneParser.WS = 121;
 
 CycloneParser.RULE_identifier = 0;
 CycloneParser.RULE_compOptions = 1;
@@ -8076,6 +8079,14 @@ class ExpressionContext extends antlr4.ParserRuleContext {
 
 	ASSIGN_DIV_EQ() {
 	    return this.getToken(CycloneParser.ASSIGN_DIV_EQ, 0);
+	};
+
+	ASSIGN_SHIFT_LEFT() {
+	    return this.getToken(CycloneParser.ASSIGN_SHIFT_LEFT, 0);
+	};
+
+	ASSIGN_SHIFT_RIGHT() {
+	    return this.getToken(CycloneParser.ASSIGN_SHIFT_RIGHT, 0);
 	};
 
 	enterRule(listener) {

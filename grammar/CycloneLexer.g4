@@ -45,10 +45,6 @@ P_OP_ONE     : '_';
 BIT_AND      : '&';
 BIT_NEGATION : '~';
 
-//P_OP_ONE_OR_TWO: '?';
-//P_OP_ONE_OR_MORE: '*';
-//P_OP_TWO_OR_MORE: '+';
-
 PLUS_PLUS: '++';
 MINUS_MINUS: '--';
 TIMES_TIMES: '**';
@@ -59,6 +55,8 @@ ASSIGN_PLUS_EQ: '+=';
 ASSIGN_MINUS_EQ: '-=';
 ASSIGN_TIMES_EQ: '*=';
 ASSIGN_DIV_EQ: '/=';
+ASSIGN_SHIFT_LEFT: '<<=';
+ASSIGN_SHIFT_RIGHT: '>>=';
 
 SHIFT_LEFT: '<<';
 SHIFT_RIGHT: '>>';
