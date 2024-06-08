@@ -17,3 +17,26 @@ cases:
         return a;
       }
     }
+  - |
+    graph G {
+      int a = 0;
+      goal {
+        assert fresh(a) > 0;
+        check for 1
+      }
+    }
+casesCounter:
+  - |
+    machine G{
+    	int b = 1;
+    	int a = fresh(b);
+
+    	final start state S{}
+
+    	trans { S -> S }
+
+    	goal{	
+    		// assert fresh(a)>0;
+    		check for 1
+    	}
+    }

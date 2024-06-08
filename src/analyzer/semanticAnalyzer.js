@@ -1052,7 +1052,7 @@ export default class SemanticAnalyzer {
   }
 
   handleFreshExpr(position) {
-    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope, SemanticContextType.InvariantScope]
+    const scopes = [SemanticContextType.StateScope, SemanticContextType.InvariantScope, SemanticContextType.MachineScope]
     const valid = this.checkNamedExpr(
       position,
       // `'fresh' expression can only be used in global / state / node scope, and not in constant definition`,
