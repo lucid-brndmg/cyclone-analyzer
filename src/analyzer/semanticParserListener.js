@@ -643,6 +643,18 @@ export default class SemanticParserListener extends CycloneParserListener {
     this.#handleBinaryOp(ctx, false)
   }
 
+  exitBitwiseAndExpression(ctx) {
+    this.#handleBinaryOp(ctx, false)
+  }
+
+  exitBitwiseOrExpression(ctx) {
+    this.#handleBinaryOp(ctx, false)
+  }
+
+  exitBitShiftExpression(ctx) {
+    this.#handleBinaryOp(ctx, false)
+  }
+
   exitUnaryExpression(ctx) {
     this.#handleUnaryOp(ctx, false)
   }

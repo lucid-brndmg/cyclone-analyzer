@@ -737,6 +737,7 @@ export default class SemanticAnalyzer {
   }
 
   deduceActionCall(actionKind, action, inputActualLength, position) {
+    // console.log("ACTION", action)
     const fn = this.context.getAction(actionKind, action)
     if (!fn) {
       // This will happen when calling from an unregistered function
@@ -761,6 +762,8 @@ export default class SemanticAnalyzer {
         const typeInfos = this.context.sliceTypeStack(0 - inputActualLength)
         const {passed, hole} = checkSignature(signature.input, typeInfos.map(t => t?.type))
 
+        // console.log("check signature", action, signature.input, "MATCH", typeInfos.map(t => t?.type), "PASSED", passed, "HOLE", hole)
+
         if (passed) {
           if (signature.inputParams) {
             const paramErrors = this.#checkSignatureParams(signature, typeInfos, isMutation || isFromMachine)
@@ -770,6 +773,7 @@ export default class SemanticAnalyzer {
           }
           pass = true
           if (!hole) {
+            // console.log("OUT", signature.output)
             output = this.#actionTypeParamInheritance(typeInfos, signature) // TypeInfo.action(signature.output)
           }
           break
