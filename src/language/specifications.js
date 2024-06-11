@@ -171,12 +171,12 @@ const assignNumberBitBinOpSignature = [
   {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Hole}
 ]
 
-const assignNumberBinOpSignature = [
-  {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Hole},
-  {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Hole},
-  {input: [IdentifierType.Real, IdentifierType.Real], output: IdentifierType.Hole},
-  {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Hole},
-]
+// const assignNumberBinOpSignature = [
+//   {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Hole},
+//   {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Hole},
+//   {input: [IdentifierType.Real, IdentifierType.Real], output: IdentifierType.Hole},
+//   {input: [IdentifierType.Real, IdentifierType.Int], output: IdentifierType.Hole},
+// ]
 
 const assignBitBinOpSignature = [
   {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.Hole}
@@ -216,7 +216,7 @@ const infixOperators = [
   {action: '-', signatures: numberBitBinOpSignature},
   {action: '*', signatures: numberBitBinOpSignature},
   {action: '%', signatures: numberBitBinOpSignature},
-  {action: '/', signatures: numberBinOpSignature},
+  {action: '/', signatures: numberBitBinOpSignature},
   {action: '**', signatures: numberBinOpSignature},
 
   // num compare
@@ -246,7 +246,7 @@ const infixOperators = [
   {action: '+=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
   {action: '-=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
   {action: '*=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
-  {action: '/=', signatures: assignNumberBinOpSignature, mutation: [0]},
+  {action: '/=', signatures: assignNumberBitBinOpSignature, mutation: [0]},
 
   {action: '<<=', signatures: assignBitBinOpSignature, mutation: [0]},
   {action: '>>=', signatures: assignBitBinOpSignature, mutation: [0]},

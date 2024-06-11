@@ -51,3 +51,8 @@ casesCounter:
         check for 1
       }
     }
+  - |
+    graph G {
+      bv[8] x = 0xFF;
+      bv[8] y = x / x;
+    }
