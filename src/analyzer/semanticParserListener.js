@@ -707,6 +707,10 @@ export default class SemanticParserListener extends CycloneParserListener {
     this.analyzer.deduceToMultiTypes(variableTypes, getBlockPositionPair(ctx), IdentifierType.Hole, "fresh", true)
   }
 
+  enterPrevExpr(ctx) {
+    this.analyzer.handlePrevExpr(getBlockPositionPair(ctx))
+  }
+
   enterCompOptions(ctx) {
     this.#pushBlock(SemanticContextType.CompilerOption, ctx)
 

@@ -1035,7 +1035,7 @@ export default class SemanticAnalyzer {
   }
 
   handleInitialExpr(position) {
-    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope, SemanticContextType.InvariantScope]
+    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope, SemanticContextType.InvariantScope, SemanticContextType.MachineScope]
 
     const valid = this.checkNamedExpr(
       position,
@@ -1049,6 +1049,26 @@ export default class SemanticAnalyzer {
         ...position,
         params: {
           ident: "initial",
+          scopes
+        }
+      }])
+    }
+  }
+
+  handlePrevExpr(position) {
+    const scopes = [SemanticContextType.StateScope, SemanticContextType.GoalScope, SemanticContextType.InvariantScope, SemanticContextType.MachineScope]
+
+    const valid = this.checkNamedExpr(
+      position,
+      scopes
+    )
+
+    if (!valid) {
+      this.emit("errors", [{
+        type: SemanticErrorType.InvalidNamedExprScope,
+        ...position,
+        params: {
+          ident: "prev",
           scopes
         }
       }])

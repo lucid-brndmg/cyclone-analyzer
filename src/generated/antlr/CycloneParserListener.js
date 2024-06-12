@@ -770,6 +770,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#prevExpr.
+	enterPrevExpr(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#prevExpr.
+	exitPrevExpr(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#functionDeclaration.
 	enterFunctionDeclaration(ctx) {
 	}

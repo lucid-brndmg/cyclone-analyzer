@@ -440,8 +440,8 @@ initialExpr:
   INITIAL LPAREN dotIdentifierExpr RPAREN;
 
 // tbd
-//prevExpr:
-//  PREV LPAREN identifier RPAREN;
+prevExpr:
+  PREV LPAREN identifier RPAREN;
 
 functionDeclaration:
   FUNCTION (identifier) COLON primitiveBvType
@@ -475,7 +475,7 @@ primary:
   parExpression
   | dotIdentifierExpr
   | literal // maybe this is not needed??
-  // | prevExpr // PREV LPAREN identifier RPAREN // ???
+  | prevExpr // PREV LPAREN identifier RPAREN // ???
   | initialExpr // INITIAL LPAREN dotIdentifierExpr RPAREN // same type as fresh
   | freshExpr // FRESH LPAREN identifier RPAREN // = copy(a) -> a
   | oneExpr
