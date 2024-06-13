@@ -84,7 +84,7 @@ export const typeToString = (ty, tyParams = null) => {
     case IdentifierType.BitVector: {
       if (tyParams) {
         const size = tyParams[0]
-        if (size && !isNaN(size)) {
+        if (size != null && !isNaN(size)) {
           params = `[${size}]`
         }
       }
@@ -108,11 +108,27 @@ export const bitVectorLiteralSize = bvLiteralString => {
   return NaN
 }
 
+export const compareTypeParams = (type, a, b) => {
+  if (a == null && b == null) {
+    return true
+  }
+  if (a == null || b == null) {
+    return false
+  }
+
+  switch (type) {
+    case IdentifierType.BitVector: return a[0] === b[0]
+    default: return a === b
+  }
+  // return false
+}
+
 export default {
   checkSignature,
   typeToString,
   typeFromString,
   bitVectorLiteralSize,
   checkTypeParameters,
-  checkOperateTypeParams
+  checkOperateTypeParams,
+  compareTypeParams
 }

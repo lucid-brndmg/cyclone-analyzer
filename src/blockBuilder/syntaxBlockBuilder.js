@@ -1174,12 +1174,18 @@ export default class SyntaxBlockBuilder {
     // this.markDirty()
   }
 
-  updateVariableGroup(block, identKind, identType, enums = null) {
+  updateVariableGroup(block, identKind, identType, identTypeParams = null, enums = null) {
     let overrideType = false
     let overrideKind = false
+    let overrideTypeParams = false
     if (identKind != null && block.data.varKind !== identKind) {
       block.data.varKind = identKind
       overrideKind = true
+    }
+
+    if (identTypeParams != null) {
+      overrideTypeParams = true
+      block.data.typeParams = identTypeParams
     }
 
     if (identType != null) {
@@ -1191,13 +1197,16 @@ export default class SyntaxBlockBuilder {
       block.data.enums = enums
     }
 
-    if (overrideType || overrideKind) {
+    if (overrideType || overrideKind || overrideTypeParams) {
       for (const child of block.children) {
         if (overrideKind) {
           child.data.varKind = identKind
         }
         if (overrideType) {
           child.data.type = identType
+        }
+        if (overrideTypeParams) {
+          child.data.typeParams = identTypeParams
         }
       }
     }
@@ -1219,7 +1228,8 @@ export default class SyntaxBlockBuilder {
       codeInit,
       codeWhere,
       kind: kind ?? parent.data.varKind,
-      type: type ?? parent.data.type ?? parent.children[0]?.type
+      type: type ?? parent.data.type ?? parent.children[0]?.type,
+      typeParams
     })
   }
 
