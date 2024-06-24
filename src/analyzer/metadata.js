@@ -155,7 +155,8 @@ const inExprMetadata = () => ({
 })
 
 const assertExprMetadata = () => ({
-  inExpr: false
+  inExpr: false,
+  modifier: null
 })
 
 const statementMetadata = () => ({

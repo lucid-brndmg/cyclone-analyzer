@@ -249,9 +249,10 @@ export default class SyntaxBlock {
 
       case SyntaxBlockKind.Assertion: {
         const inExpr = this.data.inIdentifiers?.length
-          ? `in (${this.data.inIdentifiers.join(", ")})`
+          ? ` in (${this.data.inIdentifiers.join(", ")})`
           : ""
-        return `${indentPrefix}assert ${this.data.code} ${inExpr};`
+        const modifier = this.data.modifier ? `${this.data.modifier} ` : ""
+        return `${indentPrefix}assert ${modifier}${this.data.code}${inExpr};`
       }
 
       case SyntaxBlockKind.Variable: {

@@ -1713,6 +1713,7 @@ export default class SemanticAnalyzer {
   handleAssertExpr(modifier) {
     if (modifier) {
       const block = this.context.peekBlock()
+      block.metadata.modifier = modifier
       if (block.metadata.inExpr) {
         this.emit("errors", [{
           ...block.position,

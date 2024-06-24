@@ -660,6 +660,12 @@ export default class SyntaxBlockBuilder {
         })
         break
       }
+      case SemanticContextType.AssertExpr: {
+        this.markData(SyntaxBlockKind.Assertion, {
+          modifier: metadata.modifier
+        })
+        break
+      }
     }
   }
 
@@ -1504,17 +1510,18 @@ export default class SyntaxBlockBuilder {
     this.markDirty()
   }
 
-  insertAssertion(code, inIdentifiers = []) {
-    return this.insertBlock(SyntaxBlockKind.Assertion, this.getLatestBlockId(SyntaxBlockKind.Goal), {code, inIdentifiers})
+  insertAssertion(code, inIdentifiers, modifier) {
+    return this.insertBlock(SyntaxBlockKind.Assertion, this.getLatestBlockId(SyntaxBlockKind.Goal), {code, inIdentifiers, modifier})
   }
 
-  updateAssertion(block, code, inIdentifiers) {
+  updateAssertion(block, code, inIdentifiers, modifier) {
     if (code != null) {
       block.data.code = code
     }
     if (inIdentifiers != null) {
       block.data.inIdentifiers = inIdentifiers
     }
+    block.data.modifier = modifier
     this.markDirty()
   }
 
