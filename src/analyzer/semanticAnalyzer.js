@@ -39,7 +39,7 @@ import {
   isAnonymousEdge,
   isClosureEdge, possibleMaxPathLength
 } from "../utils/edge.js";
-import {bitVectorLiteralSize, checkOperateTypeParams, checkSignature, checkTypeParameters} from "../utils/type.js";
+import {checkOperateTypeParams, checkSignature, checkTypeParameters} from "../utils/type.js";
 import TypeInfo from "./typeInfo.js";
 import {elementEq, firstOfSet} from "../lib/set.js";
 

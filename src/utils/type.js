@@ -98,8 +98,8 @@ export const typeToString = (ty, tyParams = null) => {
 export const typeFromString = ty => msgTypeRepr[ty] ?? IdentifierType.Hole
 
 export const bitVectorLiteralSize = bvLiteralString => {
-  if (bvLiteralString.endsWith("b") || bvLiteralString.endsWith("B")) {
-    return bvLiteralString.slice(0, -1).length
+  if (bvLiteralString.startsWith('0b')) {
+    return bvLiteralString.slice(2).length
   }
   if (bvLiteralString.startsWith("0x") || bvLiteralString.startsWith("0X")) {
     return hexLiteralBinaryLength(bvLiteralString)

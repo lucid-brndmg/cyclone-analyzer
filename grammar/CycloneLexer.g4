@@ -132,7 +132,7 @@ INTLITERAL:
 
 BVLITERAL:
     ('0x' [0-9a-fA-F]+ )
-    | ([01]+[bB])
+    | ('0b'[01]+)
     ;
 
 REALLITERAL:

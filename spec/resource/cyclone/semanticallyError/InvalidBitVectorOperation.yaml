@@ -49,7 +49,7 @@ casesCounter:
 
     	goal{
 
-    		assert (initial(a)>=0001b);
+    		assert (initial(a)>=0b0001);
     		check for 3
     	}
 
@@ -64,15 +64,15 @@ casesCounter:
     	int b;
 
     	normal final start node S{
-    		c+=01b;
+    		c+=0b01;
     	}
 
     	edge { S -> S }
 
-    	invariant inv {c>=00b && c<=11b;}
+    	invariant inv {c>=0b0 && c<=0b11;}
 
     	goal{
-    		//assert (initial(c)==00b);
+    		//assert (initial(c)==0b0);
     		check for 3
     	}
 
