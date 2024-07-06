@@ -200,8 +200,8 @@ export default class SyntaxBlockBuilder {
     return this.followBlocks(block.parentId, acc)
   }
 
-  createErrors(errors, kind) {
-    return errors.map((error) => ({error, kind, id: this.assignErrorId()}))
+  createErrors(errors, blockKind) {
+    return errors.map((error) => ({error, blockKind, id: this.assignErrorId()}))
   }
 
   markErrors(kind, errors, pushUnsorted = true) {

@@ -135,6 +135,10 @@ export default class SyntaxBlock {
     this.childErrors.push(...childErrors)
   }
 
+  hasError() {
+    return this.errors.length > 0 || this.childErrors.length > 0
+  }
+
   markCodegenOverride(code) {
     this.codegenOverride = code
   }
