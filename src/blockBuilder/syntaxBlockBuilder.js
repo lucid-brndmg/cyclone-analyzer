@@ -4,7 +4,7 @@ import {CategorizedStackTable, StackedTable} from "../lib/storage.js";
 
 import {syntaxBlockIdPrefix} from "../language/specifications.js";
 import SyntaxBlock from "./syntaxBlock.js";
-import {elementReplacer, findLast} from "../lib/list.js";
+import {elementReplacer, findLast, replaceByMap} from "../lib/list.js";
 import {replaceIdentifiers} from "./refactorHelper.js";
 import {posPair} from "../lib/position.js";
 import CycloneParser from "../generated/antlr/CycloneParser.js";
@@ -27,25 +27,25 @@ export const idToKind = id => {
   return idPrefixKind[id.split(":")[0]]
 }
 
-const syntaxBlockParsingEntry = {
-  [SyntaxBlockKind.CompilerOption]: "compOptions",
-  [SyntaxBlockKind.Machine]: "machineDecl",
-  [SyntaxBlockKind.State]: "stateExpr",
-  [SyntaxBlockKind.Transition]: "trans",
-  [SyntaxBlockKind.Assertion]: "assertExpr",
-  [SyntaxBlockKind.Variable]: null,
-  [SyntaxBlockKind.Func]: "functionDeclaration",
-  [SyntaxBlockKind.Goal]: "goal",
-  [SyntaxBlockKind.Invariant]: "invariantExpression",
-  [SyntaxBlockKind.Statement]: "statement",
-  [SyntaxBlockKind.PathVariable]: "letExpr",
-  [SyntaxBlockKind.PathStatement]: "pathAssignStatement",
-  [SyntaxBlockKind.Record]: "record",
-  [SyntaxBlockKind.SingleTypedVariableGroup]: null,
-  [SyntaxBlockKind.FnParamGroup]: "functionParamsDecl",
-  [SyntaxBlockKind.GoalFinal]: "checkExpr",
-  [SyntaxBlockKind.Program]: "program"
-}
+// const syntaxBlockParsingEntry = {
+//   [SyntaxBlockKind.CompilerOption]: "compOptions",
+//   [SyntaxBlockKind.Machine]: "machineDecl",
+//   [SyntaxBlockKind.State]: "stateExpr",
+//   [SyntaxBlockKind.Transition]: "trans",
+//   [SyntaxBlockKind.Assertion]: "assertExpr",
+//   [SyntaxBlockKind.Variable]: null,
+//   [SyntaxBlockKind.Func]: "functionDeclaration",
+//   [SyntaxBlockKind.Goal]: "goal",
+//   [SyntaxBlockKind.Invariant]: "invariantExpression",
+//   [SyntaxBlockKind.Statement]: "statement",
+//   [SyntaxBlockKind.PathVariable]: "letExpr",
+//   [SyntaxBlockKind.PathStatement]: "pathAssignStatement",
+//   [SyntaxBlockKind.Record]: "record",
+//   [SyntaxBlockKind.SingleTypedVariableGroup]: null,
+//   [SyntaxBlockKind.FnParamGroup]: "functionParamsDecl",
+//   [SyntaxBlockKind.GoalFinal]: "checkExpr",
+//   [SyntaxBlockKind.Program]: "program"
+// }
 
 const semanticTypePathToBlockKind = path => {
   for (let i = path.length - 1; i >= 0 ; i--) {
@@ -931,54 +931,54 @@ export default class SyntaxBlockBuilder {
     return block
   }
 
-  findBlockParsingEntry(block) {
-    const entry = syntaxBlockParsingEntry[block.kind]
-    if (entry) {
-      return entry
-    }
+  // findBlockParsingEntry(block) {
+  //   const entry = syntaxBlockParsingEntry[block.kind]
+  //   if (entry) {
+  //     return entry
+  //   }
+  //
+  //   switch (block.kind) {
+  //     case SyntaxBlockKind.Variable: {
+  //       switch (block.data.kind) {
+  //         case IdentifierKind.GlobalConst: return "globalConstantDecl"
+  //         case IdentifierKind.RecordField:
+  //         case IdentifierKind.LocalVariable:
+  //         case IdentifierKind.GlobalVariable: return "variableDeclarator"
+  //         case IdentifierKind.FnParam: return "functionParam"
+  //       }
+  //       break
+  //     }
+  //     case SyntaxBlockKind.SingleTypedVariableGroup: {
+  //       switch (block.data.varKind) {
+  //         case IdentifierKind.GlobalConst: return "globalConstantGroup"
+  //         case IdentifierKind.RecordField: return "recordVariableDecl"
+  //         case IdentifierKind.LocalVariable: return "localVariableGroup"
+  //         case IdentifierKind.GlobalVariable: return "globalVariableGroup"
+  //       }
+  //       break
+  //     }
+  //   }
+  //
+  //   return null
+  // }
 
-    switch (block.kind) {
-      case SyntaxBlockKind.Variable: {
-        switch (block.data.kind) {
-          case IdentifierKind.GlobalConst: return "globalConstantDecl"
-          case IdentifierKind.RecordField:
-          case IdentifierKind.LocalVariable:
-          case IdentifierKind.GlobalVariable: return "variableDeclarator"
-          case IdentifierKind.FnParam: return "functionParam"
-        }
-        break
-      }
-      case SyntaxBlockKind.SingleTypedVariableGroup: {
-        switch (block.data.varKind) {
-          case IdentifierKind.GlobalConst: return "globalConstantGroup"
-          case IdentifierKind.RecordField: return "recordVariableDecl"
-          case IdentifierKind.LocalVariable: return "localVariableGroup"
-          case IdentifierKind.GlobalVariable: return "globalVariableGroup"
-        }
-        break
-      }
-    }
-
-    return null
-  }
-
-  updateTransition(block, keyword, identifier, fromState, toStates, operators, excludedStates, label, labelKeyword, codeWhere, isRefactorMode = true) {
+  updateTransition(block, keyword, identifier, fromState, toStates, operators, excludedStates, label, labelKeyword, codeWhere) {
     const data = block.data
     if (keyword) {
       data.keyword = keyword
     }
 
     if (identifier != null) {
-      const oldIdent = data.identifier
+      // const oldIdent = data.identifier
       data.identifier = identifier
-      if (isRefactorMode && !block.isNewlyInserted()) {
-        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        if (goal) {
-          const code = goal.codegen()
-          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
-          goal.markCodegenOverride(newCode)
-        }
-      }
+      // if (isRefactorMode && !block.isNewlyInserted()) {
+      //   const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+      //   if (goal) {
+      //     const code = goal.codegen()
+      //     const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+      //     goal.markCodegenOverride(newCode)
+      //   }
+      // }
     }
 
     if (fromState != null) {
@@ -1088,26 +1088,28 @@ export default class SyntaxBlockBuilder {
       const oldIdent = block.data.identifier
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
-        this.context.kindBlocks
-          .get(SyntaxBlockKind.Transition)
-          ?.forEach(t => {
-            if (t.data.fromState === oldIdent) {
-              t.data.fromState = identifier
-            }
-            if (t.data.toStates.includes(oldIdent)) {
-              t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
-            }
-            if (t.data.excludedStates.includes(oldIdent)) {
-              t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
-            }
-          })
+        this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.State)
 
-        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        if (goal) {
-          const code = goal.codegen()
-          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
-          goal.markCodegenOverride(newCode)
-        }
+        // this.context.kindBlocks
+        //   .get(SyntaxBlockKind.Transition)
+        //   ?.forEach(t => {
+        //     if (t.data.fromState === oldIdent) {
+        //       t.data.fromState = identifier
+        //     }
+        //     if (t.data.toStates.includes(oldIdent)) {
+        //       t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
+        //     }
+        //     if (t.data.excludedStates.includes(oldIdent)) {
+        //       t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
+        //     }
+        //   })
+        //
+        // const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        // if (goal) {
+        //   const code = goal.codegen()
+        //   const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+        //   goal.markCodegenOverride(newCode)
+        // }
       }
     }
     if (attributes) {
@@ -1262,91 +1264,102 @@ export default class SyntaxBlockBuilder {
       if (isRefactorMode && !block.isNewlyInserted()) {
         const parent = this.getBlockById(block.parentId)
         const blockKind = block.data.kind
-        switch (blockKind) {
-          case IdentifierKind.FnParam:
-          case IdentifierKind.LocalVariable:{
-            // do refactor inside fn
-            // fn :: parent :: block :: []
-            const fn = this.getBlockById(parent.parentId)
-            const replacements = {
-              commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-            }
-            for (let i = parent.parentIndex + 1; i < fn.children.length; i++) {
-              // this iteration implicitly skipped kind = FnParamGroup
-              const child = fn.children[i]
-              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-                replaceIdentifiers(
-                  child.codegen(),
-                  this.findBlockParsingEntry(child),
-                  replacements
-                )
-              }
-            }
-            if (blockKind === IdentifierKind.LocalVariable) {
-              for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
-                const child = parent.children[i]
-                if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-                  replaceIdentifiers(
-                    child.codegen(),
-                    this.findBlockParsingEntry(child),
-                    replacements
-                  )
-                }
-              }
-            }
-            break
-          }
-          case IdentifierKind.RecordField: {
-            // do refactor with dotExpr
-            const record = this.getBlockById(parent.parentId)
-            const recordIdent = record.data.identifier
-            const machine = this.getBlockById(record.parentId)
-            for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
-              const child = machine.children[i]
-              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-                replaceIdentifiers(
-                  child.codegen(),
-                  this.findBlockParsingEntry(child),
-                  {
-                    dotIdentifiersMap: new Map([[`${recordIdent}.${oldIdent}`, `${recordIdent}.${identifier}`]])
-                  }
-                )
-              }
-            }
-            break
-          }
-          case IdentifierKind.GlobalVariable:
-          case IdentifierKind.GlobalConst: {
-            // do global scan
-            const replacements = {
-              commonIdentifiersMap: new Map([[oldIdent, identifier]])
-            }
-            // for each parent
-            for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
-              const child = parent.children[i]
-              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-                replaceIdentifiers(
-                  child.codegen(),
-                  this.findBlockParsingEntry(child),
-                  replacements
-                )
-              }
-            }
-            // for each machine
-            const machine = this.getBlockById(parent.parentId)
-            for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
-              const child = machine.children[i]
-              if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-                replaceIdentifiers(
-                  child.codegen(),
-                  this.findBlockParsingEntry(child),
-                  replacements
-                )
-              }
-            }
-            break
-          }
+
+        if (blockKind === IdentifierKind.RecordField) {
+          const record = this.getBlockById(parent.parentId)
+          const recordIdent = record.data.identifier
+          const replacement = new Map([[`${recordIdent}.${oldIdent}`, `${recordIdent}.${identifier}`]])
+          this.refactorBlockIdentifier(block, replacement, IdentifierKind.RecordField)
+        } else {
+          this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), blockKind)
         }
+
+        // switch (blockKind) {
+        //   case IdentifierKind.FnParam:
+        //   case IdentifierKind.LocalVariable:{
+        //     // do refactor inside fn
+        //     // fn :: parent :: block :: []
+        //     const fn = this.getBlockById(parent.parentId)
+        //     const replacements = {
+        //       commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+        //     }
+        //     for (let i = parent.parentIndex + 1; i < fn.children.length; i++) {
+        //       // this iteration implicitly skipped kind = FnParamGroup
+        //       const child = fn.children[i]
+        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //         replaceIdentifiers(
+        //           child.codegen(),
+        //           this.findBlockParsingEntry(child),
+        //           replacements
+        //         )
+        //       }
+        //     }
+        //     if (blockKind === IdentifierKind.LocalVariable) {
+        //       for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
+        //         const child = parent.children[i]
+        //         if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //           replaceIdentifiers(
+        //             child.codegen(),
+        //             this.findBlockParsingEntry(child),
+        //             replacements
+        //           )
+        //         }
+        //       }
+        //     }
+        //     break
+        //   }
+        //   case IdentifierKind.RecordField: {
+        //     // do refactor with dotExpr
+        //     const record = this.getBlockById(parent.parentId)
+        //     const recordIdent = record.data.identifier
+        //     const machine = this.getBlockById(record.parentId)
+        //     const replacement = new Map([[`${recordIdent}.${oldIdent}`, `${recordIdent}.${identifier}`]])
+        //     for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
+        //       const child = machine.children[i]
+        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //         replaceIdentifiers(
+        //           child.codegen(),
+        //           this.findBlockParsingEntry(child),
+        //           {
+        //             commonIdentifiersMap: replacement
+        //           }
+        //         )
+        //       }
+        //     }
+        //     break
+        //   }
+        //   case IdentifierKind.GlobalVariable:
+        //   case IdentifierKind.GlobalConst: {
+        //     // do global scan
+        //     const replacements = {
+        //       commonIdentifiersMap: new Map([[oldIdent, identifier]])
+        //     }
+        //     // for each parent
+        //     for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
+        //       const child = parent.children[i]
+        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //         replaceIdentifiers(
+        //           child.codegen(),
+        //           this.findBlockParsingEntry(child),
+        //           replacements
+        //         )
+        //       }
+        //     }
+        //     // for each machine
+        //     const machine = this.getBlockById(parent.parentId)
+        //     for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
+        //       const child = machine.children[i]
+        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //         replaceIdentifiers(
+        //           child.codegen(),
+        //           this.findBlockParsingEntry(child),
+        //           replacements
+        //         )
+        //       }
+        //     }
+        //     break
+        //   }
+        // }
       }
     }
 
@@ -1362,23 +1375,40 @@ export default class SyntaxBlockBuilder {
     block.data.identifier = identifier
 
     if (isRefactorMode && !block.isNewlyInserted()) {
-      const allMembers = block.children
-        .map(it => it.children[0].data?.identifier)
-        .filter(it => !!it)
-        .map(it => [`${oldIdent}.${it}`, `${identifier}.${it}`])
-      for (let i = block.index + 1; i < this.context.blocks.length; i++) {
-        const child = this.context.blocks[i]
-        if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-          const code = replaceIdentifiers(
-            child.codegen(),
-            this.findBlockParsingEntry(child), {
-              commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-              dotIdentifiersMap: new Map(allMembers)
-            }
-          )
-          child.markCodegenOverride(code)
+      // const recVars = []
+      // const allMembers = block.children
+      //   .map(it => {
+      //     const vBlock = it.children[0]
+      //     recVars.push(vBlock)
+      //     return vBlock.data?.identifier
+      //   })
+      //   .filter(it => !!it)
+      //   .map(it => [`${oldIdent}.${it}`, `${identifier}.${it}`])
+      // for (let i = block.index + 1; i < this.context.blocks.length; i++) {
+      //   const child = this.context.blocks[i]
+      //   if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+      //     const code = replaceIdentifiers(
+      //       child.codegen(),
+      //       this.findBlockParsingEntry(child), {
+      //         commonIdentifiersMap: new Map([[oldIdent, identifier], ...allMembers]),
+      //         // dotIdentifiersMap: new Map(allMembers)
+      //       }
+      //     )
+      //     child.markCodegenOverride(code)
+      //   }
+      // }
+
+      const m = new Map([[oldIdent, identifier]])
+      this.refactorBlockIdentifier(block, m, IdentifierKind.Record)
+
+      for (const child of block.children) {
+        const vb = child.children[0]
+        const field = vb?.data.identifier
+        if (field) {
+          this.refactorBlockIdentifier(vb, new Map([[`${oldIdent}.${field}`, `${identifier}.${field}`]]), IdentifierKind.RecordField)
         }
       }
+
     }
 
     this.markDirty()
@@ -1451,20 +1481,22 @@ export default class SyntaxBlockBuilder {
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
         // const parent = this.getBlockById(block.parentId)
-        for (let i = block.index + 1; i < this.context.blocks.length; i++) {
-          const child = this.context.blocks[i]
-          if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-            // const stop = block.position.stopPosition
-            const code = replaceIdentifiers(
-              child.codegen(),
-              this.findBlockParsingEntry(child), {
-                commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-                // rangePair: posPair(stop.line, stop.column)
-              }
-            )
-            child.markCodegenOverride(code)
-          }
-        }
+        // for (let i = block.index + 1; i < this.context.blocks.length; i++) {
+        //   const child = this.context.blocks[i]
+        //   if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
+        //     // const stop = block.position.stopPosition
+        //     const code = replaceIdentifiers(
+        //       child.codegen(),
+        //       this.findBlockParsingEntry(child), {
+        //         commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+        //         // rangePair: posPair(stop.line, stop.column)
+        //       }
+        //     )
+        //     child.markCodegenOverride(code)
+        //   }
+        // }
+
+        this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.FnName)
       }
     }
 
@@ -1490,12 +1522,14 @@ export default class SyntaxBlockBuilder {
       const oldIdent = block.data.identifier
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
-        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        if (goal) {
-          const code = goal.codegen()
-          const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
-          goal.markCodegenOverride(newCode)
-        }
+        this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.Invariant)
+
+        // const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        // if (goal) {
+        //   const code = goal.codegen()
+        //   const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
+        //   goal.markCodegenOverride(newCode)
+        // }
       }
     }
     this.markDirty()
@@ -1538,17 +1572,18 @@ export default class SyntaxBlockBuilder {
       const oldIdent = block.data.identifier
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
-        const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        if (goal) {
-          const code = goal.codegen()
-          const position = block.position
-          const goalStop = goal.position?.stopPosition
-          const newCode = replaceIdentifiers(code, "goal", {
-            commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-            rangePair: posPair(position.stopPosition.line, position.stopPosition.column, goalStop?.line, goalStop?.column)
-          })
-          goal.markCodegenOverride(newCode)
-        }
+        this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.Let)
+        // const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
+        // if (goal) {
+        //   const code = goal.codegen()
+        //   const position = block.position
+        //   const goalStop = goal.position?.stopPosition
+        //   const newCode = replaceIdentifiers(code, "goal", {
+        //     commonIdentifiersMap: new Map([[oldIdent, identifier]]),
+        //     rangePair: posPair(position.stopPosition.line, position.stopPosition.column, goalStop?.line, goalStop?.column)
+        //   })
+        //   goal.markCodegenOverride(newCode)
+        // }
       }
     }
 
@@ -1594,6 +1629,155 @@ export default class SyntaxBlockBuilder {
       block.data.states = states
     }
     this.markDirty()
+  }
+
+  refactorBlockIdentifier(updatedBlock, replacementMap, identPossibleKind) {
+    for (const [k, v] of replacementMap) {
+      if (k === v) {
+        replacementMap.delete(k)
+      }
+    }
+    if (!replacementMap.size) {
+      return
+    }
+    const refs = this.context.blocks.filter(block => block.references.has(updatedBlock.id))
+
+    for (const block of refs) {
+      this.updateReferencedIdentifier(block, replacementMap, identPossibleKind)
+    }
+  }
+
+  updateReferencedIdentifier(block, replacementMap, identPossibleKind = null) {
+    const blockKind = block.kind
+    const replacementCtx = {
+      commonIdentifiersMap: replacementMap,
+    }
+
+    // block referencing this identifier
+    switch (blockKind) {
+      case SyntaxBlockKind.PathStatement: {
+        block.data.code = replaceIdentifiers(block.data.code, "pathAssignStatement", replacementCtx)
+        this.markDirty()
+        break
+      }
+      case SyntaxBlockKind.Statement: {
+        block.data.code = replaceIdentifiers(block.data.code, "statement", replacementCtx)
+        this.markDirty()
+        break
+      }
+      case SyntaxBlockKind.PathVariable: {
+        if (block.data.codeInit) {
+          block.data.codeInit = replaceIdentifiers(block.data.codeInit, "pathExpr", replacementCtx)
+          this.markDirty()
+        }
+
+        break
+      }
+      case SyntaxBlockKind.Variable: {
+        let replaced = false
+        if (block.data.codeInit) {
+          block.data.codeInit = replaceIdentifiers(block.data.codeInit, "expression", replacementCtx)
+          replaced = true
+        }
+        if (block.data.codeWhere) {
+          block.data.codeWhere = replaceIdentifiers(block.data.codeWhere, "expression", replacementCtx)
+          replaced = true
+        }
+        if (replaced) {
+          this.markDirty()
+        }
+        break
+      }
+      case SyntaxBlockKind.Transition: {
+        const {codeWhere, fromState, toStates, excludedStates} = block.data
+        let replaced = false
+        if (codeWhere && identPossibleKind !== IdentifierKind.State) {
+          block.data.codeWhere = replaceIdentifiers(block.data.codeWhere, "expression", replacementCtx)
+          replaced = true
+        }
+
+        if (identPossibleKind === IdentifierKind.State || identPossibleKind === null) {
+          if (replacementMap.has(fromState)) {
+            block.data.fromState = replacementMap.get(fromState)
+            replaced = true
+          }
+
+          if (toStates.length) {
+            block.data.toStates = replaceByMap(block.data.toStates, replacementMap)
+            replaced = true
+          }
+
+          if (excludedStates.length) {
+            block.data.excludedStates = replaceByMap(block.data.excludedStates, replacementMap)
+            replaced = true
+          }
+        }
+
+        if (replaced) {
+          this.markDirty()
+        }
+
+        break
+      }
+
+      case SyntaxBlockKind.Assertion: {
+        if (block.data.inIdentifiers?.length && (identPossibleKind === IdentifierKind.State || identPossibleKind == null)) {
+          block.data.inIdentifiers = replaceByMap(block.data.inIdentifiers, replacementMap)
+        }
+
+        if (identPossibleKind !== IdentifierKind.State) {
+          block.data.code = replaceIdentifiers(block.data.code, "expression", replacementCtx)
+        }
+
+        this.markDirty()
+        break
+      }
+
+      case SyntaxBlockKind.Invariant: {
+        if (block.data.inIdentifiers?.length && (identPossibleKind === IdentifierKind.State || identPossibleKind == null)) {
+          block.data.inIdentifiers = replaceByMap(block.data.inIdentifiers, replacementMap)
+        }
+
+        if (identPossibleKind !== IdentifierKind.State) {
+          for (const child of block.children) {
+            this.updateReferencedIdentifier(child, replacementMap, identPossibleKind)
+          }
+        }
+        this.markDirty()
+        break
+      }
+
+      case SyntaxBlockKind.GoalFinal: {
+        const {
+          invariants,
+          states,
+          viaExpr
+        } = block.data
+
+        if (invariants.length && (identPossibleKind === IdentifierKind.Invariant || identPossibleKind == null)) {
+          block.data.invariants = replaceByMap(block.data.invariants, replacementMap)
+        }
+
+        if (states.length && (identPossibleKind === IdentifierKind.State || identPossibleKind == null)) {
+          block.data.states = replaceByMap(block.data.states, replacementMap)
+        }
+
+        if (viaExpr && identPossibleKind !== IdentifierKind.Invariant) {
+          block.data.viaExpr = replaceIdentifiers(viaExpr, "pathExprList", replacementCtx)
+        }
+
+        this.markDirty()
+
+        break
+      }
+
+      default: {
+        for (const child of block.children) {
+          this.updateReferencedIdentifier(child, replacementMap, identPossibleKind)
+        }
+        break
+      }
+    }
   }
 
   searchReferences(blockIds) {

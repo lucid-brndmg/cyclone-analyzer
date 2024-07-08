@@ -317,7 +317,7 @@ export default class SyntaxBlock {
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
-        return codeBlock(`record ${this.data.identifier}`, body, currentIndent, options)
+        return codeBlock(`record ${this.data.identifier}`, body, currentIndent, options) + ";"
         // return `record ${this.data.identifier} {${body.join(options.breakChar)}};`
       }
       case SyntaxBlockKind.SingleTypedVariableGroup: {

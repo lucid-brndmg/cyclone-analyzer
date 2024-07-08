@@ -59,11 +59,14 @@ export const findDuplications = xs => {
   return dup
 }
 
+export const replaceByMap = (xs, map) => xs.map(elem => map.has(elem) ? map.get(elem) : elem)
+
 export default {
   popMulti,
   popMultiStore,
   findLast,
   elementReplacer,
   firstCombo,
-  findDuplications
+  findDuplications,
+  replaceByMap
 }

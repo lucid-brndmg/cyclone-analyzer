@@ -26,7 +26,7 @@ export default class CheckExprListener extends CycloneParserListener {
 
   enterViaExpr(ctx) {
     this.result.viaKeyword = firstSymbol(ctx)
-    this.result.viaExpr = getExpression(ctx.children.filter(c => c instanceof CycloneParser.PathExprContext)[0])
+    this.result.viaExpr = getExpression(ctx.children.filter(c => c instanceof CycloneParser.PathExprListContext)[0])
   }
 
   enterWithExpr(ctx) {

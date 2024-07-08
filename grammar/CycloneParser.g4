@@ -122,8 +122,10 @@ stopExpr:
   ;
 
 viaExpr:
-  (VIA | CONDITION) LPAREN (pathExpr (COMMA pathExpr)*) RPAREN
+  (VIA | CONDITION) LPAREN pathExprList RPAREN
   ;
+
+pathExprList: pathExpr (COMMA pathExpr)*;
 
 withExpr:
   WITH LPAREN (identifier (COMMA identifier)*) RPAREN

@@ -44,12 +44,12 @@ class IdentifierReplacer extends CycloneParserListener {
   }
 
   enterEnumLiteral(ctx) {
-    if (!this.replacements.enumLiteralsMap || !this.isInRange(ctx)) {
+    if (!this.replacements.commonIdentifiersMap || !this.isInRange(ctx)) {
       return
     }
     const text = ctx.start.text
-    if (this.replacements.enumLiteralsMap.has(text)) {
-      this.rewriter.replace(ctx.start, ctx.stop, this.replacements.enumLiteralsMap.get(text))
+    if (this.replacements.commonIdentifiersMap.has(text)) {
+      this.rewriter.replace(ctx.start, ctx.stop, this.replacements.commonIdentifiersMap.get(text))
     }
   }
 
@@ -73,12 +73,12 @@ class IdentifierReplacer extends CycloneParserListener {
   exitDotIdentifierExpr(ctx) {
     if (this.isDotMode) {
       this.isDotMode = false
-      if (!this.replacements.dotIdentifiersMap || !this.isInRange(ctx)) {
+      if (!this.replacements.commonIdentifiersMap || !this.isInRange(ctx)) {
         return
       }
       const ident = `${ctx.start.text}.${ctx.stop.text}`
-      if (this.replacements.dotIdentifiersMap.has(ident)) {
-        this.rewriter.replace(ctx.start, ctx.stop, this.replacements.dotIdentifiersMap.get(ident))
+      if (this.replacements.commonIdentifiersMap.has(ident)) {
+        this.rewriter.replace(ctx.start, ctx.stop, this.replacements.commonIdentifiersMap.get(ident))
       }
     }
   }
@@ -93,8 +93,8 @@ export const replaceIdentifiers = (
   parsingEntry,
   {
     commonIdentifiersMap = null,
-    enumLiteralsMap = null,
-    dotIdentifiersMap = null,
+    // enumLiteralsMap = null,
+    // dotIdentifiersMap = null,
     rangePair = null,
     isStrictRange = false,
   }) => {
@@ -105,8 +105,8 @@ export const replaceIdentifiers = (
 
   const replacer = new IdentifierReplacer(tokenStream, {
     commonIdentifiersMap,
-    enumLiteralsMap,
-    dotIdentifiersMap,
+    // enumLiteralsMap,
+    // dotIdentifiersMap,
     rangePair,
     isStrictRange
   })
@@ -187,10 +187,14 @@ export const replaceOperators = (
   replacementMap,
   replacementFn
 ) => {
-  const {tokenStream, tree} = parseCycloneSyntax({
+  const {tokenStream, tree, syntaxErrorsCount} = parseCycloneSyntax({
     input: code,
     entry: parsingEntry
   })
+  if (syntaxErrorsCount) {
+    console.log("warn: syntax error parsing code", code, parsingEntry)
+    return code
+  }
   const replacer = new OperatorReplacer(tokenStream, replacementMap, replacementFn)
 
   listenerWalk(replacer, tree)

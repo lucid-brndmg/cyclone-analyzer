@@ -194,6 +194,15 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#pathExprList.
+	enterPathExprList(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#pathExprList.
+	exitPathExprList(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#withExpr.
 	enterWithExpr(ctx) {
 	}
