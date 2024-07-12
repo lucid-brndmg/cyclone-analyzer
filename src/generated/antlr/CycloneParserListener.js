@@ -32,6 +32,42 @@ export default class CycloneParserListener extends antlr4.tree.ParseTreeListener
 	}
 
 
+	// Enter a parse tree produced by CycloneParser#statementList.
+	enterStatementList(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#statementList.
+	exitStatementList(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#transList.
+	enterTransList(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#transList.
+	exitTransList(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#letOrPathAssignExpr.
+	enterLetOrPathAssignExpr(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#letOrPathAssignExpr.
+	exitLetOrPathAssignExpr(ctx) {
+	}
+
+
+	// Enter a parse tree produced by CycloneParser#globalDefinitions.
+	enterGlobalDefinitions(ctx) {
+	}
+
+	// Exit a parse tree produced by CycloneParser#globalDefinitions.
+	exitGlobalDefinitions(ctx) {
+	}
+
+
 	// Enter a parse tree produced by CycloneParser#program.
 	enterProgram(ctx) {
 	}

@@ -27,6 +27,11 @@ optionName:
   | BVDISPLAY
   ;
 
+statementList: statement*;
+transList: trans*;
+letOrPathAssignExpr: letExpr | pathAssignStatement;
+globalDefinitions: (globalVariableGroup) | (globalConstantGroup) | (record) | (functionDeclaration);
+
 program:
   (compOptions)*
   machineDecl
