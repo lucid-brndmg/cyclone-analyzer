@@ -106,7 +106,7 @@ export default class SyntaxBlockBuilder {
       invariantIdentifierBlockId: new CategorizedStackTable()
     }
 
-    this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null, {
+    this.context.program = this.createBlock(SyntaxBlockKind.Program, null, null, null, {
       isDirty: false
     })
   }
@@ -146,31 +146,13 @@ export default class SyntaxBlockBuilder {
     return this.context.errorId++
   }
 
-  createBlock(kind, position = null, parentId = null, data = null, atIndex = null, pushChild = true) {
+  createBlock(kind, position, parentId, originalCode, data = null, atIndex = null, pushChild = true) {
     const id = this.assignId(kind)
-    // const block = {
-    //   id,
-    //   parentId,
-    //   position,
-    //   errors: [],
-    //   childErrors: [],
-    //   references: new Set(),
-    //   children: [],
-    //   kind,
-    //   data: data ?? {},
-    //   index: this.context.blocks.length
-    // }
-    const block = new SyntaxBlock(id, kind, parentId, data, position, this.context.blocks.length)
+    const block = new SyntaxBlock(id, kind, parentId, data, position, this.context.blocks.length, originalCode)
     this.context.blocks.push(block)
     this.context.kindBlocks.push(kind, block)
     this.context.idBlocks.set(id, block)
     this.context.latestBlock = block
-
-    // if (children?.length) {
-    //   for (let block of children) {
-    //     block.pushChild(block)
-    //   }
-    // }
 
     if (parentId && pushChild) {
       const parent = this.context.idBlocks.get(parentId)
@@ -300,18 +282,6 @@ export default class SyntaxBlockBuilder {
 
     const markId = identRegBlockIds.findLast(({kind}) => identKindLimitations.includes(kind))?.blockId // = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
 
-    // if (!blockRestrictions.length) {
-    //   markId = identRegBlockIds[identRegBlockIds.length - 1]?.blockId
-    // } else {
-    //   for (let i = identRegBlockIds.length - 1; i <= 0; i--) {
-    //     const {blockId} = identRegBlockIds[i]
-    //     if (blockRestrictions.includes(blockId)) {
-    //       markId = blockId
-    //       break
-    //     }
-    //   }
-    // }
-
     if (markId) {
       block.addReference(markId)
     }
@@ -335,13 +305,14 @@ export default class SyntaxBlockBuilder {
 
   #onAnalyzerBlockEnter(context, {block, payload}) {
     const {type, position} = block
+    const originalCode = getExpression(payload)
     switch (type) {
       case SemanticContextType.CompilerOption: {
-        this.createBlock(SyntaxBlockKind.CompilerOption, position, this.getLatestBlockId(SyntaxBlockKind.Program))
+        this.createBlock(SyntaxBlockKind.CompilerOption, position, this.getLatestBlockId(SyntaxBlockKind.Program), originalCode)
         break
       }
       case SemanticContextType.MachineDecl: {
-        this.createBlock(SyntaxBlockKind.Machine, position, this.getLatestBlockId(SyntaxBlockKind.Program), {
+        this.createBlock(SyntaxBlockKind.Machine, position, this.getLatestBlockId(SyntaxBlockKind.Program), originalCode, {
           identifiers: new StackedTable(),
           recordFields: new CategorizedStackTable()
         })
@@ -349,7 +320,7 @@ export default class SyntaxBlockBuilder {
       }
       case SemanticContextType.GlobalVariableGroup:
       case SemanticContextType.GlobalConstantGroup: {
-        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Machine), {
+        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode, {
           varKind: type === SemanticContextType.GlobalVariableGroup
             ? IdentifierKind.GlobalVariable
             : IdentifierKind.GlobalConst,
@@ -359,32 +330,31 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.RecordDecl: {
-        this.createBlock(SyntaxBlockKind.Record, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
+        this.createBlock(SyntaxBlockKind.Record, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode)
         break
       }
       case SemanticContextType.RecordVariableDeclGroup: {
-        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Record), {
+        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Record), originalCode, {
           varKind: IdentifierKind.RecordField,
           type: null
         })
         break
       }
       case SemanticContextType.VariableInit: {
-        const codeInit = getExpression(payload)
         this.markData(SyntaxBlockKind.Variable, {
-          codeInit
+          codeInit: originalCode
         })
         break
       }
       case SemanticContextType.FnDecl: {
-        this.createBlock(SyntaxBlockKind.Func, position, this.getLatestBlockId(SyntaxBlockKind.Machine), {
+        this.createBlock(SyntaxBlockKind.Func, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode, {
           returnType: IdentifierType.Hole,
           identifier: ""
         })
         break
       }
       case SemanticContextType.FnParamsDecl: {
-        this.createBlock(SyntaxBlockKind.FnParamGroup, position, this.getLatestBlockId(SyntaxBlockKind.Func))
+        this.createBlock(SyntaxBlockKind.FnParamGroup, position, this.getLatestBlockId(SyntaxBlockKind.Func), originalCode)
         break
       }
       case SemanticContextType.Statement: {
@@ -395,20 +365,20 @@ export default class SyntaxBlockBuilder {
         ])
 
         const content = {
-          code: getExpression(payload)
+          code: originalCode
         }
 
         switch (semBlocks.type) {
           case SemanticContextType.FnBodyScope: {
-            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.Func), content)
+            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.Func), originalCode, content)
             break
           }
           case SemanticContextType.StateScope: {
-            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.State), content)
+            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.State), originalCode, content)
             break
           }
           case SemanticContextType.InvariantScope: {
-            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.Invariant), content)
+            this.createBlock(SyntaxBlockKind.Statement, position, this.getLatestBlockId(SyntaxBlockKind.Invariant), originalCode, content)
             break
           }
         }
@@ -416,7 +386,7 @@ export default class SyntaxBlockBuilder {
       }
       case SemanticContextType.LocalVariableGroup: {
         // For now, local var can only exist in fn
-        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Func), {
+        this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, position, this.getLatestBlockId(SyntaxBlockKind.Func), originalCode, {
           varKind: IdentifierKind.LocalVariable,
           type: null
         })
@@ -425,46 +395,46 @@ export default class SyntaxBlockBuilder {
       }
 
       case SemanticContextType.StateDecl: {
-        this.createBlock(SyntaxBlockKind.State, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
+        this.createBlock(SyntaxBlockKind.State, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode)
         break
       }
 
       case SemanticContextType.TransDecl: {
-        this.createBlock(SyntaxBlockKind.Transition, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
+        this.createBlock(SyntaxBlockKind.Transition, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode)
         break
       }
 
       case SemanticContextType.InvariantDecl: {
-        this.createBlock(SyntaxBlockKind.Invariant, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
+        this.createBlock(SyntaxBlockKind.Invariant, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode)
         break
       }
 
       case SemanticContextType.GoalScope: {
-        this.createBlock(SyntaxBlockKind.Goal, position, this.getLatestBlockId(SyntaxBlockKind.Machine))
+        this.createBlock(SyntaxBlockKind.Goal, position, this.getLatestBlockId(SyntaxBlockKind.Machine), originalCode)
         break
       }
 
       case SemanticContextType.AssertExpr: {
-        this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal), {
+        this.createBlock(SyntaxBlockKind.Assertion, position, this.getLatestBlockId(SyntaxBlockKind.Goal), originalCode, {
           code: getOnlyExpression(payload, CycloneParser.AssertMainExprContext) // getExpression(payload)
         })
         break
       }
 
       case SemanticContextType.PathAssignStatement: {
-        this.createBlock(SyntaxBlockKind.PathStatement, position, this.getLatestBlockId(SyntaxBlockKind.Goal), {
-          code: getExpression(payload)
+        this.createBlock(SyntaxBlockKind.PathStatement, position, this.getLatestBlockId(SyntaxBlockKind.Goal), originalCode, {
+          code: originalCode
         })
         break
       }
 
       case SemanticContextType.LetDecl: {
-        this.createBlock(SyntaxBlockKind.PathVariable, position, this.getLatestBlockId(SyntaxBlockKind.Goal))
+        this.createBlock(SyntaxBlockKind.PathVariable, position, this.getLatestBlockId(SyntaxBlockKind.Goal), originalCode)
         break
       }
 
       case SemanticContextType.GoalFinal: {
-        this.createBlock(SyntaxBlockKind.GoalFinal, position, this.getLatestBlockId(SyntaxBlockKind.Goal))
+        this.createBlock(SyntaxBlockKind.GoalFinal, position, this.getLatestBlockId(SyntaxBlockKind.Goal), originalCode)
         break
       }
     }
@@ -684,7 +654,7 @@ export default class SyntaxBlockBuilder {
           type,
           typeParams
         })
-        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), {
+        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.SingleTypedVariableGroup), null, {
           identifier: text,
           type,
           typeParams,
@@ -702,7 +672,7 @@ export default class SyntaxBlockBuilder {
       }
 
       case IdentifierKind.FnParam: {
-        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.FnParamGroup), {
+        const {id} = this.createBlock(SyntaxBlockKind.Variable, position, this.getLatestBlockId(SyntaxBlockKind.FnParamGroup), null, {
           identifier: text,
           type, // <- type here is always hole
           kind
@@ -920,47 +890,11 @@ export default class SyntaxBlockBuilder {
   }
 
   insertBlock(kind, parentId, data) {
-    // const parent = this.getBlockById(parentId)
-    // if (!parent) {
-    //   return null
-    // }
-
-    const block = this.createBlock(kind, null, parentId, data, this.findBlockInsertionIndex(kind, parentId))
+    const block = this.createBlock(kind, null, parentId, null, data, this.findBlockInsertionIndex(kind, parentId))
     this.markDirty()
 
     return block
   }
-
-  // findBlockParsingEntry(block) {
-  //   const entry = syntaxBlockParsingEntry[block.kind]
-  //   if (entry) {
-  //     return entry
-  //   }
-  //
-  //   switch (block.kind) {
-  //     case SyntaxBlockKind.Variable: {
-  //       switch (block.data.kind) {
-  //         case IdentifierKind.GlobalConst: return "globalConstantDecl"
-  //         case IdentifierKind.RecordField:
-  //         case IdentifierKind.LocalVariable:
-  //         case IdentifierKind.GlobalVariable: return "variableDeclarator"
-  //         case IdentifierKind.FnParam: return "functionParam"
-  //       }
-  //       break
-  //     }
-  //     case SyntaxBlockKind.SingleTypedVariableGroup: {
-  //       switch (block.data.varKind) {
-  //         case IdentifierKind.GlobalConst: return "globalConstantGroup"
-  //         case IdentifierKind.RecordField: return "recordVariableDecl"
-  //         case IdentifierKind.LocalVariable: return "localVariableGroup"
-  //         case IdentifierKind.GlobalVariable: return "globalVariableGroup"
-  //       }
-  //       break
-  //     }
-  //   }
-  //
-  //   return null
-  // }
 
   updateTransition(block, keyword, identifier, fromState, toStates, operators, excludedStates, label, labelKeyword, codeWhere) {
     const data = block.data
@@ -1057,10 +991,6 @@ export default class SyntaxBlockBuilder {
       : null
 
     if (transFromSource) {
-      // if (transFromSource.data.toStates.includes(targetIdent)) {
-      //   // duplicated state
-      //   return false
-      // }
       transFromSource.data.toStates.push(targetIdent)
       this.markDirty()
     } else {
@@ -1077,7 +1007,7 @@ export default class SyntaxBlockBuilder {
   }
 
   overrideBody(block, codePieces) {
-    const stmtBlock = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, false)
+    const stmtBlock = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, null, false)
     stmtBlock.markCodegenOverride(codePieces)
     block.overrideChildren([stmtBlock])
     return stmtBlock
@@ -1089,27 +1019,6 @@ export default class SyntaxBlockBuilder {
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
         this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.State)
-
-        // this.context.kindBlocks
-        //   .get(SyntaxBlockKind.Transition)
-        //   ?.forEach(t => {
-        //     if (t.data.fromState === oldIdent) {
-        //       t.data.fromState = identifier
-        //     }
-        //     if (t.data.toStates.includes(oldIdent)) {
-        //       t.data.toStates = t.data.toStates.map(elementReplacer(oldIdent, identifier))
-        //     }
-        //     if (t.data.excludedStates.includes(oldIdent)) {
-        //       t.data.excludedStates = t.data.excludedStates.map(elementReplacer(oldIdent, identifier))
-        //     }
-        //   })
-        //
-        // const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        // if (goal) {
-        //   const code = goal.codegen()
-        //   const newCode = replaceIdentifiers(code, "goal", {commonIdentifiersMap: new Map([[oldIdent, identifier]])})
-        //   goal.markCodegenOverride(newCode)
-        // }
       }
     }
     if (attributes) {
@@ -1170,16 +1079,6 @@ export default class SyntaxBlockBuilder {
       type,
       typeParams
     })
-
-    // this.createBlock(SyntaxBlockKind.Variable, null, group.id, {
-    //   kind: varKind,
-    //   type,
-    //   identifier,
-    //   codeWhere,
-    //   codeInit
-    // })
-
-    // this.markDirty()
   }
 
   updateVariableGroup(block, identKind, identType, identTypeParams = null, enums = null) {
@@ -1273,93 +1172,6 @@ export default class SyntaxBlockBuilder {
         } else {
           this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), blockKind)
         }
-
-        // switch (blockKind) {
-        //   case IdentifierKind.FnParam:
-        //   case IdentifierKind.LocalVariable:{
-        //     // do refactor inside fn
-        //     // fn :: parent :: block :: []
-        //     const fn = this.getBlockById(parent.parentId)
-        //     const replacements = {
-        //       commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-        //     }
-        //     for (let i = parent.parentIndex + 1; i < fn.children.length; i++) {
-        //       // this iteration implicitly skipped kind = FnParamGroup
-        //       const child = fn.children[i]
-        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //         replaceIdentifiers(
-        //           child.codegen(),
-        //           this.findBlockParsingEntry(child),
-        //           replacements
-        //         )
-        //       }
-        //     }
-        //     if (blockKind === IdentifierKind.LocalVariable) {
-        //       for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
-        //         const child = parent.children[i]
-        //         if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //           replaceIdentifiers(
-        //             child.codegen(),
-        //             this.findBlockParsingEntry(child),
-        //             replacements
-        //           )
-        //         }
-        //       }
-        //     }
-        //     break
-        //   }
-        //   case IdentifierKind.RecordField: {
-        //     // do refactor with dotExpr
-        //     const record = this.getBlockById(parent.parentId)
-        //     const recordIdent = record.data.identifier
-        //     const machine = this.getBlockById(record.parentId)
-        //     const replacement = new Map([[`${recordIdent}.${oldIdent}`, `${recordIdent}.${identifier}`]])
-        //     for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
-        //       const child = machine.children[i]
-        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //         replaceIdentifiers(
-        //           child.codegen(),
-        //           this.findBlockParsingEntry(child),
-        //           {
-        //             commonIdentifiersMap: replacement
-        //           }
-        //         )
-        //       }
-        //     }
-        //     break
-        //   }
-        //   case IdentifierKind.GlobalVariable:
-        //   case IdentifierKind.GlobalConst: {
-        //     // do global scan
-        //     const replacements = {
-        //       commonIdentifiersMap: new Map([[oldIdent, identifier]])
-        //     }
-        //     // for each parent
-        //     for (let i = block.parentIndex + 1; i < parent.children.length; i++) {
-        //       const child = parent.children[i]
-        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //         replaceIdentifiers(
-        //           child.codegen(),
-        //           this.findBlockParsingEntry(child),
-        //           replacements
-        //         )
-        //       }
-        //     }
-        //     // for each machine
-        //     const machine = this.getBlockById(parent.parentId)
-        //     for (let i = parent.parentIndex + 1; i < machine.children.length; i++) {
-        //       const child = machine.children[i]
-        //       if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //         replaceIdentifiers(
-        //           child.codegen(),
-        //           this.findBlockParsingEntry(child),
-        //           replacements
-        //         )
-        //       }
-        //     }
-        //     break
-        //   }
-        // }
       }
     }
 
@@ -1375,29 +1187,6 @@ export default class SyntaxBlockBuilder {
     block.data.identifier = identifier
 
     if (isRefactorMode && !block.isNewlyInserted()) {
-      // const recVars = []
-      // const allMembers = block.children
-      //   .map(it => {
-      //     const vBlock = it.children[0]
-      //     recVars.push(vBlock)
-      //     return vBlock.data?.identifier
-      //   })
-      //   .filter(it => !!it)
-      //   .map(it => [`${oldIdent}.${it}`, `${identifier}.${it}`])
-      // for (let i = block.index + 1; i < this.context.blocks.length; i++) {
-      //   const child = this.context.blocks[i]
-      //   if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-      //     const code = replaceIdentifiers(
-      //       child.codegen(),
-      //       this.findBlockParsingEntry(child), {
-      //         commonIdentifiersMap: new Map([[oldIdent, identifier], ...allMembers]),
-      //         // dotIdentifiersMap: new Map(allMembers)
-      //       }
-      //     )
-      //     child.markCodegenOverride(code)
-      //   }
-      // }
-
       const m = new Map([[oldIdent, identifier]])
       this.refactorBlockIdentifier(block, m, IdentifierKind.Record)
 
@@ -1418,7 +1207,7 @@ export default class SyntaxBlockBuilder {
     // manually insert local variables + parameter variables after
     const fnBlock = this.insertBlock(SyntaxBlockKind.Func, this.getLatestBlockId(SyntaxBlockKind.Machine), {identifier, returnType, returnTypeParams})
 
-    this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id)
+    this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id, null)
 
     return fnBlock
   }
@@ -1443,7 +1232,7 @@ export default class SyntaxBlockBuilder {
     }
 
     if (codeVariables != null) {
-      const vars = this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, null, block.id, null, null, false)
+      const vars = this.createBlock(SyntaxBlockKind.SingleTypedVariableGroup, null, block.id, null, null, null, false)
       vars.markCodegenOverride(codeVariables)
       let statementIdx = -1
       for (let i = 0; i < block.children.length; i++) {
@@ -1467,7 +1256,7 @@ export default class SyntaxBlockBuilder {
 
     if (codeBody != null) {
       const statementFirstIdx = block.children.findIndex(child => child.kind === SyntaxBlockKind.Statement)
-      const statement = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, false)
+      const statement = this.createBlock(SyntaxBlockKind.Statement, null, block.id, null, null, null, false)
       statement.markCodegenOverride(codeBody)
       if (statementFirstIdx !== -1) {
         block.children = block.children.slice(0, statementFirstIdx)
@@ -1480,22 +1269,6 @@ export default class SyntaxBlockBuilder {
       const oldIdent = block.data.identifier
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
-        // const parent = this.getBlockById(block.parentId)
-        // for (let i = block.index + 1; i < this.context.blocks.length; i++) {
-        //   const child = this.context.blocks[i]
-        //   if (!child.isCodeOverridden() && !child.isNewlyInserted() && child.references.has(block.id)) {
-        //     // const stop = block.position.stopPosition
-        //     const code = replaceIdentifiers(
-        //       child.codegen(),
-        //       this.findBlockParsingEntry(child), {
-        //         commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-        //         // rangePair: posPair(stop.line, stop.column)
-        //       }
-        //     )
-        //     child.markCodegenOverride(code)
-        //   }
-        // }
-
         this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.FnName)
       }
     }
@@ -1504,7 +1277,7 @@ export default class SyntaxBlockBuilder {
   }
 
   clearFunctionParamGroup(fnBlock) {
-    const params = this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id, null, null, false)
+    const params = this.createBlock(SyntaxBlockKind.FnParamGroup, null, fnBlock.id, null, null, null, false)
     fnBlock.replaceChild(params, 0)
     this.markDirty()
     return params
@@ -1560,7 +1333,7 @@ export default class SyntaxBlockBuilder {
   }
 
   insertPathVariable(identifier, codeInit) {
-    return this.insertBlock(SyntaxBlockKind.PathVariable, this.getLatestBlockId(SyntaxBlockKind.Goal), {codeInit})
+    return this.insertBlock(SyntaxBlockKind.PathVariable, this.getLatestBlockId(SyntaxBlockKind.Goal), {identifier, codeInit})
   }
 
   updatePathVariable(block, identifier, codeInit, isRefactorMode = true) {
@@ -1573,17 +1346,6 @@ export default class SyntaxBlockBuilder {
       block.data.identifier = identifier
       if (isRefactorMode && !block.isNewlyInserted()) {
         this.refactorBlockIdentifier(block, new Map([[oldIdent, identifier]]), IdentifierKind.Let)
-        // const goal = this.getLatestBlock(SyntaxBlockKind.Goal)
-        // if (goal) {
-        //   const code = goal.codegen()
-        //   const position = block.position
-        //   const goalStop = goal.position?.stopPosition
-        //   const newCode = replaceIdentifiers(code, "goal", {
-        //     commonIdentifiersMap: new Map([[oldIdent, identifier]]),
-        //     rangePair: posPair(position.stopPosition.line, position.stopPosition.column, goalStop?.line, goalStop?.column)
-        //   })
-        //   goal.markCodegenOverride(newCode)
-        // }
       }
     }
 

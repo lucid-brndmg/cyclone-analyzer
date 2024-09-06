@@ -76,8 +76,9 @@ export default class SyntaxBlock {
   index // the block index, as in parent block
   parentIndex // the parent block's index
   codegenOverride = null // If this field is defined, the code generation function would take this field as generated code
+  originalCode
 
-  constructor(id, kind, parentId, data, position, index) {
+  constructor(id, kind, parentId, data, position, index, originalCode) {
     this.id = id
     this.kind = kind
     this.parentId = parentId
@@ -85,6 +86,7 @@ export default class SyntaxBlock {
     this.index = index ?? -1
     this.position = position
     this.parentIndex = -1
+    this.originalCode = originalCode
 
     this.children = []
     this.references = new Set()
@@ -167,14 +169,17 @@ export default class SyntaxBlock {
       breakChar: "\n",
       ...codegenOpts
     }
+    const overwrite = options.overwrite
     const nextIndent = currentIndent + options.indentUnit
     const indentPrefix = options.indentChar.repeat(currentIndent)
     if (this.codegenOverride != null) {
-      return indentPrefix + this.codegenOverride
+      const r = indentPrefix + this.codegenOverride
+      return overwrite?.(this, r, options, currentIndent) ?? r
     }
     switch (this.kind) {
       case SyntaxBlockKind.CompilerOption: {
-        return `${indentPrefix}option-${this.data.name}=${this.data.value};`
+        const r = `${indentPrefix}option-${this.data.name}=${this.data.value};`
+        return overwrite?.(this, r, options, currentIndent) ?? r // `${indentPrefix}option-${this.data.name}=${this.data.value};`
       }
       case SyntaxBlockKind.Machine: {
         const body = []
@@ -183,7 +188,9 @@ export default class SyntaxBlock {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
 
-        return codeBlock(`${this.data.keyword} ${this.data.identifier}`, body, currentIndent, options) // `${this.data.keyword} ${this.data.identifier} {${body.join(options.breakChar)}}`
+        const r = codeBlock(`${this.data.keyword} ${this.data.identifier}`, body, currentIndent, options)
+
+        return overwrite?.(this, r, options, currentIndent) ?? r // `${this.data.keyword} ${this.data.identifier} {${body.join(options.breakChar)}}`
       }
       case SyntaxBlockKind.State: {
         const body = []
@@ -194,8 +201,8 @@ export default class SyntaxBlock {
         const modifiers = this.data.attributes.filter(a => ["abstract", "normal", "start", "final"].includes(a))
 
         const keyword = this.data.attributes.includes("state") ? "state" : "node"
-
-        return codeBlock(`${modifiers.join(" ")} ${keyword} ${this.data.identifier}`, body, currentIndent, options) // `${modifiers.join(" ")} ${keyword} ${this.data.identifier} {${body.join(options.breakChar)}}`
+        const r = codeBlock(`${modifiers.join(" ")} ${keyword} ${this.data.identifier}`, body, currentIndent, options)
+        return overwrite?.(this, r, options, currentIndent) ?? r // `${modifiers.join(" ")} ${keyword} ${this.data.identifier} {${body.join(options.breakChar)}}`
       }
 
       case SyntaxBlockKind.Transition: {
@@ -206,12 +213,14 @@ export default class SyntaxBlock {
 
         // NOT an actual code block
         // treat as line level
-        return `${indentPrefix}${keyword}${identifier ? " " + identifier : ""} {${codegenTransitionBody(this.data)}}`
+        const r = `${indentPrefix}${keyword}${identifier ? " " + identifier : ""} {${codegenTransitionBody(this.data)}}`
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.Statement:
       case SyntaxBlockKind.PathStatement: {
-        return `${indentPrefix}${this.data.code}`
+        const r = `${indentPrefix}${this.data.code}`
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.GoalFinal: {
@@ -234,21 +243,15 @@ export default class SyntaxBlock {
           parts.push(`${viaKeyword} (${viaExpr})`)
         }
 
-        if (invariants.length) {
+        if (invariants?.length) {
           parts.push(`with (${invariants.join(", ")})`)
         }
 
-        if (states.length) {
+        if (states?.length) {
           parts.push(`${stopKeyword ?? "reach"} (${states.join(", ")})`)
         }
-
-        // const withExpr = invariants.length
-        //   ? ` `
-        //   : ""
-        // const stopExpr = states.length
-        //   ? ` ${stopKeyword ?? "reach"} (${states.join(", ")})`
-        //   : ""
-        return indentPrefix + parts.join(" ")
+        const r = indentPrefix + parts.join(" ")
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.Assertion: {
@@ -256,19 +259,21 @@ export default class SyntaxBlock {
           ? ` in (${this.data.inIdentifiers.join(", ")})`
           : ""
         const modifier = this.data.modifier ? `${this.data.modifier} ` : ""
-        return `${indentPrefix}assert ${modifier}${this.data.code}${inExpr};`
+        const r = `${indentPrefix}assert ${modifier}${this.data.code}${inExpr};`
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.Variable: {
         const {kind, type, identifier, codeWhere, codeInit, typeParams} = this.data
+        let r = ""
         switch (kind) {
-          case IdentifierKind.FnParam: return `${identifier}:${typeToString(type, typeParams)}`
+          case IdentifierKind.FnParam: r = `${identifier}:${typeToString(type, typeParams)}`; break;
           case IdentifierKind.RecordField:
           case IdentifierKind.GlobalConst:
           case IdentifierKind.GlobalVariable:
-          case IdentifierKind.LocalVariable: return `${identifier}${codeInit?.length ? ` = ${codeInit}` : ""}${codeWhere ? ` where ${codeWhere}` : ""}`
+          case IdentifierKind.LocalVariable: r = `${identifier}${codeInit?.length ? ` = ${codeInit}` : ""}${codeWhere ? ` where ${codeWhere}` : ""}`; break;
         }
-        return ""
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
       case SyntaxBlockKind.Func: {
         const {
@@ -289,14 +294,16 @@ export default class SyntaxBlock {
               break
           }
         }
-        return codeBlock(`function ${identifier}: ${typeToString(returnType, returnTypeParams)} ${paramsExpr}`, body, currentIndent, options) // `function ${identifier}: ${typeToString(returnType)} ${paramsExpr} {${body.join(options.breakChar)}}`
+        const r = codeBlock(`function ${identifier}: ${typeToString(returnType, returnTypeParams)} ${paramsExpr}`, body, currentIndent, options)
+        return overwrite?.(this, r, options, currentIndent) ?? r // `function ${identifier}: ${typeToString(returnType)} ${paramsExpr} {${body.join(options.breakChar)}}`
       }
       case SyntaxBlockKind.Goal: {
         const body = []
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
-        return codeBlock("goal", body, currentIndent, options) // `goal {${body.join(options.breakChar)}}`
+        const r = codeBlock("goal", body, currentIndent, options)
+        return overwrite?.(this, r, options, currentIndent) ?? r // `goal {${body.join(options.breakChar)}}`
       }
       case SyntaxBlockKind.Invariant: {
         const body = []
@@ -307,17 +314,20 @@ export default class SyntaxBlock {
           ? ` in (${this.data.inIdentifiers.join(", ")})`
           : ""
         // return `invariant ${this.data.identifier} {${body.join(options.breakChar)}}${inExpr}`
-        return codeBlock(`invariant ${this.data.identifier}`, body, currentIndent, options) + inExpr
+        const r = codeBlock(`invariant ${this.data.identifier}`, body, currentIndent, options) + inExpr
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
       case SyntaxBlockKind.PathVariable: {
-        return `${indentPrefix}let ${this.data.identifier}${this.data.codeInit?.length ? ` = ${this.data.codeInit}` : ""};`
+        const r = `${indentPrefix}let ${this.data.identifier}${this.data.codeInit?.length ? ` = ${this.data.codeInit}` : ""};`
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
       case SyntaxBlockKind.Record: {
         const body = []
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
-        return codeBlock(`record ${this.data.identifier}`, body, currentIndent, options) + ";"
+        const r = codeBlock(`record ${this.data.identifier}`, body, currentIndent, options) + ";"
+        return overwrite?.(this, r, options, currentIndent) ?? r
         // return `record ${this.data.identifier} {${body.join(options.breakChar)}};`
       }
       case SyntaxBlockKind.SingleTypedVariableGroup: {
@@ -335,16 +345,18 @@ export default class SyntaxBlock {
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
-
+        
+        let r = ""
         switch (varKind) {
-          case IdentifierKind.GlobalConst: return `${indentPrefix}const ${typeExpr} ${body.join(", ")};`
+          case IdentifierKind.GlobalConst: r = `${indentPrefix}const ${typeExpr} ${body.join(", ")};`; break
           case IdentifierKind.LocalVariable:
           case IdentifierKind.GlobalVariable:
           case IdentifierKind.RecordField:
-            return `${indentPrefix}${typeExpr} ${body.join(", ")};`
+            r = `${indentPrefix}${typeExpr} ${body.join(", ")};`
+            break
         }
 
-        return ""
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.FnParamGroup: {
@@ -352,7 +364,8 @@ export default class SyntaxBlock {
         for (const child of this.children) {
           body.push(child.codegen(codegenOpts, nextIndent))
         }
-        return '(' + body.join(", ") + ')'
+        const r = '(' + body.join(", ") + ')'
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
 
       case SyntaxBlockKind.Program: {
@@ -360,7 +373,8 @@ export default class SyntaxBlock {
         for (const child of this.children) {
           parts.push(child.codegen(codegenOpts, currentIndent)) // program is a pseudo block
         }
-        return parts.join(options.breakChar)
+        const r = parts.join(options.breakChar)
+        return overwrite?.(this, r, options, currentIndent) ?? r
       }
     }
   }

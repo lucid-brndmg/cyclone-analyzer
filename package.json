@@ -1,10 +1,12 @@
 {
   "name": "cyclone-analyzer",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "A static analyzer library for Cyclone specification language",
   "type": "module",
   "browser": "dist/cyclone-analyzer.web.mjs",
   "main": "dist/cyclone-analyzer.node.mjs",
+  "module": "dist/cyclone-analyzer.node.mjs",
+  "files": ["dist"],
   "scripts": {
     "gen-lexer": "antlr4 -o src/generated/antlr -Dlanguage=JavaScript grammar/CycloneLexer.g4",
     "gen-parser": "antlr4 -o src/generated/antlr -listener -Dlanguage=JavaScript grammar/CycloneParser.g4",
