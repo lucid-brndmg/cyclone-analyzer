@@ -56,3 +56,8 @@ casesCounter:
       bv[8] x = 0xFF;
       bv[8] y = x / x;
     }
+  - |
+    graph G {
+      bv[1] x, y;
+      bv[1] z = x ^ y; // xor operator applies on BV
+    }

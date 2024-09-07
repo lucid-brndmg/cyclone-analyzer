@@ -131,6 +131,11 @@ const boolBinOpSignature = [
   // {input: [IdentifierType.State, IdentifierType.State], output: IdentifierType.Bool}
 ]
 
+const bvBoolBinOpSignature = [
+  {input: [IdentifierType.Bool, IdentifierType.Bool], output: IdentifierType.Bool},
+  {input: [IdentifierType.BitVector, IdentifierType.BitVector], output: IdentifierType.BitVector}
+]
+
 const compareNumberBitBinOpSignature = [
   {input: [IdentifierType.Int, IdentifierType.Int], output: IdentifierType.Bool},
   {input: [IdentifierType.Int, IdentifierType.Real], output: IdentifierType.Bool},
@@ -230,7 +235,7 @@ const infixOperators = [
   {action: '!=', signatures: compareValueBinOpSignature},
 
   // bool
-  {action: '^', signatures: boolBinOpSignature},
+  {action: '^', signatures: bvBoolBinOpSignature},
   {action: '&&', signatures: boolBinOpSignature},
   {action: '||', signatures: boolBinOpSignature},
   {action: '=>', signatures: boolBinOpSignature},
