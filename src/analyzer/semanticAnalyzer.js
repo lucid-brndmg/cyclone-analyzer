@@ -268,6 +268,10 @@ export default class SemanticAnalyzer {
         exists = identStack.exists(identText, payload => [IdentifierKind.FnName, IdentifierKind.GlobalVariable, IdentifierKind.GlobalConst, IdentifierKind.Record].includes(payload.kind))
         break
       }
+      case IdentifierKind.Invariant: {
+        exists = identStack.exists(identText, payload => payload.kind === IdentifierKind.Invariant)
+        break
+      }
     }
     let typeParams = null
     if (singleTypedDeclarationGroupContextType.has(prev?.type)) {
