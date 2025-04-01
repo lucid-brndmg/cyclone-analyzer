@@ -319,7 +319,7 @@ primitiveBvType:
   primitiveType | bvType;
 
 bvType:
-  BV LBRACK INTLITERAL RBRACK
+  BV LBRACK (INTLITERAL | IDENT) RBRACK
   ;
 
 primitiveType:

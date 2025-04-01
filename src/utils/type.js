@@ -117,7 +117,7 @@ export const compareTypeParams = (type, a, b) => {
   }
 
   switch (type) {
-    case IdentifierType.BitVector: return a[0] === b[0]
+    case IdentifierType.BitVector: return true // return a[0] === b[0]
     default: return a === b
   }
   // return false
